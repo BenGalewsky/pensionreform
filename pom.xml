@@ -24,6 +24,9 @@
 				<sourceExcludes>
 					<include>**/*.boot.js</include> 
 				</sourceExcludes>
+				<preloadSources>
+				  <source>lib/boot.js</source>
+				</preloadSources>			
 			</configuration>
         
       </plugin>
