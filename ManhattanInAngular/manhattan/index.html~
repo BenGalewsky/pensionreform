@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Public Sector Inc. Pension Calculator - Illinois</title>
+<meta name="Keywords" content="pension calculator plans funds calculators" />
+<meta name="Description" content="Manhattan Institute's pension calculator allows users easily compare benefit levels across all 50 states. " />
+<link rel="shortcut icon" href="http://www.publicsectorinc.org/wp-content/uploads/2013/07/PS-Logo_Square-5.png"/>
+<LINK REL=STYLESHEET TYPE="text/css" HREF="../CSS/site.css">
+<link href="http://www.publicsectorinc.org/wp-content/themes/backbone-public-sector/functions/css/shortcodes.css" rel="stylesheet" type="text/css" />
+<link href="http://www.publicsectorinc.org/wp-content/uploads/backbone for public sector-custom/custom.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="http://www.publicsectorinc.org/wp-content/themes/backbone-public-sector/style.css"/>
+</head>
+
+<body class="oneColLiqCtrHdr">
+<div id="container">
+   
+       
+  <div id="header">
+    <a href="http://www.publicsectorinc.org/calculator/"><img src="http://www.publicsectorinc.org/calculator/images/index_header.jpg" width="977" border=0 /></a>
+        
+   </div>
+    <div class="nav-collapse collapse">
+        <div class="topmenu row">
+        	          <div class="menu"><ul id="menu-main" class="menu-block">   
+       
+                <li id="menu-item-1873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1873"><a href="http://www.publicsectorinc.org/calculator/">Home</a></li>
+                <li id="menu-item-1873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1873"><a href="http://www.publicsectorinc.org/calculator/">Select a State</a></li>
+                <li id="menu-item-1873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1873"><a href="http://www.publicsectorinc.org/calculator/contact/">Contact Us</a></li>
+                <li id="menu-item-1859" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1859"><a href="http://www.publicsectorinc.org/">Public Sector Inc</a></li>
+                <li id="menu-item-1874" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1874"><a target="_blank" href="http://www.manhattan-institute.org/">Manhattan Institute</a></li>
+	 
+                <li class="widget_colabs_social"><a class=" facebook" href="https://www.facebook.com/ManhattanInst">Facebook</a></li>
+    	    	<li class="widget_colabs_social"><a class="twitter" href="http://www.twitter.com/PubSectorInc">Twitter</a></li>
+		    	<li class="widget_colabs_social"><a class=" youtube" href="http://www.youtube.com/manhattaninst">Youtube</a></li>
+                <li class="rss"><a href="http://www.publicsectorinc.org/feed/">RSS</a></li></ul></div> 
+              </div><!--.topmenu-->
+			</div><!-- .nav-collapse -->
+  
+
+   <div id="mainContent">
+        <h2 class="entry-title">Illinois Pension Calculator</span></h2>
+
+      <div id="rightColContent">
+ 
+          <div style="width: 450px; height: 400px;" id="PC.target"></div>
+
+        <script type="text/javascript" src="http://www.publicsectorinc.org/calculator/PC/latest/scripts/bootstrap.js#widget=single&amp;state=IL"></script>
+
+ <div align="center" style="padding:20px;"><a style="font-size:15px;" href="http://www.publicsectorinc.org/calculator/#compare">Compare States</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a style="font-size:15px; background: url('https://twitter.com/favicons/favicon.ico') 1px center no-repeat; padding: 5px 15px 5px 35px;" href="https://twitter.com/share?url=http%3A%2F%2Fbit.ly%2F1f3hgd3&text=Compare%20public%20and%20private%20sector%20benefits%20in%20all%2050%20states&via=PubSectorInc's%20Pension%20Calculator" target="_blank">Share on Twitter</a></div>
+     </div>
+
+
+     </div>
+
+     <div id="leftColContent">
+      
+           
+<p>A defined benefit pension guarantees workers a fixed payment throughout their years of retirement. Though increasingly rare in the private sector, it remains the standard form of retirement benefit provided by state and local governments. Pensions are now one of the most hotly-debated topics in public finance, due to their rising costs and generosity relative to what most taxpayers receive.<br><br> 
+
+The pension calculator tool is intended to inform the pension debate. In addition to estimating the pension that you would collect after a career in government, the calculator will also provide an estimate of the total annuity cost, or how much someone would need to save to replicate that guaranteed income stream in retirement. To compare generosity of benefits between states, go back to the <a style="font-size:16px;" href="http://www.publicsectorinc.org/calculator/#compare">main page</a> and click on the "Compare States" tab.
+
+</p>
+
+      </div>
+
+<div id="footer" class="row">
+
+<a href="http://www.manhattan-institute.org/html/csll.htm"><img style="max-width: 100%; max-height: 45px;" src="/wp-content/uploads/2013/11/MI_logo.png"  align="absbottom" ></a>&nbsp;&nbsp;
+  <span style="font-size: 15px; text-decoration: none; font-weight: bold;">A project of the Manhattan Institute's <a href="http://www.manhattan-institute.org/html/csll.htm">Center for State and Local Leadership</a></span>
+
+	<div id="copyright" class="alignleft">
+			<span style="font-size:11px;">&copy; 2014 Manhattan Institute for Policy Research. All Rights Reserved. </span><br>
+
+			<span style="font-size:11px;">DISCLAIMER: THESE ESTIMATES ARE NOT A GUARANTEE OF BENEFITS THAT MAY BE AVAILABLE TO A MEMBER AT RETIREMENT. THEY ARE ESTIMATES, AS OF 2013. PENSION BENEFITS' EXACT VALUE CAN BE AFFECTED BY NUMEROUS FACTORS THAT VARY BETWEEN SYSTEMS, SUCH AS "PENSION SPIKING" AND COST-OF-LIVING-ADJUSTMENT PROVISONS. EVERY EFFORT HAS BEEN MADE TO ENSURE THE ACCURACY OF THIS INFORMATION. FOR FEEDBACK, PLEASE EMAIL <a style="font-size:11px;" href="mailto:psi@manhattan-institute.org">PSI@MANHATTAN-INSTITUTE.ORG</a>.</span></div>
+<div style='clear:both;'>&nbsp;</div>
+
+	<!-- /#footer  -->
+ 
+	</div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2001993-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+    <!-- end #mainContent --></div>
+   
+
+<!-- end #container --></div>
+
+
+</body>
+</html>

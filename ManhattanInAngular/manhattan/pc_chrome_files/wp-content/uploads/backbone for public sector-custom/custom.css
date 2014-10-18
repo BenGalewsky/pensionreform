@@ -1,0 +1,123 @@
+/* 
+CUSTOM STYLESHEET
+---------------------
+
+Instructions:
+
+Add your custom styles at the end of this file instead 
+of style.css so it is easier to update the theme. 
+Simply copy an existing style from style.css to this file, 
+and modify it to your liking.
+*/
+body {
+	color: #333;
+}
+a,
+.widget_colabs_tabs .box a,
+.entry h2 a:hover,
+#page-top {
+	color: #D7A429;
+}
+#header { xposition: relative; } 
+
+.header-search-description {
+	float: right;
+	position: relative;
+	xtop: 0;
+	xright: 20px;
+	width: 31.08%;
+}
+.header-search-description .widget {
+	margin: 0;
+}
+#tagline {
+	color: #333;
+	padding-top: 20px;
+	font-size: inherit;
+	line-height: 1.25;
+}
+.flexslider .caption {
+	box-sizing: border-box;
+}
+#authors-info .avatar {
+	float: right;
+	margin: 0 0 20px 20px;
+	max-width: 100px;
+	display: none;
+}
+#authors-info .wp-user-avatar {
+	display: block;
+}
+.entry-share {
+	padding: 5px 0 15px;
+}
+.header-search-description p {
+	padding-top: 10px;
+}
+#menu-main {
+	position: relative;
+	padding-right: 75px;
+}
+#menu-main .widget_colabs_social {
+	padding: 11px 10px;
+	float:right;	
+}
+#menu-main .widget_colabs_social a {
+	background-image: url('../../themes/backbone-public-sector/images/social-sprite-white.png');
+	padding: 0;
+	border-right: none;
+	opacity: 1;
+	margin: 0;
+}
+#menu-main .widget_colabs_social:hover {
+	background-color: #eee;
+}
+#menu-main .widget_colabs_social:hover a {
+	background-image: url('/wp-content/themes/backbone-public-sector/images/social-sprite.png');
+}
+#menu-main li.rss {
+	position: absolute;
+	right: 0;
+}
+#menu-main .widget_colabs_social .facebook { background-position:-38px 0 }
+#menu-main .widget_colabs_social .twitter { background-position:0 center; width:34px }
+#menu-main .widget_colabs_social .delicious { background-position:-100px 0 }
+#menu-main .widget_colabs_social .stumbleupon { background-position:-134px 0 }
+#menu-main .widget_colabs_social .dribbble { background-position:-204px 0 }
+#menu-main .widget_colabs_social .skype { background-position:-166px 0; width:31px }
+#menu-main .widget_colabs_social .vimeo { background-position:-68px 0 }
+#menu-main .widget_colabs_social .linkedin { background-position:-307px 0 }
+#menu-main .widget_colabs_social .flickr { background-position:-273px 0 }
+#menu-main .widget_colabs_social .youtube { background-position:-345px 0 }
+#menu-main .widget_colabs_social .googleplus { background-position:-237px 0 }
+
+#content.type-debate {
+	
+}
+#content.type-debate .post-date {
+	margin-bottom: 10px;
+	
+}
+#content.type-debate .entry-title {
+	margin-bottom: 10px;	
+}
+
+@media (max-width: 977px) {
+	
+	#tagline { display: none; }
+.header-search-description {
+	position: absolute;
+	top: 75px;
+	right: 20px;
+}
+}
+@media (max-width: 767px) {
+	 
+	#tagline { display: none; }
+.header-search-description {
+	position: relative;
+	top: auto;
+	right: auto;
+	width: 100%;
+}
+}
