@@ -383,8 +383,8 @@ PC.systems.IL = {
 	},
 	
 	calcBenefitMultiplier: function(vals){
-		var system = getSystem(vals);
-		var tier = getTier(vals);
+		var system = vals.getSystem();
+		var tier = vals.getTier();
 
 		var coveredBySocialSecurity = true;
         if (vals.occupation == 'policeOfficer')
