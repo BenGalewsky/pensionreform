@@ -1,0 +1,55 @@
+<NotepadPlus>
+    <Project name="Pensions In Illinois">
+        <Folder name="GIT">
+            <Folder name=".settings">
+                <File name=".settings\org.eclipse.m2e.core.prefs" />
+            </Folder>
+            <Folder name="ManhattanInstitute">
+                <File name="ManhattanInstitute\controller.js" />
+                <File name="ManhattanInstitute\core.js" />
+                <File name="ManhattanInstitute\dataItem.js" />
+                <File name="ManhattanInstitute\systems.dataItems.js" />
+                <File name="ManhattanInstitute\systems.mortality.js" />
+                <File name="ManhattanInstitute\systems.states.IA.js" />
+                <File name="ManhattanInstitute\systems.states.IL.js" />
+                <File name="ManhattanInstitute\systems.states.IN.js" />
+                <File name="ManhattanInstitute\systems.states.MO.js" />
+            </Folder>
+            <Folder name="SERSModel">
+                <File name="SERSModel\calc_ind_pension.boot.js" />
+                <File name="SERSModel\calc_ind_pension.js" />
+                <File name="SERSModel\core.js" />
+                <File name="SERSModel\dataItem.js" />
+                <File name="SERSModel\systems.dataItems.js" />
+                <File name="SERSModel\systems.mortality.js" />
+                <File name="SERSModel\systems.states.IL.js" />
+                <File name="SERSModel\bootstrap.js" />
+            </Folder>
+            <Folder name="src">
+                <Folder name="main">
+                    <Folder name="javascript">
+                        <File name="src\main\javascript\element_mover.js" />
+                    </Folder>
+                </Folder>
+                <Folder name="test">
+                    <Folder name="javascript">
+                        <Folder name="lib">
+                            <File name="src\test\javascript\lib\new  4.txt" />
+                        </Folder>
+                        <File name="src\test\javascript\calc_ind_pension.spec.js" />
+                    </Folder>
+                </Folder>
+            </Folder>
+            <Folder name="target">
+                <Folder name="jasmine">
+                    <File name="target\jasmine\ManualSpecRunner.html" />
+                    <File name="target\jasmine\SpecRunner.html" />
+                    <File name="target\jasmine\TEST-jasmine.xml" />
+                </Folder>
+            </Folder>
+            <File name=".project" />
+            <File name="pom.xml" />
+            <File name="README.md" />
+        </Folder>
+    </Project>
+</NotepadPlus>
