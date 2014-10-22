@@ -1,5 +1,5 @@
 
-function PensionVars(){
+function SERSVars(){
 		this.hireDate = {};
 		this.yearsOfService = {};
 		this.ageAtRetirement = {}
@@ -75,7 +75,7 @@ function PensionVars(){
 	
 };
 
-PensionVars.prototype.getSystem = function(){
+SERSVars.prototype.getSystem = function(){
 	var system;
 	if (this.occupation == 'teacher') {
 		system = 'TRS';
@@ -89,6 +89,6 @@ PensionVars.prototype.getSystem = function(){
 	return system;
 };
 
-PensionVars.prototype.getTier = function(){
+SERSVars.prototype.getTier = function(){
 	return (this.hireDate.isBefore('1/1/2011')) ? 1 : 2;
 };

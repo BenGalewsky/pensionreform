@@ -1,7 +1,7 @@
 describe("Pension Calculator", function(){
 	describe("State Employee Retirement System", function(){
 		beforeEach(function(){
-			vals = new PensionVars();
+			vals = new SERSVars();
 			spyOn(vals, "getSystem").andReturn("SERS");
 		});
 		
@@ -21,12 +21,14 @@ describe("Pension Calculator", function(){
 			describe("Tier 2", function(){
 				beforeEach(function(){
 					spyOn(vals, "getTier").andReturn(2);	
+					model = new SERSModel();
+
 				});
 			
 				it("Should fail if you are retiring at less than 62", function(){
 					vals.ageAtRetirement = 61;
+					var rslt = model.multiplier(vals);
 					
-					var rslt = PC.systems.IL.calcBenefitMultiplier(vals);
 					expect(typeof(rslt)).toEqual('string');
 					expect(rslt).toContain("You must be at least 62");
 				});
@@ -35,7 +37,7 @@ describe("Pension Calculator", function(){
 					vals.ageAtRetirement = 63;
 					vals.yearsOfService = 9;
 					
-					var rslt = PC.systems.IL.calcBenefitMultiplier(vals);
+					var rslt = model.multiplier(vals);
 					expect(typeof(rslt)).toEqual('string');
 					expect(rslt).toContain("You must have at least 10 years of service");
 				});	
@@ -43,20 +45,20 @@ describe("Pension Calculator", function(){
 				it("Should be 0.167 for someone with 10 years of service and eligible for social security ", function(){
 					vals.ageAtRetirement = 63;
 					vals.yearsOfService = 10;
-					expect(PC.systems.IL.calcBenefitMultiplier(vals)).toBeCloseTo(0.167);
+					expect(model.multiplier(vals)).toBeCloseTo(0.167);
 				});	
 				
 				it("Should be 0.22 for someone with 10 years of service and not eligible for social security ", function(){
 					vals.ageAtRetirement = 63;
 					vals.yearsOfService = 10;
 					vals.occupation = 'policeOfficer';
-					expect(PC.systems.IL.calcBenefitMultiplier(vals)).toBeCloseTo(0.22);
+					expect(model.multiplier(vals)).toBeCloseTo(0.22);
 				});					
 				
 				it("Should Max out at .75", function(){
 					vals.ageAtRetirement = 63;
 					vals.yearsOfService = 55;
-					expect(PC.systems.IL.calcBenefitMultiplier(vals)).toBeCloseTo(0.75);
+					expect(model.multiplier(vals)).toBeCloseTo(0.75);
 				});					
 			});
 		});
