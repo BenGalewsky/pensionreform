@@ -61,6 +61,44 @@ describe("Pension Calculator", function(){
 					expect(model.multiplier(vals)).toBeCloseTo(0.75);
 				});					
 			});
+			
+			describe("Tier 2", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(1);	
+					model = new SERSModel();
+
+				});
+
+				it("Should fail if years of service and age at retirement don't add to 85 in order to retire before age 55", function(){
+					vals.ageAtRetirement = 54;
+					vals.yearsOfService = 30;
+					
+					var rslt = model.multiplier(vals);
+					expect(typeof(rslt)).toEqual('string');
+					expect(rslt).toContain("Your years of service and age at retirement must add to 85 in order to retire before age 55");
+				
+				});				
+			
+				it("Should fail if less than 25 years of service in order to retire before age 60", function(){
+					vals.ageAtRetirement = 59;
+					vals.yearsOfService = 24;
+					
+					var rslt = model.multiplier(vals);
+					expect(typeof(rslt)).toEqual('string');
+					expect(rslt).toContain("You must have at least 25 years of service in order to retire");
+				
+				});
+				
+			it("Should fail if less than 8 years of service", function(){
+					vals.ageAtRetirement = 65;
+					vals.yearsOfService = 7;
+					
+					var rslt = model.multiplier(vals);
+					expect(typeof(rslt)).toEqual('string');
+					expect(rslt).toContain("You must have at least 8 years of service in order to retire");
+				
+				});				
+			});
 		});
 	});
 
