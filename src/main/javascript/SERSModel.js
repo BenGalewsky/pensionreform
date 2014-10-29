@@ -77,4 +77,16 @@ SERSModel.prototype.annualPensionBenefit = function(vars){
 	}
 	return pension;
 }		
+
+SERSModel.prototype.COLA = function(vals){
+	var result = new COLA();
+	result.rate = 0.03;
+	if(vals.getTier() == 2){
+		result.start = 67 - vals.ageAtRetirement;
+		if (result.start < 1) result.start = 1;
+	}else{
+		result.start = 1;
+	}
+	return result;
+}
 	

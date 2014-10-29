@@ -173,7 +173,60 @@ describe("Pension Calculator", function(){
 				});
 			});			
 		});
-
+		
+		
+		describe("Cost of Living Adjustment (COLA)", function(){
+			describe("Tier 1", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(1);	
+					model = new SERSModel();
+				});
+				
+				it("Should always start in year one", function(){
+					var cola = model.COLA(vals);
+					expect(cola.start).toBe(1);
+				});
+			});
+			
+			describe("Tier 2", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(2);	
+					model = new SERSModel();
+				});
+				
+				it("Should start once retiree reaches the age of 67", function(){
+					vals.ageAtRetirement = 55;
+					var cola = model.COLA(vals);
+					expect(cola.start).toBe(67-55);
+					
+					vals.ageAtRetirement = 68;
+					var cola = model.COLA(vals);
+					expect(cola.start).toBe(1);
+					
+				});
+			});			
+		});
+		
+		describe("Pension Annuity", function(){
+			describe("Tier 1", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(1);	
+					model = new SERSModel();
+					calculator = new PensionCalculator(model);
+				});
+				
+				it("Should match manhatten calculator", function(){
+					vals.ageAtRetirement = 65;
+					vals.finalAverageSalary = 75000;
+					vals.yearsOfService = 20;
+				
+					var result = calculator.calculate(vals);
+					
+					expect(result.female).toBeCloseTo(548937, 0);
+					expect(result.male).toBeCloseTo(492696, 0);
+				});
+			});
+		});
 			
 	});
 
