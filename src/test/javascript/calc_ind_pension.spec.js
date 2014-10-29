@@ -100,6 +100,81 @@ describe("Pension Calculator", function(){
 				});				
 			});
 		});
+		
+		describe("Benefit Reduction", function(){
+			describe("Tier 1", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(1);	
+					model = new SERSModel();
+				});
+				
+				it("Should be zero if retire after age 60", function(){
+					vals.ageAtRetirement = 60;
+					expect(model.benefitReduction(vals)).toBe(0);
+				});
+			});
+			
+			describe("Tier 2", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(2);	
+					model = new SERSModel();
+				});
+				
+				it("Should be zero if retire after age 67", function(){
+					vals.ageAtRetirement = 67;
+					expect(model.benefitReduction(vals)).toBe(0);
+				});
+			});			
+		});
+			
+		describe("Annual Pension Benefit", function(){
+			describe("Tier 1", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(1);	
+					model = new SERSModel();
+				});
+				
+				it("Should be $31,250 if final average salary is $125,000 and benefit multiplier is 0.25 with no reduction", function(){
+					vals.finalAverageSalary = 125000;
+					spyOn(model, "multiplier").andReturn(0.25);
+					spyOn(model, "benefitReduction").andReturn(0);
+					expect(model.annualPensionBenefit(vals)).toBeCloseTo(31250);
+				});
+				
+				it("Should not have a maximum", function(){
+					vals.finalAverageSalary = 500000;
+					spyOn(model, "multiplier").andReturn(0.25);
+					spyOn(model, "benefitReduction").andReturn(0);	
+					expect(model.annualPensionBenefit(vals)).toBeCloseTo(125000);
+
+				});
+				
+			});
+			
+			describe("Tier 2", function(){
+				beforeEach(function(){
+					spyOn(vals, "getTier").andReturn(2);	
+					model = new SERSModel();
+				});
+				
+				it("Should be $31,250 if final average salary is $125,000 and benefit multiplier is 0.25 with no reduction", function(){
+					vals.finalAverageSalary = 125000;
+					spyOn(model, "multiplier").andReturn(0.25);
+					spyOn(model, "benefitReduction").andReturn(0);
+					expect(model.annualPensionBenefit(vals)).toBeCloseTo(31250);
+				});
+				
+				it("Should max out at $106,800", function(){
+					vals.finalAverageSalary = 500000;
+					spyOn(model, "multiplier").andReturn(0.25);
+					spyOn(model, "benefitReduction").andReturn(0);	
+					expect(model.annualPensionBenefit(vals)).toBeCloseTo(106800);
+
+				});
+			});			
+		});
+
+			
 	});
 
 });

@@ -47,5 +47,34 @@ SERSModel.prototype.multiplier = function(vars){
 			return "not implemented";				
 		}
 	}
+
+SERSModel.prototype.benefitReduction = function(vars){
+	var benefitReduction = 0;
+	var tier = vals.getTier();
 	
+	if(tier == 1){
+		if (vals.ageAtRetirement < 60) {
+			benefitReduction = 0.06 * (60 - vals.ageAtRetirement);
+		}
+	}else if(tier == 2){
+		if (vals.ageAtRetirement < 67) {
+			benefitReduction = 0.06 * (67 - vals.ageAtRetirement);
+		}
+	}
+	return benefitReduction;
+}
+	
+SERSModel.prototype.annualPensionBenefit = function(vars){
+	var benefitMultiplier = this.multiplier(vars);
+	var benefitReduction = this.benefitReduction(vars);
+	var pension = vals.finalAverageSalary * benefitMultiplier * (1 - benefitReduction);
+
+	var tier = vars.getTier();
+	
+	// Saturate pension
+	if(tier == 2 && pension > 106800){
+		pension = 106800;
+	}
+	return pension;
+}		
 	
