@@ -2,7 +2,7 @@
 function SERSModel(){
 
 };
-SERSModel.prototype.multiplier = function(vars){
+SERSModel.prototype.multiplier = function(vals){
 		var system = vals.getSystem();
 		var tier = vals.getTier();
 
@@ -48,7 +48,7 @@ SERSModel.prototype.multiplier = function(vars){
 		}
 	}
 
-SERSModel.prototype.benefitReduction = function(vars){
+SERSModel.prototype.benefitReduction = function(vals){
 	var benefitReduction = 0;
 	var tier = vals.getTier();
 	
@@ -67,14 +67,16 @@ SERSModel.prototype.benefitReduction = function(vars){
 SERSModel.prototype.annualPensionBenefit = function(vars){
 	var benefitMultiplier = this.multiplier(vars);
 	var benefitReduction = this.benefitReduction(vars);
-	var pension = vals.finalAverageSalary * benefitMultiplier * (1 - benefitReduction);
-
-	var tier = vars.getTier();
+	var pension = vars.finalAverageSalary * benefitMultiplier * (1 - benefitReduction);
+        var tier = vars.getTier();
 	
 	// Saturate pension
 	if(tier == 2 && pension > 106800){
 		pension = 106800;
 	}
+vars.benefitMultiplier=benefitMultiplier;
+vars.benefitReduction=benefitReduction;
+vars.tier=tier;
 	return pension;
 }		
 

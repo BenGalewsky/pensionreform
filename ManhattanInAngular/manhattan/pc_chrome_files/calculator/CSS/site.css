@@ -1,0 +1,76 @@
+/* CSS Document */
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #FFFFFF;
+	margin: 0; /* it's good practice to zero the margin and padding of the body element to account for differing browser defaults */
+	padding: 0;
+	text-align: center; /* this centers the container in IE 5* browsers. The text is then set to the left aligned default in the #container selector */
+	color: #333333;
+}
+.oneColLiqCtrHdr #container {
+	width: 977px;  /* this will create a container 80% of the browser width */
+	background: #FFFFFF; /* the auto margins (in conjunction with a width) center the page */
+	text-align: left;
+	margin-right: auto;
+    margin-top: 0px;
+    margin-bottom: 10px;
+	margin-left: auto;
+}
+.oneColLiqCtrHdr #header {
+	background-color: #FFFFFF;
+	padding-top: 0;
+	padding-right: 0px;
+	padding-bottom: 0;
+	padding-left: 0px;
+
+}
+.oneColLiqCtrHdr #header h1 {
+	margin: 0; /* zeroing the margin of the last element in the #header div will avoid margin collapse - an unexplainable space between divs. If the div has a border around it, this is not necessary as that also avoids the margin collapse */
+	padding: 10px 0; /* using padding instead of margin will allow you to keep the element away from the edges of the div */
+}
+.oneColLiqCtrHdr #mainContent {
+	padding: 0 20px; /* remember that padding is the space inside the div box and margin is the space outside the div box */
+	background: #FFFFFF;
+}
+
+.oneColLiqCtrHdr #leftColContent {
+	width: 450px; 
+    height: 450px;
+	padding: 0 10px; /* remember that padding is the space inside the div box and margin is the space outside the div box */
+	background: #FFFFFF;
+}
+
+.oneColLiqCtrHdr #rightColContent {
+	width: 450px; 
+    height: 450px;
+	padding: 0 10px; /* remember that padding is the space inside the div box and margin is the space outside the div box */
+	background: #FFFFFF;
+    float: right;
+}
+
+.oneColLiqCtrHdr #footer {
+	padding: 0 10px;
+	background-color: #FFFFFF;
+} 
+.oneColLiqCtrHdr #footer p {
+	margin: 0; /* zeroing the margins of the first element in the footer will avoid the possibility of margin collapse - a space between divs */
+	padding: 10px 0; /* padding on this element will create space, just as the the margin would have, without the margin collapse issue */
+}
+body,td,th, p, ul, li, ol {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: #333333;
+}
+a {font-size: 15px; text-decoration: none; color:#D7A40D;font-weight: bold;}
+a:link {color:#D7A40D;}   
+a:visited {color:#D7A40D;}
+a:hover {color:#333333;}
+
+.title {font-size: 28px; font-weight: bold; }
+.subtitle {font-weight: bold;}
+.comments {font-size: 10px}
+.subtitle {
+	font-size: 15px;
+	font-weight: bold;
+}

@@ -84,7 +84,7 @@ SERSVars.prototype.getSystem = function(){
     } else if (this.occupation == 'policeOfficer' || this.occupation == 'fireFighter') {
         system = 'SERS';
 	} else {
-		system = vals.IL_pensionSystem
+		system = IL_pensionSystem
 	}
 	return system;
 };

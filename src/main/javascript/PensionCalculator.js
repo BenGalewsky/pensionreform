@@ -7,10 +7,12 @@ function PensionCalculator(amodel){
 
 
 PensionCalculator.prototype.calculate = function(vals){
-	var cola = model.COLA(vals);
-	var annualPension = model.annualPensionBenefit(vals);
+	var cola = this.model.COLA(vals);
+	var annualPension = this.model.annualPensionBenefit(vals);
 	var annuity = this.calculateAnnuity(cola.rate, cola.max, cola.start, cola.compounded, annualPension, vals.ageAtRetirement);
-	
+	vals.cola=cola;
+        vals.annualPension=annualPension;
+        vals.annuity=annuity;
 	return annuity;
 };
 
