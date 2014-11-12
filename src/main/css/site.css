@@ -1,0 +1,19 @@
+/*override bootstrap's width for description list titles...*/
+.dl-horizontal dt {
+    width: 460px;
+    padding: 4px;
+
+}
+.dl-horizontal dd {
+    padding: 4px;
+
+}
+
+
+body {
+    padding-top: 50px;
+}
+.starter-template {
+    padding: 40px 15px;
+    text-align: center;
+}
