@@ -24,11 +24,19 @@
                 <File name="SERSModel\systems.mortality.js" />
                 <File name="SERSModel\systems.states.IL.js" />
                 <File name="SERSModel\bootstrap.js" />
+                <File name="SERSModel\PensionVars.js" />
+                <File name="SERSModel\SERSModel.js" />
             </Folder>
             <Folder name="src">
                 <Folder name="main">
                     <Folder name="javascript">
                         <File name="src\main\javascript\element_mover.js" />
+                        <File name="src\main\javascript\dataItem.js" />
+                        <File name="src\main\javascript\element_mover.js" />
+                        <File name="src\main\javascript\PensionVars.js" />
+                        <File name="src\main\javascript\SERSModel.js" />
+                        <File name="src\main\javascript\PensionCalculator.js" />
+                        <Folder name="Folder Name" />
                     </Folder>
                 </Folder>
                 <Folder name="test">

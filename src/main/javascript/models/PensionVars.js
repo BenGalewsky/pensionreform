@@ -1,7 +1,10 @@
 
 function SERSVars(){
 		this.hireDate = {};
-		this.yearsOfService = {};
+		this.birthDate = {};
+		this.initialSalary = {};
+		this.currentSalary = {};
+		
 		this.ageAtRetirement = {}
 		this.occupation = {
             standards: ['teacher', 'judge', 'policeOfficer'],
@@ -91,4 +94,13 @@ SERSVars.prototype.getSystem = function(){
 
 SERSVars.prototype.getTier = function(){
 	return (this.hireDate.isBefore('1/1/2011')) ? 1 : 2;
+};
+
+SERSVars.prototype.getYearsOfSvcAtDate = function(d){
+	
+};
+SERSVars.prototype.getSalaryAtYear = function(yearOfSvc){
+	
+	
+	
 };

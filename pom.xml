@@ -20,7 +20,7 @@
 				</execution>
 			</executions>
 			<configuration>
-				<jsSrcDir>${project.basedir}/src/main/javascript</jsSrcDir>
+				<jsSrcDir>${project.basedir}/src/main/javascript/models</jsSrcDir>
 				<sourceExcludes>
 					<include>**/*.boot.js</include> 
 				</sourceExcludes>
