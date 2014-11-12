@@ -16,7 +16,7 @@ pensionApp.controller('PensionController', function($scope) {
   $scope.calculate=function(){
     var vals = new SERSVars();
     var model = new SERSModel();
-    var calculator = new PensionCalculator(model);
+    var calculator = new pension.calculator(model);
     vals.hireDate = new PC.Date(this.hireDate);
     vals.ageAtRetirement = parseInt(this.ageAtRetirement);
     vals.finalAverageSalary = parseInt(this.finalAverageSalary);
@@ -24,8 +24,8 @@ pensionApp.controller('PensionController', function($scope) {
     vals.occupation=this.chosenOccupation.occupation;
 
     var result = calculator.calculate(vals);
-    this.maleAnnuity=result.male;
-    this.femaleAnnuity=result.female;
+    this.maleAnnuity=result.annuity.male;
+    this.femaleAnnuity=result.annuity.female;
   }
   $scope.maleAnnuity='';
   $scope.femaleAnnuity='';
