@@ -212,7 +212,7 @@ describe("Pension Calculator", function(){
 				beforeEach(function(){
 					spyOn(vals, "getTier").andReturn(1);	
 					model = new SERSModel();
-					calculator = new PensionCalculator(model);
+					calculator = pension.calculator(model);
 				});
 				
 				it("Should match manhatten calculator", function(){
@@ -222,8 +222,8 @@ describe("Pension Calculator", function(){
 				
 					var result = calculator.calculate(vals);
 					
-					expect(result.female).toBeCloseTo(548937, 0);
-					expect(result.male).toBeCloseTo(492696, 0);
+					expect(result.annuity.female).toBeCloseTo(548937, 0);
+					expect(result.annuity.male).toBeCloseTo(492696, 0);
 				});
 			});
 		});

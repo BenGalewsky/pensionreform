@@ -1,3 +1,4 @@
+pension = pension || {};
 
 function SERSModel(){
 
