@@ -2,15 +2,16 @@ pension = pension || {};
 
 function SERSModel(){
 
-};
-SERSModel.prototype.multiplier = function(vals){
+}
+
+SERSModel.prototype = {
+	multiplier: function(vals){
 		var system = vals.getSystem();
 		var tier = vals.getTier();
 
-		var coveredBySocialSecurity = true;
-        if (vals.occupation == 'policeOfficer')
-            coveredBySocialSecurity = false;
-
+		var coveredBySocialSecurity = vals.isCoveredBySocialSecurity();
+		var benefitMultiplier = 0;
+		
 		if (tier == 1) {                    
             var useAlternativeFormula = vals.IL_SERSAlternativeFormula;
 			if (useAlternativeFormula) {
@@ -22,7 +23,7 @@ SERSModel.prototype.multiplier = function(vals){
             }
 						
             if (useAlternativeFormula) {
-				var benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.025 : 0.03);
+				benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.025 : 0.03);
 				if (benefitMultiplier > 0.80) benefitMultiplier = 0.80;				
 				return benefitMultiplier;
 			} else {
@@ -30,7 +31,7 @@ SERSModel.prototype.multiplier = function(vals){
 				if (vals.ageAtRetirement < 60 && vals.yearsOfService < 25) return "You must have at least 25 years of service in order to retire at age "+vals.ageAtRetirement+" in the State Employees' Retirement System of Illinois.";
 				if (vals.yearsOfService < 8) return "You must have at least 8 years of service in order to retire at age "+vals.ageAtRetirement+" in the State Employees' Retirement System of Illinois.";
 							
-				var benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.0167 : 0.022);
+				benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.0167 : 0.022);
 				if (benefitMultiplier > 0.75) benefitMultiplier = 0.75;
 				
 				return benefitMultiplier;
@@ -40,16 +41,16 @@ SERSModel.prototype.multiplier = function(vals){
 			if (vals.yearsOfService < 10) return "You must have at least 10 years of service in order to retire at age "+vals.ageAtRetirement+" in the State Employees' Retirement System of Illinois.";
 			
 			
-			var benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.0167 : 0.022);
+			benefitMultiplier = vals.yearsOfService * ((coveredBySocialSecurity) ? 0.0167 : 0.022);
 			if (benefitMultiplier > 0.75) benefitMultiplier = 0.75;
 			
 			return benefitMultiplier;
 		}else{			
 			return "not implemented";				
 		}
-	}
+	},
 
-SERSModel.prototype.benefitReduction = function(vals){
+benefitReduction: function(vals){
 	var benefitReduction = 0;
 	var tier = vals.getTier();
 	
@@ -63,9 +64,9 @@ SERSModel.prototype.benefitReduction = function(vals){
 		}
 	}
 	return benefitReduction;
-}
+},
 	
-SERSModel.prototype.annualPensionBenefit = function(vars){
+annualPensionBenefit: function(vars){
 	var benefitMultiplier = this.multiplier(vars);
 	var benefitReduction = this.benefitReduction(vars);
 	var pension = vars.finalAverageSalary * benefitMultiplier * (1 - benefitReduction);
@@ -79,9 +80,9 @@ vars.benefitMultiplier=benefitMultiplier;
 vars.benefitReduction=benefitReduction;
 vars.tier=tier;
 	return pension;
-}		
+},		
 
-SERSModel.prototype.COLA = function(vals){
+COLA: function(vals){
 	var result = new COLA();
 	result.rate = 0.03;
 	if(vals.getTier() == 2){
@@ -91,5 +92,15 @@ SERSModel.prototype.COLA = function(vals){
 		result.start = 1;
 	}
 	return result;
-}
+},
+
+	employeeContributionAtYear: function(vals, yearOfSvc, simdate){
+		simDate = simDate || new Date();
+	
+		var salary = vals.getSalaryAtYear(yearOfSvc, simDate);
+		var contribPct = vals.isCoveredBySocialSecurity() ? 0.04 : 0.08;
+	
+		return salary * contribPct;		
+	}
+};
 	

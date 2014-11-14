@@ -1,8 +1,9 @@
 describe("Pension Calculator", function(){
+
 	describe("State Employee Retirement System", function(){
 		beforeEach(function(){
 			vals = new SERSVars();
-			spyOn(vals, "getSystem").andReturn("SERS");
+			spyOn(vals, "getSystem").and.returnValue("SERS");
 		});
 		
 		describe("System Tiers", function(){			
@@ -20,7 +21,7 @@ describe("Pension Calculator", function(){
 		describe("Multiplier", function(){
 			describe("Tier 2", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(2);	
+					spyOn(vals, "getTier").and.returnValue(2);	
 					model = new SERSModel();
 
 				});
@@ -64,7 +65,7 @@ describe("Pension Calculator", function(){
 			
 			describe("Tier 2", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(1);	
+					spyOn(vals, "getTier").and.returnValue(1);	
 					model = new SERSModel();
 
 				});
@@ -104,7 +105,7 @@ describe("Pension Calculator", function(){
 		describe("Benefit Reduction", function(){
 			describe("Tier 1", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(1);	
+					spyOn(vals, "getTier").and.returnValue(1);	
 					model = new SERSModel();
 				});
 				
@@ -116,7 +117,7 @@ describe("Pension Calculator", function(){
 			
 			describe("Tier 2", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(2);	
+					spyOn(vals, "getTier").and.returnValue(2);	
 					model = new SERSModel();
 				});
 				
@@ -130,21 +131,21 @@ describe("Pension Calculator", function(){
 		describe("Annual Pension Benefit", function(){
 			describe("Tier 1", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(1);	
+					spyOn(vals, "getTier").and.returnValue(1);	
 					model = new SERSModel();
 				});
 				
 				it("Should be $31,250 if final average salary is $125,000 and benefit multiplier is 0.25 with no reduction", function(){
 					vals.finalAverageSalary = 125000;
-					spyOn(model, "multiplier").andReturn(0.25);
-					spyOn(model, "benefitReduction").andReturn(0);
+					spyOn(model, "multiplier").and.returnValue(0.25);
+					spyOn(model, "benefitReduction").and.returnValue(0);
 					expect(model.annualPensionBenefit(vals)).toBeCloseTo(31250);
 				});
 				
 				it("Should not have a maximum", function(){
 					vals.finalAverageSalary = 500000;
-					spyOn(model, "multiplier").andReturn(0.25);
-					spyOn(model, "benefitReduction").andReturn(0);	
+					spyOn(model, "multiplier").and.returnValue(0.25);
+					spyOn(model, "benefitReduction").and.returnValue(0);	
 					expect(model.annualPensionBenefit(vals)).toBeCloseTo(125000);
 
 				});
@@ -153,21 +154,21 @@ describe("Pension Calculator", function(){
 			
 			describe("Tier 2", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(2);	
+					spyOn(vals, "getTier").and.returnValue(2);	
 					model = new SERSModel();
 				});
 				
 				it("Should be $31,250 if final average salary is $125,000 and benefit multiplier is 0.25 with no reduction", function(){
 					vals.finalAverageSalary = 125000;
-					spyOn(model, "multiplier").andReturn(0.25);
-					spyOn(model, "benefitReduction").andReturn(0);
+					spyOn(model, "multiplier").and.returnValue(0.25);
+					spyOn(model, "benefitReduction").and.returnValue(0);
 					expect(model.annualPensionBenefit(vals)).toBeCloseTo(31250);
 				});
 				
 				it("Should max out at $106,800", function(){
 					vals.finalAverageSalary = 500000;
-					spyOn(model, "multiplier").andReturn(0.25);
-					spyOn(model, "benefitReduction").andReturn(0);	
+					spyOn(model, "multiplier").and.returnValue(0.25);
+					spyOn(model, "benefitReduction").and.returnValue(0);	
 					expect(model.annualPensionBenefit(vals)).toBeCloseTo(106800);
 
 				});
@@ -178,7 +179,7 @@ describe("Pension Calculator", function(){
 		describe("Cost of Living Adjustment (COLA)", function(){
 			describe("Tier 1", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(1);	
+					spyOn(vals, "getTier").and.returnValue(1);	
 					model = new SERSModel();
 				});
 				
@@ -190,7 +191,7 @@ describe("Pension Calculator", function(){
 			
 			describe("Tier 2", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(2);	
+					spyOn(vals, "getTier").and.returnValue(2);	
 					model = new SERSModel();
 				});
 				
@@ -207,10 +208,64 @@ describe("Pension Calculator", function(){
 			});			
 		});
 		
+		
+		describe("Salary model", function(){
+			it("Should say I've worked 25 years if today is 2014 and I started in 1989", function(){
+				vals.hireDate=new PC.Date("1/1/1989");
+				
+				var simDate = new PC.Date("1/1/2014");
+				expect(vals.getYearsOfSvcAtDate(simDate)).toBe(25);
+			});
+			
+			it("Should say I retired after 25 years if I started in 1989, was born in 1949 and retired at age 65", function(){
+				vals.hireDate=new PC.Date("1/1/1989");				
+				simDate = new PC.Date("1/1/2014");
+				vals.birthDate = new PC.Date("1/1/1949");
+				vals.ageAtRetirement = 65;
+				expect(vals.getYearsAtRetirement()).toBe(25);
+			});
+			
+			describe("Salary at year", function(){
+				
+				beforeEach(function(){
+					vals.hireDate=new PC.Date("1/1/1989");				
+					simDate = new Date("1/1/2014");
+					vals.birthDate = new PC.Date("1/1/1949");
+					vals.ageAtRetirement = 65;
+					
+					vals.initialSalary = 30000;
+					vals.currentSalary = 67000;
+					vals.finalAverageSalary = 75000;
+					
+				});
+				
+				it("Should be zero if the year is after retirement", function(){
+					vals.ageAtRetirement = 65;
+					expect(vals.getSalaryAtYear(26, simDate)).toBe(0);
+				});
+				
+				it("Should be my initial salery my first year", function(){
+					expect(vals.getSalaryAtYear(0, simDate)).toBeCloseTo(30000);					
+				});
+				
+				it("Should be my current salary if measured today", function(){
+					simDate = new PC.Date("1/1/2000"); // 11 years after hire date
+					expect(vals.getSalaryAtYear(11, simDate)).toBeCloseTo(67000);					
+				});
+				
+				it("Should be my final salary if measured on my last year", function(){
+					simDate = new PC.Date("1/1/2000"); // 11 years after hire date
+					expect(vals.getSalaryAtYear(25, simDate)).toBeCloseTo(75000);					
+				});				
+				
+			});
+			
+		});
+		
 		describe("Pension Annuity", function(){
 			describe("Tier 1", function(){
 				beforeEach(function(){
-					spyOn(vals, "getTier").andReturn(1);	
+					spyOn(vals, "getTier").and.returnValue(1);	
 					model = new SERSModel();
 					calculator = pension.calculator(model);
 				});
@@ -228,6 +283,34 @@ describe("Pension Calculator", function(){
 			});
 		});
 			
+		
+		describe("Employee contribution", function(){
+			it("Should be $8,000 for a year where I made $100,000 and I don't participate in social security", function(){
+				spyOn(vals, "isCoveredBySocialSecurity").and.returnValue(false);
+				spyOn(vals, "getSalaryAtYear").and.returnValue(100000);
+				
+				expect(model.employeeContributionAtYear(vals, 1)).toBe(8000);
+			});
+			
+			it("Should be $4,000 for a year where I made $100,000 and I do participate in social security", function(){
+				spyOn(vals, "isCoveredBySocialSecurity").and.returnValue(true);
+				spyOn(vals, "getSalaryAtYear").and.returnValue(100000);
+				
+				expect(model.employeeContributionAtYear(vals, 1)).toBe(4000);
+			});
+			
+			it("Should be a total lifetime contribution of $100,000 if employee contributes $4,000 for each of their 25 years", function(){
+				spyOn(vals, "getYearsAtRetirement").and.returnValue(25);
+				
+				model = new SERSModel();
+				spyOn(model, "employeeContributionAtYear").and.returnValue(4000);
+
+				calculator = pension.calculator(model);
+
+				expect(calculator.calculateTotalContributions(vals)).toBe(100000);
+			});
+
+		});
 	});
 
 });

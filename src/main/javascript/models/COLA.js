@@ -3,4 +3,4 @@ function COLA(){
 	this.rate = 0.0;
 	this.max = false;
 	this.compounded = false;
-};
+}

@@ -1,3 +1,4 @@
+
 PC.MAX_AGE = 115;
 
 PC.mortalityRates = {
@@ -236,4 +237,4 @@ PC.mortalityRates = {
 		113: 0.808336,
 		114: 0.899633
 	}
-} 
+}; 

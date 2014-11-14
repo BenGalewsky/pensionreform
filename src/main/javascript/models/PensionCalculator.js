@@ -58,8 +58,18 @@ pension.calculator = function(amodel) {
 				
 				rslt.annuity = annuityCost; 
 				return rslt;
-			}		
-	}
+			},
+			
+			calculateTotalContributions: function(vals){
+				var totalContrib = 0;
+				
+				for(var i = 0; i < vals.getYearsAtRetirement(); i++){
+					totalContrib += this.model.employeeContributionAtYear(vals,i);
+				}
+				
+				return totalContrib;					
+			}
+	};
 	
 	return that;
 	

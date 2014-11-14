@@ -3,9 +3,9 @@ function SERSVars(){
 		this.hireDate = {};
 		this.birthDate = {};
 		this.initialSalary = {};
-		this.currentSalary = {};
+		this.currentSalary = {};		
+		this.ageAtRetirement = {};
 		
-		this.ageAtRetirement = {}
 		this.occupation = {
             standards: ['teacher', 'judge', 'policeOfficer'],
             hint: "Police Officers include State police, conservation police, SOS investigators and similar."
@@ -36,7 +36,7 @@ function SERSVars(){
 			    function(vals) {
 			    	var system = getSystem(vals);
 					var tier = getTier(vals);
-					var hint;
+					var hint = "N/A";
 					if (system == 'SERS' && tier == 1) {
 						if (vals.IL_SERSAlternativeFormula) {
 							hint = "Rate of pay on the last day of employment, or the average of the last 48 months of compensation, whichever is greater.";
@@ -74,11 +74,15 @@ function SERSVars(){
 					PC.dataItems.finalAverageSalary.setHint('IL', hint);
 			    }
 			]
-		}
+		};
 	
-};
+}
 
-SERSVars.prototype.getSystem = function(){
+
+
+SERSVars.prototype = {
+
+		getSystem: function(){
 	var system;
 	if (this.occupation == 'teacher') {
 		system = 'TRS';
@@ -87,20 +91,80 @@ SERSVars.prototype.getSystem = function(){
     } else if (this.occupation == 'policeOfficer' || this.occupation == 'fireFighter') {
         system = 'SERS';
 	} else {
-		system = IL_pensionSystem
+		system = IL_pensionSystem;
 	}
 	return system;
-};
+},
 
-SERSVars.prototype.getTier = function(){
+getTier: function(){
 	return (this.hireDate.isBefore('1/1/2011')) ? 1 : 2;
-};
+},
 
-SERSVars.prototype.getYearsOfSvcAtDate = function(d){
+isCoveredBySocialSecurity: function(){
+	var coveredBySocialSecurity = true;
+    if (this.occupation == 'policeOfficer')
+        coveredBySocialSecurity = false;
+    return coveredBySocialSecurity;	
+},
+
+getYearsOfSvcAtDate: function(d){
+	var years = d.getYear() - this.hireDate.getYear();    
+    return years;	
+},
+
+getYearsAtRetirement: function(){
+	var dateOfRetirement = this.birthDate.addYears(this.ageAtRetirement);
+	return this.getYearsOfSvcAtDate(dateOfRetirement);
+},
+
+
+// Estimate the employee's salary at any given year of their tenure
+// We know three points: Their initial salary, their current salary and their
+// estimated final average salary. 
+// Pass in an optional simDate to establish what date "current" is relative
+// to their salary history.
+getSalaryAtYear: function(yearOfSvc, simDate){
+	// How many years of service today?
+	simDate = simDate || new Date();
 	
-};
-SERSVars.prototype.getSalaryAtYear = function(yearOfSvc){
+	simDate = new PC.Date(simDate);
+	var currentYears = this.getYearsOfSvcAtDate(simDate);
+	var yearsAtRetirement = this.getYearsAtRetirement();
+	
+	// Have they already retired?
+	if(yearOfSvc > yearsAtRetirement){
+		return 0;
+	}
+	
+	// Prepare for interpolation
+	var x0 = 0;
+	var x1 = 0;
+	var y0 = 0;
+	var y1 = 0;
 	
 	
+	// Is this year in the past? If so then interpolate between intial salary and current
+	if(yearOfSvc <= currentYears){
+		x1 = currentYears;
+		y0 = this.initialSalary;
+		y1 = this.currentSalary;		
+	}else{ // Interpolate between current and final
+		x0 = currentYears;
+		x1 = yearsAtRetirement;
+		y0 = this.currentSalary;
+		y1 = this.finalAverageSalary;		
+	}
 	
+
+	// Default value
+	var x = y1;		
+
+	// Avoid divide by zero
+	if(x1 != yearOfSvc){
+		x = y0 + (y1 - y0) * ((yearOfSvc - x0) / (x1 - yearOfSvc));
+	}
+	return x;
+		
+		
+	}	
 };

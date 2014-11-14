@@ -1,9 +1,15 @@
+if(typeof PC == 'undefined') PC =  {};
 PC.dataItems = {};
 
 PC.Date = function(y, m, d) {
+	
+	if(typeof y.getFullYear == 'function'){
+		this.dateObj = y;
+		return;
+	}
     
     if (arguments.length == 1) {
-    
+    	    	    
         var dateStr = y;
         
         var matches = PC.Date.MDYregex.exec(dateStr);
@@ -43,10 +49,11 @@ PC.Date = function(y, m, d) {
     
     if (m >= 0) {
         this.dateObj = new Date(y, m, d);
-        return
+        return;
     }
     
-}
+    
+};
 PC.Date.MDYregex = /(\d{1,2})[\/\-\.\s](\d{1,2})[\/\-\.\s](\d{4})/;
 PC.Date.monDYregex = /(\w{3})\D*(\d{1,2})\D+(\d{4})/;
 PC.Date.DmonYregex = /(\d{1,2})\W*(\w{3})\D+(\d{4})/;
