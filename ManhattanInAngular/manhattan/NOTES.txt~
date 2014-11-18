@@ -1,0 +1,13 @@
+
+index.html loads latest/scripts/bootstrap.js which loads latest.js and
+PC/1.7.0./scripts/bootstrap.js.  There are two different bootstrap.js
+files, located in different directories.
+
+latest.js sets PC.latestVersion. (This has a random subscript in the
+original version, which was removed here.  The random subscript is
+most likely used to prevent caching.)
+
+1.7.0/scripts/bootstrap.js creates the object PC and defines utility
+functions such as handleException(), addEvent(), asyncLoad(),
+setProperties(), etc.  It computes a baseURL (location based off which
+other files are loaded).

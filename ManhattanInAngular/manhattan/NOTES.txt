@@ -1,0 +1,44 @@
+
+index.html loads latest/scripts/bootstrap.js which loads latest.js and
+PC/1.7.0./scripts/bootstrap.js.  There are two different bootstrap.js
+files, located in different directories.
+
+latest.js sets PC.latestVersion. (This has a random subscript in the
+original version, which was removed here.  The random subscript is
+most likely used to prevent caching.)
+
+1.7.0/scripts/bootstrap.js creates the object PC and defines utility
+functions such as handleException(), addEvent(), asyncLoad(),
+setProperties(), etc.  It computes a baseURL (location based off which
+other files are loaded).  It also stores the invocation parameters
+(here, widget: "single", state: "IL") in PC.hashVars.  Finally loads
+core.js.
+
+core.js defines more utility functions, in PC.Utils, for loading
+stylesheets, manipulating arrays, etc.  Then it loads, in our case,
+single.js.
+
+single.js loads controller.js, dataItem.js, mortality.js, active.js.
+And then animation.js, dataItems.js, single.css, IL.js.  Finally it
+creates several html elements: title, div for hint, some animation,
+and more importantly the mini-pages used to ask questions and show
+results.
+
+In controller.js PC.QuestionController is defined, the framework for
+loading requirements from the state files, sorting them, expanding
+alternatives, asking questions, and computing results (including
+annuities).
+
+dataItem.js seems to have utility functions related to dates and other
+data types, but also for creating appropriate forms for different
+questions (e.g., radio buttons), etc.
+
+mortality.js has mortality rates, active.js has the states supported.
+
+animation.js is a Yahoo library.
+
+dataItems.js seems to have different questions and corresponding
+validation checks.
+
+IL.js has the dataitems and requirements for Illinois.
+
