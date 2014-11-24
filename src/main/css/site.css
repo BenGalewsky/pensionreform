@@ -11,9 +11,18 @@
 
 
 body {
-    padding-top: 50px;
+    padding-top: 40px;
 }
 .starter-template {
-    padding: 40px 15px;
+    padding: 20px 5px;
     text-align: center;
+}
+
+.section{
+    padding: 10px 0px;
+}
+.subsection{
+    border: steelblue thick solid; padding: 5px;
+    border-radius: 7px;
+    padding: 15px 5px;
 }
