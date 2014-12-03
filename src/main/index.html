@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)http://getbootstrap.com/examples/starter-template/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://getbootstrap.com/favicon.ico">
+
+    <title>Pension Calculator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="javascript/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this site -->
+    <link href="css/site.css" rel="stylesheet">
+    <link href="css/rendergraphs.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="javascript/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="javascript/angular/angular.js"></script>
+    <script src="javascript/js/controllers.js"></script>
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="navbar-inner">
+          <a class="brand" href="#">Pension Calculator</a>
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+    </div>
+
+    <div class="container" ng-app="pensionApp" ng-controller="PensionController">
+
+      <div class="starter-template">
+        <h1>Pension Calculator</h1>
+        <!-- <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p> -->
+      </div>
+        <table class="table table-condensed table-striped">
+            <tr>
+                <td>What is your job/pension?</td><td><select ng-model="chosenOccupation" ng-options="occupation.label for occupation in occupations"></select></td>
+            </tr>
+            <tr>
+                <td>When did you start working?</td><td class="input-group"><input type="text" class="form-control" datepicker-popup="d/M/yyyy" datepicker-mode="year" is-open="opened" ng-model="hireDate"  ng-change="setSalaryEstimates()"/><span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="opendatepicker($event)"><i class="icon icon-calendar"></i></button>
+              </span> (approximately)</td>
+            </tr>
+            <tr>
+                <td>At what age did you retire or expect to retire?</td><td><input ng-model="ageAtRetirement" type="number"  ng-change="setSalaryEstimates()"></td>
+            </tr>
+            <tr>
+                <td>How many years of service did you or will you have at retirement?</td><td><input ng-model="yearsOfService" type="number" ng-change="setSalaryEstimates()"></td>
+            </tr>
+            <tr>
+                <td>What do you expect your final average salary to be?</td><td><input ng-model="finalAverageSalary" type="number"  ng-change="setSalaryEstimates()"> SERS uses the average of the highest four years within the last 10 years....</td>
+            </tr>
+        </table>
+        <div id="est401k" class="subsection" >
+            <strong>Optional</strong> - Do you also want to estimate what you would have gotten if your contributions had been put into a 401k? <br><span id="no401k" class="btn btn-mini btn-info">No Thanks</span> <span  id="simple401k" class="btn btn-mini ">Yes with Simple Estimate</span> <span id="detailed401k"  class="btn btn-mini" type="button">Yes with Detailed Estimate</span>
+            <div id="estimateContributions">
+                <div style="background-color: #eeeeee;padding:3px;display:none">... Abandoned...
+                    <input type="radio" ng-model="calculateContribution" value="1" ng-change="setFinalAvgFromEstimates()"/>Calculate salary and years from data above  &nbsp; <input type="radio" ng-model="calculateContribution" value="0" ng-change="setFinalAvgFromEstimates()"/>Override calculations and enter data directly
+                </div>
+                <table class="table table-condensed table-striped">
+                    <tr>
+                        <th>Period</th><th >Year</th><th>Salary</th>
+                    </tr>
+                    <tr>
+                        <td>Starting</td><td><input ng-model="startingYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td><td><input ng-model="startingSalary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
+                    </tr>
+                    <tr class="currentYear">
+                        <td>Current</td><td class="currentYear">{{currentYear}}</td><td class="currentYear"><input ng-model="currentSalary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Ending</td><td><input ng-model="endingYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td><td><input ng-model="endingSalary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="detailedContributions">...<strong> will list out each year's salary and contributions to edit</strong>... </div>
+            <div id="contributionsGraph"> </div>
+        </div>
+        <div class="section">
+            Calculate Net Present Value of Pension <span class="btn btn-info" ng-click="calculate()">Calculate</span>        <table class="table table-striped table-condensed">
+                <tr>
+                    <th>Output</th>
+                    <th>Current SERS Calculations</th>
+                    <th>Proposed Madigan Bill</th>
+                    <th>401k Scenario</th>
+                </tr>
+                <tr>
+                    <td>Present Value if Male:</td>
+                    <td>{{maleAnnuity|currency:"$":0}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Present Value if Female:</td>
+                    <td>{{femaleAnnuity|currency:"$":0}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+      <p> </p>
+      <p>object: {{spy()}}</p>
+      
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="javascript/jquery/jquery.min.js"></script>
+    <script src="javascript/bootstrap/js/bootstrap.min.js"></script>
+    <script src="javascript/bootstrap/js/ui-bootstrap-tpls-0.12.0.min.js"></script>
+    <script src="javascript/d3/d3.min.js"></script>
+    <script src="javascript/js/rendergraphs.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug 
+    <script src="javascript/index_files/ie10-viewport-bug-workaround.js"></script>-->
+  <!--  <script src="./js/bootstrap1.7.0.js"></script> 
+         <script src="./js/systems.states.IL.js"></script> -->
+  <script type="text/javascript" src="../test/javascript/lib/boot.js"></script>
+  <script type="text/javascript" src="javascript/models/COLA.js"></script>
+  <script type="text/javascript" src="javascript/models/PensionCalculator.js"></script>
+  <script type="text/javascript" src="javascript/models/PensionVars.js"></script>
+  <script type="text/javascript" src="javascript/models/SERSModel.js"></script>
+  <script type="text/javascript" src="javascript/models/dataItem.js"></script>
+  <script type="text/javascript" src="javascript/models/element_mover.js"></script>
+  <script type="text/javascript" src="javascript/models/systems.mortality.js"></script>
+<!--  <script type="text/javascript" src="../src/test/javascript/calc_ind_pension.spec.js"></script>  -->
+  
+
+</body></html>
