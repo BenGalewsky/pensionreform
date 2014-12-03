@@ -22,9 +22,9 @@
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script src="../angular/angular.js"></script>
@@ -58,34 +58,47 @@
     </div>
 
     <!-- <div class="container" ng-app="lifexpApp" ng-controller="LifexpController"> -->
-
-      <div class="starter-template">
-        <h1>Life Expectancy Calculator</h1>
-        <!-- <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p> -->
-      </div>
-
-      <p>How old are you? <input ng-model="age"></p>
-      <p>What is your gender? <input ng-model="gender"></p>
-
-      <p>You can expect to live until you are {{getExpectancy() | number:0}} years old.</p>
-
-    </div><!-- /.container -->
-
-<div ng-app="charts">
-    <div ng-controller="mainCtrl">
-        <chart-form></chart-form>
-        <bar-chart height="options.height" data="data" hovered="hovered(args)"></bar-chart>
-        <!--<bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>-->
+    
+<div class="container" ng-app="charts">
+  <div ng-controller="mainCtrl">
+    <div class="starter-template">
+      <h1>Life Expectancy Calculator</h1>
+      <!-- <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p> -->
     </div>
+
+    <p>Gender? 
+      <input type="radio" ng-model="gender" value="male" ngValue="male">
+      <label>Male</label>
+      
+      <input type="radio" ng-model="gender" value="female" ngValue="female">
+      <label>Female</label>
+    </p>
+    
+    <!-- <p>How old are you? <input type="number" ng-model="age"></p> -->
+    <age-slider></age-slider>
+
+    <div style="margin-top: 25px;">
+      <p>You can expect to live until you are
+        <mark><strong>{{getExpectancy() | number:0}}</strong></mark> years old.  Your probability of living beyond a given age is charted below.</p>
+
+    
+
+      <!-- <chart-form></chart-form> -->
+      <bar-chart height="options.height" data="data" hovered="hovered(args)">
+      </bar-chart>
+      <!--<bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>-->
+    </div>
+
+  </div>
 </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../index_files/jquery.min.js"></script>
-    <script src="../index_files/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../index_files/ie10-viewport-bug-workaround.js"></script>
-  
+<!-- Bootstrap core JavaScript
+     ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../index_files/jquery.min.js"></script>
+<script src="../index_files/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../index_files/ie10-viewport-bug-workaround.js"></script>
+
 
 </body></html>

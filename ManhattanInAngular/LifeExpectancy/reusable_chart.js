@@ -16,20 +16,23 @@ d3.custom.barChart = function module() {
                 chartH = height - margin.top - margin.bottom;
 
             var x1 = d3.scale.ordinal()
-                .domain(_data.map(function(d, i){ return i; }))
+//                .domain(_data.map(function(d, i){ return i; }))
+                .domain(_data.map(function(d, i){ return d[0]; }))
                 .rangeRoundBands([0, chartW], .1);
 
             var y1 = d3.scale.linear()
-                .domain([0, d3.max(_data, function(d, i){ return d; })])
+//                .domain([0, d3.max(_data, function(d, i){ return d; })])
+//                .domain([0, d3.max(_data, function(d, i){ return d[1]; })])
+                .domain([0, 1])
                 .range([chartH, 0]);
 
             var xAxis = d3.svg.axis()
                 .scale(x1)
-                .orient('bottom');
+                .orient('bottom').ticks(10);
 
             var yAxis = d3.svg.axis()
                 .scale(y1)
-                .orient('left');
+                .orient('left').ticks(5);
 
             var barW = chartW / _data.length;
 
@@ -69,8 +72,8 @@ d3.custom.barChart = function module() {
                 .classed('bar', true)
                 .attr({x: chartW,
                     width: barW,
-                    y: function(d, i) { return y1(d); },
-                    height: function(d, i) { return chartH - y1(d); }
+                    y: function(d, i) { return y1(d[1]); },
+                    height: function(d, i) { return chartH - y1(d[1]); }
                 })
                 .on('mouseover', dispatch.customHover);
             bars.transition()
@@ -78,9 +81,9 @@ d3.custom.barChart = function module() {
                 .ease(ease)
                 .attr({
                     width: barW,
-                    x: function(d, i) { return x1(i) + gapSize/2; },
-                    y: function(d, i) { return y1(d); },
-                    height: function(d, i) { return chartH - y1(d); }
+                    x: function(d, i) { return x1(d[0]) + gapSize/2; },
+                    y: function(d, i) { return y1(d[1]); },
+                    height: function(d, i) { return chartH - y1(d[1]); }
                 });
             bars.exit().transition().style({opacity: 0}).remove();
 
