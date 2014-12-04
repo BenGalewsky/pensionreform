@@ -34,54 +34,43 @@ pensionApp.controller('PensionController', function($scope) {
       };
       return JSON.stringify(r);
   }
+  //for use with the datepicker on starting date...
   $scope.opendatepicker=function($event){
     $event.preventDefault();
     $event.stopPropagation();
 
-    $scope.opened = true;      
+    $scope.opened = true;
   }
   
     //watch for changes...
+    //moved trigger of setSalaryEstimates and setFinalAvgFromEstimates to the change event on the input fields
+    //  rather than on a watch of the model because I didn't want changes to occur with every keystroke 
+    // nor did I want to cause any circular references, I only wanted user changes to trigger updates.
+    // so see index.html input fields for ng-change events that trigger these updates.
     $scope.setSalaryEstimates=function(){
+        var model = new SERSModel();
+        var calculator = new pension.calculator(model);
         var scope=$scope;
-        var ndt=new Date(scope.hireDate);
-        if(!ndt) alert("Date needs to be in a format like 1/1/1999");
-        scope.startingYear=ndt.getFullYear();
-        if(!scope.startingYear||!scope.yearsOfService) return;
-        scope.endingYear=scope.startingYear+parseInt(scope.yearsOfService);
+        calculator.setSalaryEstimates(scope);
         //we don't want to show current year salary if person is already retired...
         if(scope.currentYear>scope.endingYear)  $(".currentYear").hide();
         else $(".currentYear").show();
         if(!scope.finalAverageSalary||!scope.yearsOfService) return;
-        if(scope.yearsOfService>4){
-            //if there is no starting salary, then caclulate it...
-            //assume that the last four years were the highest and the average of them is represented
-            //   by finalAverageSalary... so finalAverageSalary is the same as one and a half years prior to the 
-            //   final year
-            //TODO: confirm that one and a half years is the proper way to do this...
-            scope.startingSalary=Math.round(scope.finalAverageSalary/Math.pow((1+env.inflation),(scope.yearsOfService-1.5)));
-            scope.endingSalary=Math.round(scope.finalAverageSalary*Math.pow((1+env.inflation),(1.5)));
-        }
-        else{
-            //assume final average salary is in the middle of start and end years...
-            scope.startingSalary=Math.round(scope.finalAverageSalary/Math.pow((1+env.inflation),((scope.yearsOfService-1)/2)));
-            scope.endingSalary=Math.round(scope.finalAverageSalary*Math.pow((1+env.inflation),((scope.yearsOfService-1)/2)));
-        }
-        if(scope.startingYear&&scope.endingYear&&scope.currentYear<=scope.endingYear){
-            scope.currentSalary=Math.round(scope.startingSalary*Math.pow((1+env.inflation),(scope.currentYear-scope.startingYear)));
-        }
-        else scope.currentSalary=null;
+        calculator.computeSalaryHistory(scope);
         salaryGraph.render(scope);
     }
     
     //$scope.$watchGroup(["yearsOfService","finalAverageSalary","hireDate"],setSalaryEstimates);
     $scope.setFinalAvgFromEstimates=function(nv,ov,scope){
         var scope=$scope;
+        var model = new SERSModel();
+        var calculator = new pension.calculator(model);
+        calculator.computeSalaryHistory(scope);
         salaryGraph.render(scope);
         //then we need to calculate the finalAverageSalary... and years of service
         scope.yearsOfService=scope.endingYear-scope.startingYear;
-        //use the data created by salaryGraph.render to calculate the average...
-        scope.finalAverageSalary=salaryGraph.finalAverage;
+        //use the data created by computeSalaryHistory to calculate the average...
+        scope.finalAverageSalary=scope.finalAverage;
         //and reset the starting year...
         scope.hireDate=scope.hireDate.substring(0,scope.hireDate.lastIndexOf("/"))+"/"+scope.startingYear;
     }

@@ -1,50 +1,18 @@
 SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
-    this.dta=[];
-    this.finalAverage=0;
     
-    //use starting/ending data to calculate individual years' data... and store in this.dta...
+    
+    //use v.salaryHistoryArray to draw graph...
     this.render=function(v){//v is the scope object with various year and salary properties...
-        while(this.dta.length>0){ this.dta.pop();};//empty the array if there is anything in there.
-        //calculate start to current ...
-        var yr1=v.currentYear, yr0=v.startingYear;
-        var s1=v.currentSalary, s0=v.startingSalary;
-        // but only if current is less than ending year...
-        if(v.currentYear<=v.endingYear){
-            for(var i=yr0;i<yr1;i++){
-                var sal=s0+(i-yr0)/(yr1-yr0)*(s1-s0)
-                this.dta.push({"year":i,"salary":sal});   
-            };
-            //move current to start...
-            yr0=yr1;
-            s0=s1;
-        };
-        //now calculate from start (or current) to ending year...
-        yr1=v.endingYear;
-        s1=v.endingSalary;
-        for(var i=yr0;i<=yr1;i++){
-            var sal=s0;
-            if(yr1!=yr0) sal=s0+(i-yr0)/(yr1-yr0)*(s1-s0);
-            this.dta.push({"year":i,"salary":sal});
-        };
-        //calculate the average best 4 years in last 10...
-        var last10yrs=this.dta.slice(-10);
-        last10yrs.sort(function(a,b){return a.salary-b.salary;});
-        last10yrs=last10yrs.slice(-4);
-        var avgYr=0;// avgYr and this.finalAverage become the first coordinates of the finalAverageSalary Line on the graph...
-        this.finalAverage=0;
-        for(var i=0;i<last10yrs.length;i++){avgYr+=last10yrs[i].year;this.finalAverage+=last10yrs[i].salary;};
-        this.finalAverage=Math.round(this.finalAverage/last10yrs.length);
-        avgYr=Math.round(avgYr/last10yrs.length);
 
         //reset the domain of the coordinate calculators
-        x.domain(this.dta.map(function(d) { return d.year; }));
-        y.domain([0, d3.max(this.dta, function(d) { return d.salary; })]);
+        x.domain(v.salaryHistoryArray.map(function(d) { return d.year; }));
+        y.domain([0, d3.max(v.salaryHistoryArray, function(d) { return d.salary; })]);
 
         //cformat converts number to formatted currency string...
         var cformat=d3.format("$,.3r");
-        //get the collection of bars that already exist (if any) and attach this.dta to it...
+        //get the collection of bars that already exist (if any) and attach v.salaryHistoryArray to it...
         var bars=svg.selectAll(".bar")
-          .data(this.dta);
+          .data(v.salaryHistoryArray);
         //then reset the shape and title of each existing bar based on new data...
         bars.attr("x", function(d) { return x(d.year); })
           .classed("future",function(d,i){
@@ -73,29 +41,33 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //need to call the axis setup scripts again
         svg.selectAll(".x.axis").call(xAxis);
         svg.selectAll(".y.axis").call(yAxis);
+        
+        //determine boundaries of x axis..
+        var xmin=d3.min(x.domain());
+        var xmax=d3.max(x.domain());
 
         //adjust ticks when more than 25 years, skip odd ticks...
-        if(v.endingYear-v.startingYear>25) $("g.x g.tick text:odd").hide();
+        if(xmax-xmin>25) $("g.x g.tick text:odd").hide();
         else $("g.x g.tick text:odd").show();
 
         //draw avg salary line
         $(".avsal").remove();
         svg.append("line").attr("class","avsal")
-           .attr("x1",x(avgYr)-50/(v.endingYear-v.startingYear))
-           .attr("y1",y(this.finalAverage))
+           .attr("x1",x(v.avgYr)-50/(xmax-xmin))
+           .attr("y1",y(v.finalAverage))
            .attr("x2",width+margin.right)
-           .attr("y2",y(this.finalAverage))
+           .attr("y2",y(v.finalAverage))
            .attr("stroke","red")
            .attr("stroke-width","3")
            .style("stroke-dasharray",("3, 3"));
         //and the text
         svg.append("text").attr("class","avsal")
           .attr("x", width)
-          .attr("y",y(this.finalAverage))
+          .attr("y",y(v.finalAverage))
           .attr("fill","red")
           .attr("dy",".7em")
           .style("text-anchor", "start")
-          .text("Average Final Salary "+cformat(this.finalAverage))
+          .text("Average Final Salary "+cformat(v.finalAverage))
           .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
           
     }//this is the end of the render function
@@ -139,9 +111,9 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
 
     //one time only, draw the axes on the graphing space... based on any data that exists...
     this.setup= function() {
-        var data=this.dta;
-      x.domain(data.map(function(d) { return d.year; }));
-      y.domain([0, d3.max(data, function(d) { return d.salary; })]);
+//        var data=[];
+  //    x.domain(data.map(function(d) { return d.year; }));
+    //  y.domain([0, d3.max(data, function(d) { return d.salary; })]);
 
       svg.append("g")
           .attr("class", "x axis")
