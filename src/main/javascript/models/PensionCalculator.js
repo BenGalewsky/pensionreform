@@ -4,7 +4,7 @@ pension.calculator = function(amodel) {
 			model: amodel,
 			DISCOUNT_RATE: 0.03,
 			MAX_AGE: 114,
-                        WAGE_INFLATION: 0.04,
+                        WAGE_INFLATION: 0.04, 
 			
 			calculate: function(vals){
 				var cola = this.model.COLA(vals);
