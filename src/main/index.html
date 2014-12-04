@@ -90,7 +90,18 @@
                     </tr>
                 </table>
             </div>
-            <div id="detailedContributions">...<strong> will list out each year's salary and contributions to edit</strong>... </div>
+            <div id="detailedContributions">
+                <table class="table table-condensed table-striped">
+                    <tr>
+                        <th >Year</th><th>Salary</th><th>Yrs Credit</th>
+                    </tr>
+                    <tr ng-repeat="yr in years">
+                        <td><input ng-model="startingYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td>
+                        <td><input ng-model="startingSalary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
             <div id="contributionsGraph"> </div>
         </div>
         <div class="section">

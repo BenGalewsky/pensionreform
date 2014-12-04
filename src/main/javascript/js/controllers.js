@@ -13,7 +13,10 @@ pensionApp.controller('PensionController', function($scope) {
   $scope.yearsOfService=20;
   $scope.gender='f';
   $scope.hireDate="1/1/1994";
-  $scope.occupations=[{label:'State Police/SERS',occupation:'policeOfficer',system:'SERS', coveredBySocialSecurity:false},{label:'Teacher/TRS',occupation:'teachers',system:'TRS', coveredBySocialSecurity:false},{label:'Judge/??',occupation:'judges',system:'??', coveredBySocialSecurity:true}]
+  $scope.occupations=[
+      {label:'State Police/SERS',occupation:'policeOfficer',system:'SERS', coveredBySocialSecurity:false},
+      {label:'Teacher/TRS',occupation:'teachers',system:'TRS', coveredBySocialSecurity:false},
+      {label:'Judge/??',occupation:'judges',system:'??', coveredBySocialSecurity:true}]
   $scope.chosenOccupation = $scope.occupations[0];//default to police...
   $scope.startingYear=null;
   $scope.startingSalary=30000;

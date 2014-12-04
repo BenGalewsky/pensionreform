@@ -54,8 +54,8 @@ pension.calculator = function(amodel) {
 					var payment = (!COLAMax || COLAMax >= annualPension) ? annualPension*(1+COLA) : COLAMax*COLA + annualPension;
 					annuityCost.male += payment * discount * maleMort;
 					annuityCost.female += payment * discount * femaleMort;
+				console.log("age:",age+i,", paymt:",payment,", pd:",payment*discount," pdm:",payment*discount*maleMort,"mort:",maleMort,"rate",PC.mortalityRates.male[age + i - 1],"cost:", annuityCost.male)
 				}
-				
 				rslt.annuity = annuityCost; 
 				return rslt;
 			},
