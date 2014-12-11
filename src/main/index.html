@@ -95,10 +95,10 @@
                     <tr>
                         <th >Year</th><th>Salary</th><th>Yrs Credit</th>
                     </tr>
-                    <tr ng-repeat="yr in years">
-                        <td><input ng-model="startingYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td>
-                        <td><input ng-model="startingSalary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
-                        <td></td>
+                    <tr ng-repeat="yr in salaryHistoryArray">
+                        <td><input ng-model="yr.year" type="number" ng-change="setFinalAvgFromEstimates()"/></td>
+                        <td><input ng-model="yr.salary" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
+                        <td><input ng-model="yr.yearsOfService" type="number"  ng-change="setFinalAvgFromEstimates()"/></td>
                     </tr>
                 </table>
             </div>

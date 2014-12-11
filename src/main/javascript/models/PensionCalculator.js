@@ -102,6 +102,7 @@ pension.calculator = function(amodel) {
                                 scope.currentSalary=Math.round(scope.startingSalary*Math.pow((1+this.WAGE_INFLATION),(scope.currentYear-scope.startingYear)));
                             }
                             else scope.currentSalary=null;//leave null if already retired...
+                            return scope;
                         },
                         //take starting, current, and ending salary info and convert to salary history array
                         // also compute final average in 4 best of last 10 years..
@@ -130,6 +131,10 @@ pension.calculator = function(amodel) {
                                 if(yr1!=yr0) sal=s0+(i-yr0)/(yr1-yr0)*(s1-s0);
                                 v.salaryHistoryArray.push({"year":i,"salary":sal,"yearsOfService":1});
                             };
+                            this.computeFinalAverageSalary(v);
+                            return v;
+                        },
+                        computeFinalAverageSalary:function(v){
                             //calculate the average best 4 years in last 10...
                             var last10yrs=v.salaryHistoryArray.slice(-10);
                             last10yrs.sort(function(a,b){return a.salary-b.salary;});
@@ -142,8 +147,7 @@ pension.calculator = function(amodel) {
                             };
                             v.finalAverage=Math.round(v.finalAverage/last10yrs.length);
                             v.avgYr=Math.round(v.avgYr/last10yrs.length);
-
-
+                            return v;
                         }
 	};
 	

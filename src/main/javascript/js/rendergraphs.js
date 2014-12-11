@@ -1,15 +1,57 @@
 SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
     
+    //cformat converts number to formatted currency string...
+    var cformat=d3.format("$,.3r");
+   
+    // current scope object... gets set in render function... but is made globally available...
+    var v={};
+    var xmax=0;
+    var xmin=0;
     
     //use v.salaryHistoryArray to draw graph...
-    this.render=function(v){//v is the scope object with various year and salary properties...
+    this.render=function(scope){//v is the scope object with various year and salary properties...
+        //set v to scope object
+        v=scope;
 
         //reset the domain of the coordinate calculators
-        x.domain(v.salaryHistoryArray.map(function(d) { return d.year; }));
+        var yrarr=v.salaryHistoryArray.map(function(d) { return d.year; });
+        // add a couple more years
+        yrarr.push(yrarr[yrarr.length-1]+1);
+        yrarr.push(yrarr[yrarr.length-1]+1);
+        //assign year array to x domain...
+        x.domain(yrarr);
         y.domain([0, d3.max(v.salaryHistoryArray, function(d) { return d.salary; })]);
+        
+        //determine boundaries of x axis..
+        xmin=d3.min(x.domain());
+        xmax=d3.max(x.domain());
+        
+        //draw axis
+        drawAxis();
+        //draw salary bars
+        drawSalaryBars();
+        //draw Average final salary text
+        drawAvgFinalSalary();
+        //draw contributions
+        drawContributions();
+        //draw benefits
+        drawBenefits();
+        //draw npv contributions
+        drawNPVContributions();
+        //draw NPV benefits
+        drawNPVBenefits();
+    };
+    var drawAxis=function(){
+        //need to call the axis setup scripts again
+        svg.selectAll(".x.axis").call(xAxis);
+        svg.selectAll(".y.axis").call(yAxis);
+        
 
-        //cformat converts number to formatted currency string...
-        var cformat=d3.format("$,.3r");
+        //adjust ticks when more than 25 years, skip odd ticks...
+        if(xmax-xmin>25) $("g.x g.tick text:odd").hide();
+        else $("g.x g.tick text:odd").show();
+    };
+    var drawSalaryBars=function(){
         //get the collection of bars that already exist (if any) and attach v.salaryHistoryArray to it...
         var bars=svg.selectAll(".bar")
           .data(v.salaryHistoryArray);
@@ -38,18 +80,8 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .classed("future",function(d){var dt=new Date();if(d.year>dt.getFullYear()) return true; else return false;});
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
-        //need to call the axis setup scripts again
-        svg.selectAll(".x.axis").call(xAxis);
-        svg.selectAll(".y.axis").call(yAxis);
-        
-        //determine boundaries of x axis..
-        var xmin=d3.min(x.domain());
-        var xmax=d3.max(x.domain());
-
-        //adjust ticks when more than 25 years, skip odd ticks...
-        if(xmax-xmin>25) $("g.x g.tick text:odd").hide();
-        else $("g.x g.tick text:odd").show();
-
+    };
+    var drawAvgFinalSalary=function(){
         //draw avg salary line
         $(".avsal").remove();
         svg.append("line").attr("class","avsal")
@@ -70,9 +102,13 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .text("Average Final Salary "+cformat(v.finalAverage))
           .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
           
-    }//this is the end of the render function
+    }//this is the end drawAvgFinalSalary
+    var drawContributions=function(){};
+    var drawBenefits=function(){};
+    var drawNPVContributions=function(){};
+    var drawNPVBenefits=function(){};
 
-    //This is all one time setup stuff....
+    //set up global variables...
     var margin = {top: 20, right: 80, bottom: 30, left: 40},
         width = 860 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;

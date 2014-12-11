@@ -24,6 +24,7 @@ pensionApp.controller('PensionController', function($scope) {
   $scope.currentYear=curryr.getFullYear();
   $scope.currentSalary=70000;
   $scope.endingYear=null;
+  $scope.salaryHistoryArray=[];
   $scope.endingSalary=78000;
   $scope.calculateContribution=1;
   $scope.status401k=0;//0=do not include, 1=simple estimate, 2=detailed estimate
@@ -51,7 +52,7 @@ pensionApp.controller('PensionController', function($scope) {
         var model = new SERSModel();
         var calculator = new pension.calculator(model);
         var scope=$scope;
-        calculator.setSalaryEstimates(scope);
+        calculator.setSalaryEstimates(scope);//causes sideffect on scope to include scope.salaryHistoryArray
         //we don't want to show current year salary if person is already retired...
         if(scope.currentYear>scope.endingYear)  $(".currentYear").hide();
         else $(".currentYear").show();
@@ -63,9 +64,22 @@ pensionApp.controller('PensionController', function($scope) {
     //$scope.$watchGroup(["yearsOfService","finalAverageSalary","hireDate"],setSalaryEstimates);
     $scope.setFinalAvgFromEstimates=function(nv,ov,scope){
         var scope=$scope;
+        //check for gaps in years if years were incremented
+        var i=0, lastyr=0, thisyr=0;
+        var yra={};
+        while(i<$scope.salaryHistoryArray.length&&i<40){
+            yra=$scope.salaryHistoryArray[i++];
+            while(lastyr>=yra.year) yra.year++;
+            if(yra&&yra.year) thisyr=yra.year;
+            if(lastyr>0 && thisyr-lastyr>1) {
+                $scope.salaryHistoryArray.splice(i-1,0,{"year":lastyr+1, "salary":0,"yearsOfService":0});
+            }
+            lastyr=$scope.salaryHistoryArray[i-1].year;
+        }
+        //get model and compute final avg salary
         var model = new SERSModel();
         var calculator = new pension.calculator(model);
-        calculator.computeSalaryHistory(scope);
+        calculator.computeFinalAverageSalary(scope);
         salaryGraph.render(scope);
         //then we need to calculate the finalAverageSalary... and years of service
         scope.yearsOfService=scope.endingYear-scope.startingYear;
