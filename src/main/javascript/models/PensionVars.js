@@ -5,6 +5,7 @@ function SERSVars(){
 		this.initialSalary = {};
 		this.currentSalary = {};		
 		this.ageAtRetirement = {};
+		this.salaryHistory = {};
 		
 		this.occupation = {
             standards: ['teacher', 'judge', 'policeOfficer'],
@@ -166,5 +167,8 @@ getSalaryAtYear: function(yearOfSvc, simDate){
 	return x;
 		
 		
-	}	
+	},
+	calculateSalaryHistory: function(){
+		
+	}
 };
