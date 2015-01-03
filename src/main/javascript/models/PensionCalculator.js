@@ -129,7 +129,7 @@ pension.calculator = function(amodel) {
                             for(var i=yr0;i<=yr1;i++){
                                 var sal=s0;
                                 if(yr1!=yr0) sal=s0+(i-yr0)/(yr1-yr0)*(s1-s0);
-                                v.salaryHistoryArray.push({"year":i,"salary":sal,"yearsOfService":1});
+                                v.salaryHistoryArray.push({"year":i,"salary":sal,"yearsOfService":1, "contributionRate":8});
                             };
                             this.computeFinalAverageSalary(v);
                             return v;

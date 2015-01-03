@@ -25,6 +25,24 @@ pensionApp.controller('PensionController', function($scope) {
   $scope.currentSalary=70000;
   $scope.endingYear=null;
   $scope.salaryHistoryArray=[];
+  $scope.salaryHistoryEditYear=0;
+  $scope.salaryHistoryEditIndex=-1;
+  $scope.salaryHistoryDecrement=function(){
+      if($scope.salaryHistoryEditIndex<1) $scope.salaryHistoryEditIndex=$scope.salaryHistoryArray.length;
+      $scope.salaryHistoryEditIndex--;
+      if($scope.salaryHistoryEditIndex>=0&&$scope.salaryHistoryEditIndex<$scope.salaryHistoryArray.length){
+        $scope.salaryHistoryEditYear=$scope.salaryHistoryArray[$scope.salaryHistoryEditIndex].year;
+        salaryGraph.be_show([$scope.salaryHistoryEditYear,$scope.salaryHistoryEditIndex]);
+      }
+  }
+  $scope.salaryHistoryIncrement=function(){
+      if($scope.salaryHistoryEditIndex>=$scope.salaryHistoryArray.length-1) $scope.salaryHistoryEditIndex=-1;
+      $scope.salaryHistoryEditIndex++;
+      if($scope.salaryHistoryEditIndex>=0&&$scope.salaryHistoryEditIndex<$scope.salaryHistoryArray.length){
+        $scope.salaryHistoryEditYear=$scope.salaryHistoryArray[$scope.salaryHistoryEditIndex].year;
+        salaryGraph.be_show([$scope.salaryHistoryEditYear,$scope.salaryHistoryEditIndex]);
+      }
+  }
   $scope.endingSalary=78000;
   $scope.calculateContribution=1;
   $scope.status401k=0;//0=do not include, 1=simple estimate, 2=detailed estimate
@@ -92,6 +110,9 @@ pensionApp.controller('PensionController', function($scope) {
 
     var salaryGraph=new SalaryGraph("#contributionsGraph");
       salaryGraph.setup();
+
+    //set up detailed salary editor...
+    $scope.salaryHistoryIncrement();
 
     //when button is clicked...
     $scope.calculate=function(){

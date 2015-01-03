@@ -13,8 +13,13 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //set v to scope object
         v=scope;
 
+
         //reset the domain of the coordinate calculators
-        var yrarr=v.salaryHistory.map(function(d) { return d.year; });
+        var yrarr=v.salaryHistory.map(
+            function(d) { 
+                return d.year; 
+            }
+        );
         // add a couple more years
         yrarr.push(yrarr[yrarr.length-1]+1);
         yrarr.push(yrarr[yrarr.length-1]+1);
@@ -30,11 +35,13 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         drawAxis();
         //draw salary bars
         drawSalaryBars();
+        drawContributionBars();
         drawBarEditor();
         //draw Average final salary text
         drawAvgFinalSalary();
         //draw contributions
         drawContributions();
+        drawTotalContribution();
         //draw benefits
         drawBenefits();
         //draw npv contributions
@@ -42,15 +49,16 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //draw NPV benefits
         drawNPVBenefits();
     };
+    var render=this.render;//makes it available internally...
+    
     var drawAxis=function(){
         //need to call the axis setup scripts again
         svg.selectAll(".x.axis").call(xAxis);
         svg.selectAll(".y.axis").call(yAxis);
         
-
+        $("g.x g.tick text").show();
         //adjust ticks when more than 25 years, skip odd ticks...
         if(xmax-xmin>25) $("g.x g.tick text:odd").hide();
-        else $("g.x g.tick text:odd").show();
     };
     var drawSalaryBars=function(){
         //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
@@ -65,24 +73,64 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
               if(d.year>dt.getFullYear()) return true; 
               else return false;
           })
-          .attr("width", x.rangeBand())
+          .attr("width", function(d){return x.rangeBand()*d.yearsOfService;})
           .attr("y", function(d) { return y(d.salary); })
-          .attr("title", function(d) { var dt=new Date(); return cformat(d.salary)+(dt.getFullYear()<d.year?" (estimated)":""); })
+          .attr("title", function(d) { var dt=new Date(); return "Salary: "+ cformat(d.salary)+(dt.getFullYear()<d.year?" (estimated)":""); })
           .attr("height", function(d) { return height - y(d.salary); });
         //same as above except that the enter() applies only when there is more data than existing bars... 
         //so for each new data point it gets a rect tag appended and all the shape and title settings appied...
         bars.enter().append("rect")
           .attr("class", "bar")
           .attr("x", function(d) { return x(d.year); })
-          .attr("width", x.rangeBand())
+          .attr("width", function(d){return x.rangeBand()*d.yearsOfService;})
           .attr("y", function(d) { return y(d.salary); })
-          .attr("title", function(d) { var dt=new Date(); return cformat(d.salary)+(dt.getFullYear()<d.year?" (estimated)":""); })
+          .attr("title", function(d) { var dt=new Date(); return "Salary: "+ cformat(d.salary)+(dt.getFullYear()<d.year?" (estimated)":""); })
           .attr("height", function(d) { return height - y(d.salary); })
           .classed("future",function(d){var dt=new Date();if(d.year>dt.getFullYear()) return true; else return false;});
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
-    };
-    
+        
+        $(".bar").click(function(){
+            //set bar edit to show the current year...
+                v.salaryHistoryEditYear=be_last_index[0];
+                v.salaryHistoryEditIndex=be_last_index[1];
+                v.$apply();
+                be_show(be_last_index);
+            
+        })
+    };//end of drawSalaryBars
+
+    var drawContributionBars=function(){
+        //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
+        var bars=svg.selectAll(".cbar")
+          .data(v.salaryHistory);
+        //then reset the shape and title of each existing bar based on new data...
+        bars.attr("x", function(d) { return x(d.year); })
+          .classed("future",function(d,i){
+              //this guy will set or remove the class "future" depending on whether the function returns true... 
+              //this is how we change the appearance of future bars as opposed to existing bars...
+              var dt=new Date();
+              if(d.year>dt.getFullYear()) return true; 
+              else return false;
+          })
+          .attr("width", function(d){return x.rangeBand()*d.yearsOfService;})
+          .attr("y", function(d) { return y(d.contribution); })
+          .attr("title", function(d) { var dt=new Date(); return "Contribution: "+ cformat(d.contribution)+(dt.getFullYear()<d.year?" (estimated)":""); })
+          .attr("height", function(d) { return height - y(d.contribution); });
+        //same as above except that the enter() applies only when there is more data than existing bars... 
+        //so for each new data point it gets a rect tag appended and all the shape and title settings appied...
+        bars.enter().append("rect")
+          .attr("class", "cbar")
+          .attr("x", function(d) { return x(d.year); })
+          .attr("width", function(d){return x.rangeBand()*d.yearsOfService;})
+          .attr("y", function(d) { return y(d.contribution); })
+          .attr("title", function(d) { var dt=new Date(); return "Contribution: "+ cformat(d.contribution)+(dt.getFullYear()<d.year?" (estimated)":""); })
+          .attr("height", function(d) { return height - y(d.contribution); })
+          .classed("future",function(d){var dt=new Date();if(d.year>dt.getFullYear()) return true; else return false;});
+        // and when there are more existing bars than data, exit() is appied and it removes the bar...
+        bars.exit().remove();
+    };//end contribution bars...
+
     // a utility used below in drawBarEdit()...
     var be_last_index=[0,-1];
     var be_show=function(yr){//yr is an array [yr, i] where i is index of year in array...
@@ -119,8 +167,13 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .on("click", function(){
                 v.salaryHistoryEditYear=be_last_index[0];
                 v.salaryHistoryEditIndex=be_last_index[1];
+                v.salaryHistory[be_last_index[1]].salary=0;
+                v.salaryHistory[be_last_index[1]].contribution=0;
+                v.salaryHistory[be_last_index[1]].yearsOfService=0;
                 v.$apply();
                 be_show(be_last_index);
+                vals.computeFinalAverageSalary();
+                render(vals);
             })
         be.selectAll(".be_edit")
             .on("mouseover", function(){
@@ -160,13 +213,43 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
           
     }//this is the end drawAvgFinalSalary
+    var drawTotalContribution=function(){
+        //draw avg salary line
+        var totContribution=0;
+        var lastContribution=0;
+        for(var i=0;i<v.salaryHistory.length;i++){
+            lastContribution=v.salaryHistory[i].contribution;
+            totContribution+=lastContribution;
+        };
+        $(".totcontr").remove();
+        svg.append("line").attr("class","totcontr")
+           .attr("x1",x(v.salaryHistory[v.salaryHistory.length-1].year))
+           .attr("y1",y(lastContribution))
+           .attr("x2",width+margin.right)
+           .attr("y2",y(lastContribution))
+           .attr("stroke","#6c6")
+           .attr("stroke-width","3")
+           .style("stroke-dasharray",("3, 3"));
+        //and the text
+        svg.append("text").attr("class","avsal")
+          .attr("x", width)
+          .attr("y",y(lastContribution)-50)
+          .attr("fill","#6c6")
+          .attr("dy",".7em")
+          .style("text-anchor", "start")
+          .text("Total Contribution "+cformat(totContribution))
+          .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
+          
+    }//this is the end drawTotalContribution
+
+
     var drawContributions=function(){};
     var drawBenefits=function(){};
     var drawNPVContributions=function(){};
     var drawNPVBenefits=function(){};
 
     //set up global variables...
-    var margin = {top: 20, right: 80, bottom: 30, left: 40},
+    var margin = {top: 20, right: 80, bottom: 30, left: 45},
         width = 860 - margin.left - margin.right,
         height =300 - margin.top - margin.bottom;
 
