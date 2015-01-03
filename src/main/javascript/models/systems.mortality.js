@@ -1,7 +1,7 @@
 
-PC.MAX_AGE = 115;
+pension.MAX_AGE = 115;
 
-PC.mortalityRates = {
+pension.mortalityRates = {
 	"female": {
 		0: 0.001615,
 		1: 0.000680,

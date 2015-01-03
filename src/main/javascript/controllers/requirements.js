@@ -102,22 +102,8 @@ pensionApp.controller('PensionController', function($scope) {
 
     //when button is clicked...
     $scope.calculate=function(){
-      var vals = new SERSVars();
-      var model = new SERSModel();
-      var calculator = new pension.calculator(model);
-      vals.hireYear = new PC.Date(this.hireYear);
-      vals.ageAtRetirement = parseInt(this.ageAtRetirement);
-      vals.finalAverageSalary = parseInt(this.finalAverageSalary);
-      vals.yearsOfService = parseInt(this.yearsOfService);
-      vals.occupation=this.chosenOccupation.occupation;
-      vals.startingYear=this.startingYear;
-      vals.startingSalary=this.startingSalary;
-      vals.currentYear=this.currentYear;
-      vals.currentSalary=this.currentSalary;
-      vals.endingYear=this.endingYear;
-      vals.endingSalary=this.endingSalary;
-
-      var result = calculator.calculate(vals);
+      var model = new pension.model(vals);
+      var result=model.calculate(pension.environment());
       this.maleAnnuity=result.annuity.male;
       this.femaleAnnuity=result.annuity.female;
     }

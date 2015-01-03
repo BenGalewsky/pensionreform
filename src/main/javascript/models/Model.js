@@ -14,7 +14,7 @@ pension.model = function(aPerson) {
 			totalContributions: {},
 			
 			getMultiplier: function(){
-				benefitMultiplier = person.yearsOfService * this.annualMultiplier;
+				var benefitMultiplier = this.person.yearsOfService * this.annualMultiplier;
 				if (benefitMultiplier > this.maxMultiplier) benefitMultiplier = this.maxMultiplier;
 				
 				return benefitMultiplier;
@@ -38,7 +38,7 @@ pension.model = function(aPerson) {
 						this.COLA.max, 
 						this.COLA.start, this.COLA.compounded, 
 						this.getAnnualPensionBenefit(), 
-						person.ageAtRetirement,
+						this.person.ageAtRetirement,
 						aEnv);
 				
 				return rslt;
@@ -74,14 +74,14 @@ pension.model = function(aPerson) {
 							}
 						}
 						
-						maleMort *= (1 - PC.mortalityRates.male[age + i - 1]);
-						femaleMort *= (1 - PC.mortalityRates.female[age + i - 1]);
+						maleMort *= (1 - pension.mortalityRates.male[age + i - 1]);
+						femaleMort *= (1 - pension.mortalityRates.female[age + i - 1]);
 					}
 				 
 					var payment = (!COLAMax || COLAMax >= annualPension) ? annualPension*(1+COLA) : COLAMax*COLA + annualPension;
 					annuityCost.male += payment * discount * maleMort;
 					annuityCost.female += payment * discount * femaleMort;
-				console.log("age:",age+i,", paymt:",payment,", pd:",payment*discount," pdm:",payment*discount*maleMort,"mort:",maleMort,"rate",PC.mortalityRates.male[age + i - 1],"cost:", annuityCost.male);
+				console.log("age:",age+i,", paymt:",payment,", pd:",payment*discount," pdm:",payment*discount*maleMort,"mort:",maleMort,"rate",pension.mortalityRates.male[age + i - 1],"cost:", annuityCost.male);
 				}
 				rslt.annuity = annuityCost; 
 				return rslt;
