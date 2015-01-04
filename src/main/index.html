@@ -52,10 +52,11 @@
     <div class="container" ng-app="pensionApp" ng-controller="PensionController">
 
       <div class="starter-template">
-        <h1>Pension Calculator</h1>
+        <h1>Pension Calculator - Beta Site</h1>
         <!-- <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p> -->
       </div>
         <table class="table table-condensed table-striped">
+            <tr><td colspan="2">This site is far from being done.  The intent is to provide four areas to help pensioners and tax payers understand the math behind various pension proposals: 1) A pension calculator to see how reform packages affect individuals (that will be this page). 2) An infographic summarizing how reform impacts a variety of pensioners and active employees. 3) An infographic summarizing the macro picture of how reform impacts the state debt owed to the funds.  4) A model of the macro picture so that interested parties can experiment with various parameters like COLA rates, retirement age, contribution percentages, investment returns, and inflation.<br><br>Feel free to provide feedback on what you would like to see the site do for you.  Email modelling-pension-reform-in-illinois@googlegroups.com</td></tr>
             <tr>
                 <td>What is your job/pension?</td><td><select ng-model="vals.chosenOccupation" ng-options="occupation.label for occupation in occupations"></select></td>
                 <td></td>
@@ -121,7 +122,9 @@
             <div id="contributionsGraph"> </div>
         </div>
         <div class="section">
-            Calculate Net Present Value of Pension <span class="btn btn-info" ng-click="calculate()">Calculate</span>        <table class="table table-striped table-condensed">
+            Calculate Net Present Value of Pension <span class="btn btn-info" ng-click="calculate()">Calculate</span>
+            (Currently not working)
+            <table class="table table-striped table-condensed">
                 <tr>
                     <th>Output</th>
                     <th>Current SERS Calculations</th>
