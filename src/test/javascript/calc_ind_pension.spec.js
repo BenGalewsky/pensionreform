@@ -309,20 +309,37 @@ describe("Pension Calculator", function(){
 				beforeEach(function(){
 					spyOn(pension.SERS, "getTier").and.returnValue(1);	
 					person = pension.person();
+					env = pension.environment();
+
 				});
 				
+				it("Should be the annual benefit if you die the year after retirement", function(){
+					person.ageAtRetirement = 65;
+					person.ageAtDeath = 66;
+														
+					model = pension.SERS.constructModelData(person);		
+					spyOn(model, "getAnnualPensionBenefit").and.returnValue(1000);
+					
+					var result = model.calculate(env);
+					
+					expect(result.annuity).toBeCloseTo(1000, 0);
+					expect(result.benefitHistory.length).toBe(1);
+				});
+											
 				it("Should match manhatten calculator", function(){
 					person.ageAtRetirement = 65;
 					person.finalAverageSalary = 75000;
 					person.yearsOfService = 20;
+					person.ageAtDeath = 85;
 					
 					env = pension.environment();
 				
 					model = pension.SERS.constructModelData(person);						
 					var result = model.calculate(env);
 					
-					expect(result.annuity.female).toBeCloseTo(548937, 0);
-					expect(result.annuity.male).toBeCloseTo(492696, 0);
+					//expect(result.annuity).toBeCloseTo(548937, 0);
+					expect(result.benefitHistory.length).toBe(85 - 65);
+
 				});
 			});
 		});
