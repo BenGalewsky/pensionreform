@@ -238,16 +238,13 @@ describe("Pension Calculator", function(){
 				
 			});
 			it("Should say I've worked 25 years if today is 2014 and I started in 1989", function(){
-				person.hireDate=new PC.Date("1/1/1989");
-				
-				var simDate = new PC.Date("1/1/2014");
-				expect(person.getYearsOfSvcAtDate(simDate)).toBe(25);
+				person.hireYear=1989;
+				expect(person.getYearsOfSvcAtYear(2014)).toBe(25);
 			});
 			
 			it("Should say I retired after 25 years if I started in 1989, was born in 1949 and retired at age 65", function(){
-				person.hireDate=new PC.Date("1/1/1989");				
-				simDate = new PC.Date("1/1/2014");
-				person.birthDate = new PC.Date("1/1/1949");
+				person.hireYear=1989;
+				person.birthYear = 1949;
 				person.ageAtRetirement = 65;
 				expect(person.getYearsAtRetirement()).toBe(25);
 			});
@@ -255,9 +252,9 @@ describe("Pension Calculator", function(){
 			describe("Salary at year", function(){
 				
 				beforeEach(function(){
-					person.hireDate=new PC.Date("1/1/1989");				
-					simDate = new Date("1/1/2014");
-					person.birthDate = new PC.Date("1/1/1949");
+					person.hireYear=1989;
+					simYear = 2014;
+					person.birthYear = 1949;
 					person.ageAtRetirement = 65;
 					
 					person.initialSalary = 30000;
@@ -268,21 +265,21 @@ describe("Pension Calculator", function(){
 				
 				it("Should be zero if the year is after retirement", function(){
 					person.ageAtRetirement = 65;
-					expect(person.getSalaryAtYear(26, simDate)).toBe(0);
+					expect(person.getSalaryAtYear(26, simYear)).toBe(0);
 				});
 				
 				it("Should be my initial salery my first year", function(){
-					expect(person.getSalaryAtYear(0, simDate)).toBeCloseTo(30000);					
+					expect(person.getSalaryAtYear(0, simYear)).toBeCloseTo(30000);					
 				});
 				
 				it("Should be my current salary if measured today", function(){
-					simDate = new PC.Date("1/1/2000"); // 11 years after hire date
-					expect(person.getSalaryAtYear(11, simDate)).toBeCloseTo(67000);					
+					simYear = 2000; // 11 years after hire date
+					expect(person.getSalaryAtYear(11, simYear)).toBeCloseTo(67000);					
 				});
 				
 				it("Should be my final salary if measured on my last year", function(){
-					simDate = new PC.Date("1/1/2000"); // 11 years after hire date
-					expect(person.getSalaryAtYear(25, simDate)).toBeCloseTo(75000);					
+					simYear = 2000; // 11 years after hire date
+					expect(person.getSalaryAtYear(25, simYear)).toBeCloseTo(75000);					
 				});				
 				
 			});
@@ -291,18 +288,19 @@ describe("Pension Calculator", function(){
 		
 		describe("Salary History", function(){
 			beforeEach(function(){
-				person.hireDate=new PC.Date("1/1/1989");				
-				simDate = new PC.Date("1/1/2014");
-				person.birthDate = new PC.Date("1/1/1949");
+				person.hireYear =1989;
+				simYear = 2014;
+				person.birthYear = 1949;
 				person.ageAtRetirement = 65;
 				
 				person.initialSalary = 30000;
 				person.currentSalary = 67000;
 				person.finalAverageSalary = 75000;				
 			});
-			it("Should create 26 elements", function(){
-				person.generateDefaultSalaryHistory(simDate);
-				expect(person.salaryHistory.length).toBe(26);
+			
+			it("Should create 25 elements", function(){
+				person.generateDefaultSalaryHistory(simYear);
+				expect(person.salaryHistory.length).toBe(25);
 			});
 			
 		});

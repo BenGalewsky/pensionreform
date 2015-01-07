@@ -1,33 +1,36 @@
 var pension = pension || {};
 var curryr=new Date();
 pension.person = function(aEnv) {
-        if(aEnv==undefined) aEnv=pension.environment();
+	
+	if(aEnv===undefined) aEnv=pension.environment();
+	
 	var that = {
-                        env:aEnv,
-			hireYear : 1994,
-			birthYear : 1960,
-			startingSalary : null,//to be calculated...
-                        currentYear: curryr.getFullYear(),
-			currentSalary : null,//to be calculated or entered...
-                        endingYear: null,//to be calculated or entered...
-                        endingSalary: null,//to be calculated or entered...
-                        finalAverageSalary: 75000,
-                        yearsOfService: null,//to be calculated or entered...
-			ageAtRetirement : 65,
-                        gender:'f',
+            env:aEnv,
+			hireYear : {},
+			birthYear : {},
+			ageAtDeath: {},
+			startingSalary : {},
+            currentYear: curryr.getFullYear(),
+			currentSalary : {},
+            endingYear: {},
+            endingSalary: {},
+            finalAverageSalary: {},
+            yearsOfService: {},
+			ageAtRetirement : {},
+            gender:{},
 			salaryHistory : [],
-			occupation: "",
+			occupation: {},
 			useAlternativeFormula: false,
 			isCoveredBySocialSecurity: false,
 			
-			getYearsOfSvcAtDate: function(y){
+			getYearsOfSvcAtYear: function(y){
 				var years = y - this.hireYear;    
 			    return years;	
 			},
 
 			getYearsAtRetirement: function(){
 				var yearOfRetirement = this.birthYear+this.ageAtRetirement;
-				return this.getYearsOfSvcAtDate(yearOfRetirement);
+				return this.getYearsOfSvcAtYear(yearOfRetirement);
 			},
 
 			getRetirementYear: function(){
@@ -45,7 +48,7 @@ pension.person = function(aEnv) {
 				simYear = simYear || curryr.getFullYear();
 				
 				//simYear = new PC.Date(simYear);
-				var currentYears = this.getYearsOfSvcAtDate(simYear);
+				var currentYears = this.getYearsOfSvcAtYear(simYear);
 				var yearsAtRetirement = this.getYearsAtRetirement();
 				
 				// Have they already retired?
@@ -84,13 +87,14 @@ pension.person = function(aEnv) {
 					
 					
 			},
-                        finalFromFinalAvgSalary:function(f,r){
-                            //if s1=s0*(r)^yrs and we want to average the last four years then 
-                            //  start with the final salary and go backwards with
-                            //  
-                            //  f=finalAvg=
-                            return f*4/(Math.pow(r,-3)+Math.pow(r,-2)+Math.pow(r,-1)+1);
-                        },
+						
+            finalFromFinalAvgSalary:function(f,r){
+                //if s1=s0*(r)^yrs and we want to average the last four years then 
+                //  start with the final salary and go backwards with
+                //  
+                //  f=finalAvg=
+                return f*4/(Math.pow(r,-3)+Math.pow(r,-2)+Math.pow(r,-1)+1);
+            },
 				
 			generateDefaultSalaryHistory: function(aCurrentYear){
                             if (typeof aCurrentYear === "undefined") {
