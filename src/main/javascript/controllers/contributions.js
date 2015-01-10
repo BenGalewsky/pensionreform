@@ -1,5 +1,6 @@
 SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var ns=$(nodeSelector);
+    
     //cformat converts number to formatted currency string...
     var cformat=d3.format("$,.3r");
    
@@ -7,11 +8,23 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var v={};
     var xmax=0;
     var xmin=0;
+    var retirementYear;
     
     //use v.salaryHistory to draw graph...
     this.render=function(scope){//v is the scope object with various year and salary properties...
         //set v to scope object
         v=scope;
+        //if ns is hidden, we need to show it to be able to render things like text properly
+        // so we will slide off the page, show and then slide back and hide at the bottom of this script
+        var isHidden=(ns.hasClass("ng-hide"));
+        var hlft,hpos;
+        if(isHidden) {
+            hlft=ns.css("margin-left");
+            hpos=ns.css("position");
+            ns.css("position", "absolute");
+            ns.css("margin-left","2500px");
+            ns.removeClass("ng-hide");
+        }
 
 
         //reset the domain of the coordinate calculators
@@ -20,9 +33,14 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
                 return d.year; 
             }
         );
-        // add a couple more years
-        yrarr.push(yrarr[yrarr.length-1]+1);
-        yrarr.push(yrarr[yrarr.length-1]+1);
+        retirementYear=v.birthYear+v.ageAtRetirement;
+        // add a couple more years or out to retirement date if it is less than current year...
+        var mxyr=yrarr[yrarr.length-1];
+        for(var j=mxyr+1;j<Math.max(mxyr+3,retirementYear+3,v.currentYear+3);j++){
+            yrarr.push(j);
+        }
+//        yrarr.push(yrarr[yrarr.length-1]+1);
+  //      yrarr.push(yrarr[yrarr.length-1]+1);
         //assign year array to x domain...
         x.domain(yrarr);
         y.domain([0, d3.max(v.salaryHistory, function(d) { return d.salary*1.2; })]);
@@ -42,12 +60,18 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //draw contributions
         drawContributions();
         drawTotalContribution();
+        drawRetirementYear();
         //draw benefits
         drawBenefits();
         //draw npv contributions
         drawNPVContributions();
         //draw NPV benefits
         drawNPVBenefits();
+        if(isHidden) {
+            ns.css("position", hpos);
+            ns.css("margin-left",hlft);
+            ns.addClass("ng-hide")
+        }
     };
     var render=this.render;//makes it available internally...
     
@@ -205,7 +229,7 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //and the text
         svg.append("text").attr("class","avsal")
           .attr("x", width)
-          .attr("y",y(v.finalAverageSalary))
+          .attr("y",y(v.finalAverageSalary)-10)
           .attr("fill","red")
           .attr("dy",".7em")
           .style("text-anchor", "start")
@@ -241,6 +265,27 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
           
     }//this is the end drawTotalContribution
+    var drawRetirementYear=function(){
+        $(".retyear").remove();
+        svg.append("line").attr("class","retyear")
+           .attr("x1",x(retirementYear+1)+1)
+           .attr("y1",0)
+           .attr("x2",x(retirementYear+1)+1)
+           .attr("y2",y(0))
+           .attr("stroke","steelblue")
+           .attr("stroke-width","3")
+           .style("stroke-dasharray",("3, 3"));
+        //and the text
+        svg.append("text").attr("class","retyear")
+          .attr("x", x(retirementYear+1)+10)
+          .attr("y",-20)
+          .attr("fill","steelblue")
+          .attr("dy",".7em")
+          .style("text-anchor", "start")
+          .text("Retirement Year: "+retirementYear)
+          .call(wrap, 60);//see the utility function 'wrap' below, this is not native to d3...
+          
+    }//this is the end drawRetirementYear
 
 
     var drawContributions=function(){};
@@ -287,6 +332,8 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         .attr("height", height + margin.top + margin.bottom)
         .attr("fill","#e5e5e5")
         .attr("stroke","#e5e5e5");
+    var svg=cnvs.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     //set up bar editor menu...
     var be=cnvs.append("g")
         .attr("id","barEditor")
@@ -308,8 +355,6 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         .attr("text-anchor", "middle")
         .attr("x",7.5)
         .attr("y",15);
-    var svg=cnvs.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     //one time only, draw the axes on the graphing space... based on any data that exists...
     this.setup= function() {
@@ -359,8 +404,10 @@ function wrap(text, width) {
         tspan.text(line.join(" "));
         line = [word];
         tspan = text.append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        //console.log(tspan);
       }
     }
+    //console.log("wrap done: "+text.text());
   });
 }
 // a patch to return ordinal invert values (mouse pos -> year)

@@ -12,6 +12,7 @@ pension.model = function(aPerson) {
 		COLA : {},
 		contribPct : {},
 		totalContributions : {},
+                env:{},
 
 		getMultiplier : function() {
 			var benefitMultiplier = this.person.yearsOfService * this.annualMultiplier;
@@ -33,8 +34,9 @@ pension.model = function(aPerson) {
 		},
 
 		calculate : function(aEnv) {
+                    if(aEnv==undefined) aEnv=this.env;
 
-			var rslt = this.calculateAnnuity(this.COLA.rate, this.COLA.max,
+                    var rslt = this.calculateAnnuity(this.COLA.rate, this.COLA.max,
 					this.COLA.start, this.COLA.compounded, this
 							.getAnnualPensionBenefit(),
 					this.person.ageAtRetirement, this.person.ageAtDeath, aEnv);
@@ -77,15 +79,21 @@ pension.model = function(aPerson) {
   							annualPension * (1 + COLA)
 						: 	COLAMax * COLA + annualPension;
   							
-				annuityCost += payment * discount;
+				
 				rslt.benefitHistory.push({
 					"age" : age + i,
 					"payment" : payment,
-					"presentValue" : payment * discount,
-					"accumulatedCost" : annuityCost
+					"presentValue" : Math.round(payment * discount),
+					"accumulatedCost" : 0
 				});
 				console.log(rslt.benefitHistory.slice(-1)[0]);
 			}
+                        //reversing the accumulatedCost as a drawdown on how much the state has to have in the fund today to ocver the cost of the bbenefits....
+                        annuityCost=0;
+                        for(var i=rslt.benefitHistory.length-1;i>-1;i--){
+                            annuityCost += rslt.benefitHistory[i].presentValue;
+                            rslt.benefitHistory[i].accumulatedCost=annuityCost;
+                        }
 			rslt.annuity = annuityCost;
 			return rslt;
 		},

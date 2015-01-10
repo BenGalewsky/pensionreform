@@ -1,7 +1,7 @@
 #
 # ILPR_Model1.R
 #
-setwd('### WORKING DIRECTORY GOES HERE ###')
+setwd('C:\\wamp\\www\\ccade\\pensionreform\\src\\Macro Model Version 1')
 
 #
 scenario_name                   <-'ILPR'

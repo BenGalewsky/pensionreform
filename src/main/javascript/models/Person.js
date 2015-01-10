@@ -7,34 +7,61 @@ pension.person = function(aEnv) {
 
 	var that = {
 		env : aEnv,
-		hireYear : {},
-		birthYear : {},
-		ageAtDeath : {},
-		startingSalary : {},
+		hireYear : 2000,
+		birthYear : 1970,
+		ageAtDeath : 82,
 		currentYear : curryr.getFullYear(),
-		currentSalary : {},
-		endingYear : {},
-		endingSalary : {},
-		finalAverageSalary : {},
-		yearsOfService : {},
-		ageAtRetirement : {},
-		gender : {},
+		ageAtRetirement : 65,
+		currentSalary : 70000,
+		startingSalary : null,
+		endingYear : null,
+		endingSalary : null,
+		yearsOfService : null,
+		finalAverageSalary : null,
+		gender : "f",
+                active:null,//true or false...
 		salaryHistory : [],
-		occupation : {},
+		occupation : "",
 		useAlternativeFormula : false,
 		isCoveredBySocialSecurity : false,
+                totalContributions:null,
+                
+                getProbabilityOfDeath:function(){
+                    if(!this.gender||!this.birthYear||!this.currentYear||!this.ageAtDeath) return "?";
+                    var age=this.currentYear-this.birthYear;
+                    var tbl=pension.mortalityRates[vals.gender=='f'?"female":"male"];
+                    var prob=1;
+                    for(var i in tbl){
+                        if(i>age&&i<=this.ageAtDeath) prob*=(1-tbl[i]);
+                    }
+                    return Math.round((prob)*100)+"%";
+                },
+                getProbableAgeAtDeath:function(){
+                    if(!this.gender||!this.birthYear||!this.currentYear) return 0;
+                    var age=this.currentYear-this.birthYear;
+                    var tbl=pension.mortalityRates[vals.gender=='f'?"female":"male"];
+                    var prob=1;
+                    for(var i in tbl){
+                        if(i>age) prob*=(1-tbl[i])
+                        if(prob<0.501) {
+                            this.ageAtDeath=i*1;
+                            return i;
+                        }
+                    }
+                    return i;
+                },
 
-		getYearsOfSvcAtYear : function(y) {
+		obsgetYearsOfSvcAtYear : function(y) {
 			var years = y - this.hireYear;
 			return years;
 		},
 
-		getYearsAtRetirement : function() {
+		obsgetYearsAtRetirement : function() {
 			var yearOfRetirement = this.birthYear + this.ageAtRetirement;
 			return this.getYearsOfSvcAtYear(yearOfRetirement);
 		},
 
-		getRetirementYear : function() {
+		obsgetRetirementYear : function() {
 			var dateOfRetirement = this.birthYear + this.ageAtRetirement;
 			return dateOfRetirement;
 		},
@@ -44,7 +71,7 @@ pension.person = function(aEnv) {
 		// estimated final average salary. 
 		// Pass in an optional simYear to establish what date "current" is relative
 		// to their salary history.
-		getSalaryAtYear : function(yearOfSvc, simYear) {
+		obsgetSalaryAtYear : function(yearOfSvc, simYear) {
 			// How many years of service today?
 			simYear = simYear || curryr.getFullYear();
 
@@ -85,35 +112,153 @@ pension.person = function(aEnv) {
 			return x;
 
 		},
+                finalAvgFromCurrentSalary:function(c,r){
+                    if(c==undefined) c=this.currentSalary;
+                    if(r==undefined) r=1+this.env.WAGE_INFLATION;
+                    if(!this.currentYear||!this.endingYear) return 0;
+                    var finalSalary=Math.round(c*Math.pow((1+this.env.WAGE_INFLATION),(this.endingYear-this.currentYear)));
+                    //we have the final Salary, now do the inverse of the next function...
+                    return Math.round(c/4*(Math.pow(r, -3) + Math.pow(r, -2) + Math.pow(r, -1) + 1));
+                },
 
 		finalFromFinalAvgSalary : function(f, r) {
+                    if(f==undefined) f=this.finalAverageSalary;
+                    if(r==undefined) r=1+this.env.WAGE_INFLATION;
 			//if s1=s0*(r)^yrs and we want to average the last four years then 
 			//  start with the final salary and go backwards with
 			//  
-			//  f=finalAvg=
+			//  f=finalAvgSalary
 			return f * 4 / (Math.pow(r, -3) + Math.pow(r, -2) + Math.pow(r, -1) + 1);
 		},
+                isActiveOrRetired:function(){//retired or inactive...
+                    if(!this.birthYear||!(this.endingYear||this.yearsOfService||this.ageAtRetirement)) this.active=null;
+                    else {
+                        
+                        var lastYear=0;
+                        if(this.endingYear) lastYear=this.endingYear;
+                        else if(this.yearsOfService) lastYear=this.hireYear+this.yearsOfService;
+                        else lastYear=this.birthYear+this.ageAtRetirement;
+                        this.active=(lastYear>=this.currentYear);
+                        
+                    }
+                    return this.active;
+                },
+                
+                setCurrentYear:function(){
+                    if(!this.currentYear) this.currentYear=curryr.getFullYear();
+                    //if(this.currentYear>this.hireYear+this.ageAtRetirement) this.active=false;
+                    //else this.active=true;
+                },
+                
+                //uses current salary to estimate ending salary
+                estimateFromCurrent:function(){
+                    this.setCurrentYear();
+                    this.endingSalary=Math.round(this.currentSalary*Math.pow((1+this.env.WAGE_INFLATION),(this.endingYear-this.currentYear)));
+                    this.startingSalary=Math.round(this.currentSalary*Math.pow((1+this.env.WAGE_INFLATION),(this.hireYear-this.currentYear)));
+                    this.generateDefaultSalaryHistory();
+                },
 
-		generateDefaultSalaryHistory : function(aCurrentYear) {
-			if (typeof aCurrentYear === "undefined") {
-				aCurrentYear = curryr.getFullYear();
-			}
+                //uses ending salary to estimate other salaries
+                estimateFromEnding:function(){
+                    this.setCurrentYear();
+                    this.currentSalary=Math.round(this.endingSalary*Math.pow((1+this.env.WAGE_INFLATION),(this.currentYear-this.endingYear)));
+                    this.startingSalary=Math.round(this.endingSalary*Math.pow((1+this.env.WAGE_INFLATION),(this.hireYear-this.endingYear)));
+                    this.generateDefaultSalaryHistory();
+                },
+
+                //uses finalAvgSalary to estimate other salaries
+                estimateFromFinalAvg:function(){
+                    this.endingSalary=Math.round(this.finalFromFinalAvgSalary());
+                    this.estimateFromEnding();
+                },
+
+                //this will create a salary history array from estimated data points
+                //Assumes we know beginning and ending years and salaries, also current if an active employee...
+		generateDefaultSalaryHistory : function() {
+                    if(!this.hireYear||!this.startingSalary||!this.currentSalary||!this.endingSalary||!this.endingYear);
+                    this.salaryHistory = [];
+                    
+                    //calculate start to current ...
+                    var yr1 = this.currentYear;
+                    var yr0 = this.hireYear;
+
+                    var s1 = this.currentSalary, s0 = this.startingSalary;
+                    var r = (1 + this.env.WAGE_INFLATION);//rate of inflation between salary points... recalculated below.
+                    var sal = 0;//salary... calculated below...
+                    var i;
+
+                    // but only if current is less than ending year...
+                    if (this.currentYear <= this.endingYear) {
+                            r = Math.pow(s1 / s0, 1 / (yr1 - yr0));//determine the rate of inflation between yr0 and yr1...
+                            for (i = yr0; i < yr1; i++) {
+                                    sal = Math.round(s0 * Math.pow(r, i - yr0));
+                                    this.salaryHistory.push({
+                                            "year" : i,
+                                            "salary" : sal,
+                                            "yearsOfService" : 1,
+                                            "contribution" : Math.round(sal * 0.08)
+                                    });
+                            }
+
+                            //move current to start...
+                            yr0 = yr1;
+                            s0 = s1;
+                    }
+
+                    //now calculate from start (or current) to ending year...
+                    s1 = this.endingSalary;
+                    yr1 = this.endingYear;
+                    r = Math.pow(s1 / s0, 1 / (yr1 - yr0));
+                    for (i = yr0; i <= yr1; i++) {
+                            sal = s0;
+                            if (yr1 != yr0)
+                                    sal = Math.round(s0 * Math.pow(r, i - yr0));
+
+                            this.salaryHistory.push({
+                                    "year" : i,
+                                    "salary" : sal,
+                                    "yearsOfService" : 1,
+                                    "contribution" : Math.round(sal * 0.08)
+                            });
+                    }
+                    
+                },
+                
+                //this will create a salary history array from estimated data points
+                //Assumes we know beginning and ending years and salaries, also current if an active employee...
+		obsolete_generateDefaultSalaryHistory : function() {
+                        if(!this.hireYear||!this.startingSalary||!this.currentSalary||!this.endingSalary||!this.endingYear)
 			//take starting, current, and ending salary info and convert to salary history array
 			// also compute final average in 4 best of last 10 years..
 			this.salaryHistory = [];
 
 			//estimate start, current, and ending year/salary if they are not provided...
 			yr1 = this.getRetirementYear();//based on birthYear and RetirementAge
+                        
+                        //check to see if the years of service are less than retireyear-hireyear
+                        //if so, then use years of service as basis for ending year...
 			if (!this.endingYear)
-				this.endingYear = yr1;
-			if (!this.endingSalary)
+                        {
+                            if(this.yearsOfService&&this.yearsOfService<yr1-this.hireYear) yr1=this.hireYear+this.yearsOfService;
+                            this.endingYear = yr1;
+                        }
+                        
+                        //reset yr1 to resulting ending year... for use below.
+                        yr1=this.endingYear;
+                        
+                        //now recalculate endingSalary if needed...
+			if (!this.endingSalary){
+                            //assume average wage inflation of 4% for two years after the average
+                            if(this.finalAverageSalary)
 				this.endingSalary = Math
 						.round(this.finalFromFinalAvgSalary(
 								this.finalAverageSalary,
-								(1 + this.env.WAGE_INFLATION)));//assume average wage inflation of 4% for two years after the average
+								(1 + this.env.WAGE_INFLATION)));
+                            else if(this.currentSalary) this.endingSalary=Math.round(this.currentSalary*Math.pow((1+this.env.WAGE_INFLATION),(yr1-aCurrentYear)));
+                        };
+			
 			if (!this.yearsOfService)
 				this.yearsOfService = this.endingYear - this.hireYear;
-			
 			if (!this.startingSalary)
 				this.startingSalary = Math.round(
 						this.endingSalary / Math.pow((1 + this.env.WAGE_INFLATION),
@@ -129,7 +274,7 @@ pension.person = function(aEnv) {
 			var yr0 = this.hireYear;
 
 			var s1 = this.currentSalary, s0 = this.startingSalary;
-			var r = 1.04;//rate of inflation between salary points... recalculated below.
+			var r = (1 + this.env.WAGE_INFLATION);//rate of inflation between salary points... recalculated below.
 			var sal = 0;//salary... calculated below...
 			var i;
 			
@@ -167,7 +312,6 @@ pension.person = function(aEnv) {
 					"contribution" : Math.round(sal * 0.08)
 				});
 			}
-			
 			this.computeFinalAverageSalary();
 		},
 
@@ -190,7 +334,14 @@ pension.person = function(aEnv) {
 			);
 			
 			this.avgYr = Math.round(this.avgYr / last10yrs.length);
-		}
+		},
+                computeYearsOfService:function(){
+                    var t=0;
+                    for(var i=0;i<this.salaryHistory.length;i++){
+                        t+=this.salaryHistory[i].yearsOfService;
+                    }
+                    this.yearsOfService=t;
+                }
 
 	};
 

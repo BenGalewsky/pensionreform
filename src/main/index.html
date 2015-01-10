@@ -31,6 +31,7 @@
     <script type="text/javascript" src="javascript/models/Environment.js"></script>
     <script type="text/javascript" src="javascript/models/Person.js"></script>
     <script type="text/javascript" src="javascript/models/Model.js"></script>
+    <script type="text/javascript" src="javascript/models/SERSModel.js"></script>
     <script type="text/javascript" src="javascript/models/systems.mortality.js"></script>
     <script src="javascript/angular/angular.js"></script>
     <script src="javascript/controllers/startup.js"></script>
@@ -56,52 +57,65 @@
         <!-- <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p> -->
       </div>
         <table class="table table-condensed table-striped">
-            <tr><td colspan="2">This site is far from being done.  The intent is to provide four areas to help pensioners and tax payers understand the math behind various pension proposals: 1) A pension calculator to see how reform packages affect individuals (that will be this page). 2) An infographic summarizing how reform impacts a variety of pensioners and active employees. 3) An infographic summarizing the macro picture of how reform impacts the state debt owed to the funds.  4) A model of the macro picture so that interested parties can experiment with various parameters like COLA rates, retirement age, contribution percentages, investment returns, and inflation.<br><br>Feel free to provide feedback on what you would like to see the site do for you.  Email modelling-pension-reform-in-illinois@googlegroups.com</td></tr>
+            <tr><td colspan="3">This site is far from being done.  The intent is to provide four areas to help pensioners and tax payers understand the math behind various pension proposals: 1) A pension calculator to see how reform packages affect individuals (that will be this page). 2) An infographic summarizing how reform impacts a variety of pensioners and active employees. 3) An infographic summarizing the macro picture of how reform impacts the state debt owed to the funds.  4) A model of the macro picture so that interested parties can experiment with various parameters like COLA rates, retirement age, contribution percentages, investment returns, and inflation.<br><br>Feel free to provide feedback on what you would like to see the site do for you.  Email modelling-pension-reform-in-illinois@googlegroups.com</td></tr>
             <tr>
                 <td>What is your job/pension?</td><td><select ng-model="vals.chosenOccupation" ng-options="occupation.label for occupation in occupations"></select></td>
                 <td></td>
             </tr> 
             <tr>
-                <td>In what year did you start working?</td><td class="input-group"><input type="number"  ng-model="vals.hireYear"  ng-change="setSalaryEstimates()"/></td>
+                <td>What is your gender?</td><td><select ng-model="vals.gender" ng-change="getProbableAgeAtDeath()"><option value="f">Female</option><option value="m">Male</option></select></td>
+                <td>This is used to determine how long you will receive benefits as mortality rates vary with gender and age.</td>
+            </tr> 
+            <tr>
+                <td>In what year were you born?</td><td class="input-group"><input type="number" class="form-control" is-open="opened" ng-model="vals.birthYear"  ng-change="getProbableAgeAtDeath();setEstimatedSH()"/></td>
                 <td></td>
             </tr>
             <tr>
-                <td>In what year were you born?</td><td class="input-group"><input type="number" class="form-control" is-open="opened" ng-model="vals.birthYear"  ng-change="setSalaryEstimates()"/></td>
+                <td>In what year did you start working?</td><td class="input-group"><input type="number"  ng-model="vals.hireYear"  ng-change="setEstimatedSH()"/></td>
                 <td></td>
             </tr>
             <tr>
-                <td>At what age did you retire or expect to retire?</td><td><input ng-model="vals.ageAtRetirement" type="number"  ng-change="setSalaryEstimates()"></td>
+                <td>At what age did you retire or expect to retire?</td><td><input ng-model="vals.ageAtRetirement" type="number"  ng-change="setEstimatedSH()"></td>
                 <td>  Year: {{vals.ageAtRetirement+vals.birthYear}}</td>
                 <td></td>
             </tr>
             <tr>
-                <td>How many years of service did you or will you have at retirement?</td><td><input ng-model="vals.yearsOfService" type="number" ng-change="setSalaryEstimates()"></td>
+                <td>How many years of service did you or will you have at retirement?</td><td><input ng-model="vals.yearsOfService" type="number" ng-change="setEstimatedSH()"></td><td>{{vals.endingYear}}</td>
+            </tr>
+            <tr ng-show="vals.active">
+                <td>What is your current Salary? </td><td><input ng-model="vals.currentSalary" type="number" ng-blur="vals.endingSalary=null;setEstimatedSH()"></td><td></td>
+            </tr>
+            <tr ng-show="!vals.active">
+                <td>What was your last Salary? </td><td><input ng-model="vals.endingSalary" type="number" ng-blur="vals.currentSalary=null;setEstimatedSH()"></td><td></td>
             </tr>
             <tr>
-                <td>What do you expect your final average salary to be?</td><td><input ng-model="vals.finalAverageSalary" type="number"  ng-blur="setSalaryEstimates()"> </td>
-                <td>SERS uses the average of the highest four years within the last 10 years....</td>
+                <td>What do you expect your final average salary to be?</td><td><input ng-model="vals.finalAverageSalary" type="number"  ng-blur="finalAvgSalaryChanged()"> </td>
+                <td>Estimate from Current Salary</span> SERS uses the average of the highest four years within the last 10 years....</td>
+            </tr>
+            <tr>
+                <td>Anticipated age of death:</td><td><input ng-model="vals.ageAtDeath" type="number"></td><td>Year: {{vals.birthYear+vals.ageAtDeath}}, Probability: {{vals.getProbabilityOfDeath()}}</td>
             </tr>
         </table>
         <div id="est401k" class="subsection" >
-            <strong>Optional</strong> - Do you also want to estimate what you would have gotten if your contributions had been put into a 401k? <br><span id="no401k" class="btn btn-mini btn-info">No Thanks</span> <span  id="simple401k" class="btn btn-mini ">Yes with Simple Estimate</span> <span id="detailed401k"  class="btn btn-mini" type="button">Yes with Detailed Estimate</span>
-            <div id="estimateContributions">
+            <strong>Optional</strong> - Do you also want to estimate what you would have gotten if your contributions had been put into a 401k? <br><span id="no401k" class="btn btn-mini" ng-class="status401k==0?'btn-info':''">No Thanks</span> <span  id="simple401k" class="btn btn-mini " ng-class="status401k==1?'btn-info':''">Yes with Simple Estimate</span> <span id="detailed401k"  class="btn btn-mini" type="button" ng-class="status401k==2?'btn-info':''">Yes with Detailed Estimate</span>
+            <div ng-show="status401k==1"  id="estimateContributions">
 
                 <table class="table table-condensed table-striped">
                     <tr>
                         <th>Period</th><th >Year</th><th>Salary</th>
                     </tr>
                     <tr>
-                        <td>Starting</td><td><input ng-model="vals.hireYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td><td><input ng-model="vals.startingSalary" type="number"  ng-blur="setFinalAvgFromEstimates()"/></td>
+                        <td>Starting</td><td><input ng-model="vals.hireYear" type="number" ng-change="setSimpleSH()"/></td><td><input ng-model="vals.startingSalary" type="number"  ng-blur="setSimpleSH()"/></td>
                     </tr>
-                    <tr class="currentYear">
-                        <td>Current</td><td class="currentYear">{{currentYear}}</td><td class="currentYear"><input ng-model="vals.currentSalary" type="number"  ng-blur="setFinalAvgFromEstimates()"/></td>
+                    <tr ng-show="vals.active">
+                        <td>Current</td><td class="currentYear">{{currentYear}}</td><td class="currentYear"><input ng-model="vals.currentSalary" type="number"  ng-blur="setSimpleSH()"/></td>
                     </tr>
                     <tr>
-                        <td>Ending</td><td><input ng-model="vals.endingYear" type="number" ng-change="setFinalAvgFromEstimates()"/></td><td><input ng-model="vals.endingSalary" type="number"  ng-blur="setFinalAvgFromEstimates()"/></td>
+                        <td>Ending</td><td><input ng-model="vals.endingYear" type="number" ng-change="setSimpleSH()"/></td><td><input ng-model="vals.endingSalary" type="number"  ng-blur="setSimpleSH()"/></td>
                     </tr>
                 </table>
             </div>
-            <div id="detailedContributions">
+            <div ng-show="status401k==2" id="detailedContributions">
                 <div ng-if="vals.salaryHistoryEditIndex>-1&&vals.salaryHistoryEditIndex<vals.salaryHistory.length">
                     <table class="table table-condensed table-striped">
                         <tr><td width="150">Year</td><td>{{vals.salaryHistory[vals.salaryHistoryEditIndex].year}}
@@ -113,13 +127,13 @@
                                     <br><b>Add Years:</b> <span class="btn btn-mini btn-info" ng-click="prependYear()">Add Year to Front of List</span> | <span class="btn btn-mini btn-info" ng-click="appendYear()">Add Year to End of List</span></div>
                             </td>
                         </tr>
-                        <tr><td>Salary</td><td><input id="detailedSalaryField" ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].salary" type="number" ng-blur="setFinalAvgFromEstimates()"/></td></tr>
-                        <tr><td>Years of Service</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].yearsOfService" type="number" ng-change="setFinalAvgFromEstimates()"/></td></tr>
-                        <tr><td>Contribution (%)</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].contribution" type="number" ng-blur="setFinalAvgFromEstimates();salaryHistoryIncrement();"/><a href="#">.</a></td></tr>
+                        <tr><td>Salary</td><td><input id="detailedSalaryField" ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].salary" type="number" ng-blur="setDetailedSH()"/></td></tr>
+                        <tr><td>Years of Service</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].yearsOfService" type="number" ng-change="setDetailedSH()"/></td></tr>
+                        <tr><td>Contribution ({{Math.round(vals.salaryHistory[vals.salaryHistoryEditIndex].contribution/vals.salaryHistory[vals.salaryHistoryEditIndex].salary*100,1)}}%)</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].contribution" type="number" ng-blur="setDetailedSH();salaryHistoryIncrement();"/><a href="#">.</a></td></tr>
                     </table>
                 </div>
             </div>
-            <div id="contributionsGraph"> </div>
+            <div  ng-show="status401k>0"   id="contributionsGraph"> </div>
         </div>
         <div class="section">
             Calculate Net Present Value of Pension <span class="btn btn-info" ng-click="calculate()">Calculate</span>
@@ -132,14 +146,14 @@
                     <th>401k Scenario</th>
                 </tr>
                 <tr>
-                    <td>Present Value if Male:</td>
-                    <td>{{maleAnnuity|currency:"$":0}}</td>
+                    <td>Annual Pension:</td>
+                    <td>{{current.annualPension|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>Present Value if Female:</td>
-                    <td>{{femaleAnnuity|currency:"$":0}}</td>
+                    <td>Net Present Value (assumes death at age {{vals.ageAtDeath}})</td>
+                    <td>{{current.annuity|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>

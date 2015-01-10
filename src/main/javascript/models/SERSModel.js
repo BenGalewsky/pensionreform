@@ -1,9 +1,11 @@
 pension = pension || {};
 
 pension.SERS = {
-	constructModelData : function(aPerson) {
+	constructModelData : function(aPerson, aEnv) {
 
 		var modelData = pension.model(aPerson);
+                if(aEnv==undefined) aEnv=new pension.environment();
+                modelData.env=aEnv;
 		var tier = this.getTier(aPerson);
 		
 		modelData.eligibleForSoSec = this.isCoveredBySocialSecurity(aPerson);
@@ -64,7 +66,7 @@ pension.SERS = {
 	},
 
 	getTier : function(aPerson) {
-		return (aPerson.hireDate.isBefore('1/1/2011')) ? 1 : 2;
+		return (aPerson.hireYear<2011) ? 1 : 2;
 	},
 	
 	getBenefitReduction: function(aPerson){
@@ -84,10 +86,14 @@ pension.SERS = {
 	},
 	
 	constructCOLA: function(aPerson){
-		var result = new COLA();
+            //rate can be a function(age) or a flat rate...
+            //result can also have a max property which is a dollar amount establishing the most that you can apply the rate to... so payment= currentBenefit+(max*rate), without the max it is currentBenefit*(1+rate)...
+            //result can also have a compounded property where if true, the rate grows in a compounded way rate in year 2=(rate+1)*(1+rate)-1=.0609, otherwise it grows linearally such that rate in year 2= rate+rate=.06
+            //start is the age that you can start acrewing COLA...
+		var result = {};
 		result.rate = 0.03;
-		if(this.getTier(person) == 2){
-			result.start = 67 - person.ageAtRetirement;
+		if(this.getTier(aPerson) == 2){
+			result.start = 67 - aPerson.ageAtRetirement;
 			if (result.start < 1) result.start = 1;
 		}else{
 			result.start = 1;

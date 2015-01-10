@@ -32,13 +32,13 @@ pensionApp.controller('PensionController', function($scope) {
       var h=vals.salaryHistory[0];
       var sal=Math.round(h.salary/(1+vals.env.WAGE_INFLATION));
       vals.salaryHistory.unshift({"year":h.year-1,"salary":sal,"yearsOfService":1,"contribution":sal*0.08});
-      $scope.setFinalAvgFromEstimates();
+      $scope.setDetailedSH();
   }
   $scope.appendYear=function(){
       var h=vals.salaryHistory[vals.salaryHistory.length-1];
       var sal=Math.round(h.salary*(1+vals.env.WAGE_INFLATION));
       vals.salaryHistory.push({"year":h.year+1,"salary":sal,"yearsOfService":1,"contribution":sal*0.08});
-      $scope.setFinalAvgFromEstimates();
+      $scope.setDetailedSH();
   }
   $scope.calculateContribution=1;
   $scope.status401k=0;//0=do not include, 1=simple estimate, 2=detailed estimate
@@ -58,36 +58,131 @@ pensionApp.controller('PensionController', function($scope) {
   }
   
     //watch for changes...
-    //moved trigger of setSalaryEstimates and setFinalAvgFromEstimates to the change event on the input fields
-    //  rather than on a watch of the model because I didn't want changes to occur with every keystroke 
-    // nor did I want to cause any circular references, I only wanted user changes to trigger updates.
-    // so see index.html input fields for ng-blur events that trigger these updates.
+    
+    //This will set any missing data with an estimate and then fill in the salary and contribution array
+    // so see index.html input fields for ng-blur and ng-change events that trigger these updates.
     $scope.setSalaryEstimates=function(){
+        //exit if we have a crazy value (like when we are editing...
+        if(vals.hireYear<1950||vals.birthYear<1900||vals.ageAtRetirement<50) return;
+        //we don't want to show current year salary if person is already retired...
+        if(vals.isActiveOrRetired()) $("#currentYear").show();
+        else $("#currentYear").hide();
+        //test to see if active and 401k=0 and finalAverageSalary has been modified by more than 1% of the estimate... in that case switch to 401k=1
+        if($scope.vals.active&&$scope.status401k<2&&$scope.manualAvgSalary){
+            var estimatedFinalAvgSalary=vals.finalAvgFromCurrentSalary();
+            if(estimatedFinalAvgSalary&&Math.abs((estimatedFinalAvgSalary-vals.finalAverageSalary)/estimatedFinalAvgSalary)>.01) {
+                $scope.status401k=1; 
+                vals.finalEndingSalary=null;//this will get recalculated in vals.generateDefaultSalaryHistory...
+            }
+            else $scope.manualAvgSalary=false;
+        }
         //the base requirements have changed so recalculate contributions by deleting start, current, end info...
-        if($scope.status401k<1){
+        if($scope.status401k<2){
+            //if not retired yet, current salary is the default starting point for estimates
+            if(vals.active&&vals.currentSalary&&!$scope.manualAvgSalary) {
+                vals.finalAverageSalary=null;
+            }
+            else vals.currentSalary=null;
             vals.startingSalary=null;
-            vals.yearsOfService=null;
-            vals.endinSalary=null;
+            //vals.yearsOfService=null;//this can be set by user...
+            vals.endingSalary=null;
             vals.endingYear=null;
-            vals.currentSalary=null;
         }
         if($scope.status401k<2) vals.generateDefaultSalaryHistory();
         
-        //we don't want to show current year salary if person is already retired...
-        if(vals.currentYear>vals.endingYear)  $(".currentYear").hide();
-        else $(".currentYear").show();
+        salaryGraph.render(vals);
+    }
+    $scope.resetEndingYear=function(){//used by change of years of service...
+        //recalculate ending year if years of service is set explicitly... and we are in estimating modes 0 or 1...
+        if($scope.status401k<2) {
+            vals.endingYear=vals.hireYear+vals.yearsOfService;
+            vals.endingSalary=null;
+            vals.finalAvgSalary=null;
+        }
+    }
 
+    //whenever one of the primary required fields changes, 
+    //if in estimated or simple mode, calculate simple fields and then recalculate SH (Salary HIstory)
+    //if in detailed mode, alert that details override simple estimates...
+    $scope.setEstimatedSH=function(){
+        if($scope.hasDetails&&!confirm("There are detailed changes stored in salary history, click OK to override previous changes with this simple estimate.  OR click CANCEL and return to the Detailed Estimate view.")) {
+            $scope.status401k=2;
+            return;
+        }
+        else $scope.hasDetails=false;
+        //check mode
+        if($scope.status401k==2) {
+            alert("Use the graph and detailed fields below to edit salary history");
+            return;
+        }
+        //check we have enough data on the years...
+        if(!(vals.birthYear>1900&&vals.ageAtRetirement>50&&vals.hireYear>1900)) return;
+        //if no yearsOfService yet, calculate from retirement date
+        if(!vals.yearsOfService) vals.yearsOfService=vals.birthYear+vals.ageAtRetirement-vals.hireYear+1;
+        vals.endingYear=vals.hireYear+vals.yearsOfService-1;
+        //check we have enough dat aon the salary...
+        if(vals.currentSalary<1000&&vals.finalAverageSalary<1000&&vals.endingSalary<1000) return;
+        //determine estimates from current or ending salary depending on active or retired... if neither of those exist, use finalAvgSalary
+        if(vals.isActiveOrRetired()&&vals.currentSalary)  vals.estimateFromCurrent();
+        else if(!vals.active&&vals.endingSalary) vals.estimateFromEnding();
+        else if(vals.finalAverageSalary) vals.estimateFromFinalAvg();
+        else return;
+        vals.computeFinalAverageSalary();
         salaryGraph.render(vals);
     }
     
+    //whenever one fo the simple estimate fields is changed
+    //if in simple mode, calculate SH based on simple fields: startingSalary, endingSalary, endingyear, currentyear...
+    // if in any other mode, you wouldn't see or edit simple fields...
+    $scope.setSimpleSH=function(){
+        if($scope.hasDetails&&!confirm("There are detailed changes stored in salary history, click OK to override previous changes with this simple estimate.  OR click CANCEL and return to the Detailed Estimate view.")) {
+            $scope.status401k=2;
+            return;
+        }
+        else $scope.hasDetails=false;
+        vals.generateDefaultSalaryHistory();
+        vals.computeFinalAverageSalary();
+        vals.computeYearsOfService();
+        salaryGraph.render(vals);
+    }
+    
+    //whenever the finalAvgSalary field is changed, delete current and ending salaries and then run setEstimatedSH
+    $scope.finalAvgSalaryChanged=function(){
+        vals.currentSalary=null;
+        vals.endingSalary=null;
+        $scope.manualAvgSalary=true;
+        $scope.setEstimatedSH();
+    }
+    
+    //whenever the detailed fields change, we only want to update the finalAverage and years of service...
+    $scope.setDetailedSH=function(){
+        vals.computeFinalAverageSalary();
+        vals.computeYearsOfService();
+        salaryGraph.render(vals);
+        $scope.hasDetails=true;
+    }
+
+
     //when one of the salary estimates/years changes, this recalculates everything
-    $scope.setFinalAvgFromEstimates=function(nv,ov,scope){
+    $scope.obs_setFinalAvgFromEstimates=function(nv,ov,scope){
+        //test to see if active and 401k=0 and finalAverageSalary has been modified by more than 1% of the estimate... in that case switch to 401k=1
+        if($scope.vals.active&&$scope.status401k<2){
+            var estimatedFinalAvgSalary=vals.finalAvgFromCurrentSalary();
+            if(estimatedFinalAvgSalary&&Math.abs((estimatedFinalAvgSalary-vals.finalAverageSalary)/estimatedFinalAvgSalary)>.01) {
+                $scope.manualAvgSalary=true;
+                $scope.status401k=1; 
+                vals.finalEndingSalary=null;//this will get recalculated in vals.generateDefaultSalaryHistory...
+            }
+            else $scope.manualAvgSalary=false;
+        }
+        //unless we are in detail mode, rerun the history array...
         if($scope.status401k<2) vals.generateDefaultSalaryHistory();
         else vals.computeFinalAverageSalary();
-              
+        //calls to this function all come from simple or detailed inputs so it is safe to recalculate the years of service without a circular reference... 
+        vals.computeYearsOfService();
         //we don't want to show current year salary if person is already retired...
-        if(vals.currentYear>vals.endingYear)  $(".currentYear").hide();
-        else $(".currentYear").show();
+        if(vals.isActiveOrRetired()) $("#currentYear").show();
+        else $("#currentYear").hide();
 
         salaryGraph.render(vals);
         
@@ -99,51 +194,56 @@ pensionApp.controller('PensionController', function($scope) {
 
     //set up detailed salary editor...
     $scope.salaryHistoryIncrement();
+    
+    $scope.getProbableAgeAtDeath=function(){vals.getProbableAgeAtDeath();}
 
-    //when button is clicked...
+    //when calculate button is clicked...
     $scope.calculate=function(){
-      var model = new pension.model(vals);
-      var result=model.calculate(pension.environment());
-      this.maleAnnuity=result.annuity.male;
-      this.femaleAnnuity=result.annuity.female;
+      var model = pension.SERS.constructModelData(vals);
+      $scope.current=model.calculate();
+      
     }
     $scope.maleAnnuity='';
     $scope.femaleAnnuity='';
 
 
     //NAVIGATION scripts...
-    $("#estimateContributions").hide();
-    $("#detailedContributions").hide();
-    $("#contributionsGraph").hide();
+//    $("#estimateContributions").hide();
+  //  $("#detailedContributions").hide();
+//    $("#contributionsGraph").hide();
     $("#no401k").click(function(){
       $scope.status401k=0;
       $("#est401k span.btn-info").removeClass("btn-info");
       $(this).addClass("btn-info");
-      $("#estimateContributions").hide();
-      $("#detailedContributions").hide();
-      $("#contributionsGraph").hide();
+//      $("#estimateContributions").hide();
+//      $("#detailedContributions").hide();
+ //     $("#contributionsGraph").hide();
+      $scope.$apply();
     })
     $("#simple401k").click(function(){
       $scope.status401k=1;
       $("#est401k span.btn-info").removeClass("btn-info");
       $(this).addClass("btn-info");
-      $("#estimateContributions").show();
-      $("#detailedContributions").hide();
-      $("#contributionsGraph").show();
+//      $("#estimateContributions").show();
+//      $("#detailedContributions").hide();
+ //     $("#contributionsGraph").show();
       salaryGraph.render($scope.vals);//need to refresh graph if it was generated while hidden because some text elements get displayed improperly...
+      $scope.$apply();
     })
     $("#detailed401k").click(function(){
       $scope.status401k=2;
       $("#est401k span.btn-info").removeClass("btn-info");
       $(this).addClass("btn-info");
-      $("#estimateContributions").hide();
-      $("#detailedContributions").show();
-      $("#contributionsGraph").show();
+//      $("#estimateContributions").hide();
+  //    $("#detailedContributions").show();
+//      $("#contributionsGraph").show();
       salaryGraph.render($scope.vals);//need to refresh graph if it was generated while hidden because some text elements get displayed improperly...
+      $scope.$apply();
     })
 
     //run once to set estimated years and salaries...
-    $scope.setSalaryEstimates();
+    $scope.setEstimatedSH();
+    vals.getProbableAgeAtDeath();
     
 
 });//end controller function...
