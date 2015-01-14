@@ -4,6 +4,11 @@
 .bbar {
   fill: #c33;
 }
+.sbar {
+  fill-opacity: 0;
+  stroke:#3c3;
+  stroke-width:1;
+}
 .cbar {
   fill: #3c3;
 }

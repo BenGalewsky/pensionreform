@@ -33,7 +33,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
 
         var mxValue;
         if(showNPV) mxValue=d3.max(v.models.current.history,function(d){return Math.max(d.contributionFund, d.benefitFund, d.contributionFund_npv, d.benefitFund_npv)});
-        else  mxValue=d3.max(v.models.current.history,function(d){return Math.max(d.contribution, d.benefit, d.contribution_npv, d.benefit_npv)});
+        else  mxValue=d3.max(v.models.current.history,function(d){return Math.max(d.salary, d.benefit, d.contribution_npv, d.benefit_npv)});
 
         //reset the domain of the coordinate calculators
         var yrarr=v.models.current.history.map(
@@ -56,6 +56,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //draw salary bars
 //        drawSalaryBars();
         drawContributionBars();
+        drawSalaryBars();
         //draw benefits
         drawBenefitBars();
 //        drawRetirementYear();
@@ -114,6 +115,37 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         bars.exit().remove();
     };//end of drawSalaryBars
 
+    var drawSalaryBars=function(){
+        //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
+        var bars=svg.selectAll(".sbar")
+          .data(v.models.current.history);
+        //then reset the shape and title of each existing bar based on new data...
+        bars.attr("x", function(d) { return x(d.year); })
+          .classed("future",function(d,i){
+              //this guy will set or remove the class "future" depending on whether the function returns true... 
+              //this is how we change the appearance of future bars as opposed to existing bars...
+              if(d.year>currYear) return true; 
+              else return false;
+          })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.salary); })
+          .attr("title", function(d) { return "Salary: "+cformat(d.salary)+", Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); })
+          .attr("height", function(d) { return height - y(d.salary); });
+        //same as above except that the enter() applies only when there is more data than existing bars... 
+        //so for each new data point it gets a rect tag appended and all the shape and title settings appied...
+        bars.enter().append("rect")
+          .attr("class", "sbar")
+          .attr("x", function(d) { return x(d.year); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.salary); })
+          .attr("title", function(d) { return "Salary: "+cformat(d.salary)+", Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); })
+          .attr("height", function(d) { return height - y(d.salary); })
+          .classed("future",function(d){if(d.year>currYear) return true; else return false;});
+        // and when there are more existing bars than data, exit() is appied and it removes the bar...
+        bars.exit().remove();
+        
+    };//end of drawSalaryBars
+
     var drawContributionBars=function(){
         //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
         var bars=svg.selectAll(".cbar")
@@ -151,10 +183,11 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.benefitFund);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc(v.models.current.history))
+            .attr('d', lineFunc(v.models.current.history.slice(v.models.current.person.retirementYear-v.models.current.person.hireYear+1,v.models.current.history.length)))
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
-            .attr('fill','none');
+            .attr('fill','none')
+            .attr('title','Value of my annuity fund plus investment returns as it gets drawn down');
     };//end of drawBenefitFundLine
 
     var drawContributionFundLine=function(){
@@ -163,10 +196,36 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.contributionFund);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc(v.models.current.history))
+            .attr('d', lineFunc(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
-            .attr('fill','none');
+            .attr('fill','none')
+            .attr('title','Value of my accumulated contributions plus investment returns');
+            
+        //draw matching lines...
+        var lineFunc2=d3.svg.line()
+            .x(function(d){ return x(d.year);})
+            .y(function(d){ return y(d.contributionFund*2);})
+            .interpolate('linear');
+        svg.append('svg:path')
+            .attr('d', lineFunc2(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
+            .attr('stroke', '#c33')
+            .attr('stroke-width',1)
+            .attr('fill','none')
+            .attr('stroke-dasharray',("3,3"))
+            .attr('title','1x match from state');
+        var lineFunc3=d3.svg.line()
+            .x(function(d){ return x(d.year);})
+            .y(function(d){ return y(d.contributionFund*3);})
+            .interpolate('linear');
+        svg.append('svg:path')
+            .attr('d', lineFunc3(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
+            .attr('stroke', '#c33')
+            .attr('stroke-width',1)
+            .attr('fill','none')
+            .attr('stroke-dasharray',("3,6"))
+            .attr('title','2x match from state');
+
     };//end of drawBenefitFundLine
 
 
@@ -249,7 +308,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var drawNPVBenefits=function(){};
 
     //set up global variables...
-    var margin = {top: 20, right: 80, bottom: 30, left: 45},
+    var margin = {top: 20, right: 80, bottom: 30, left: 65},
         width = 860 - margin.left - margin.right,
         height =300 - margin.top - margin.bottom;
 
@@ -271,7 +330,11 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     //functions to set up axes...
     var xAxis = d3.svg.axis()
         .scale(x)
-        .orient("bottom");
+        .orient("bottom")
+        .tickFormat(function(d,i){
+            if(Math.round(d/5)*5==d) return d;
+            else return "";
+        });
 
     var yAxis = d3.svg.axis()
         .scale(y)
