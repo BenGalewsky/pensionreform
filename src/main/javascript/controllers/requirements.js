@@ -200,11 +200,17 @@ pensionApp.controller('PensionController', function($scope) {
     //when calculate button is clicked...
     $scope.calculate=function(){
       var model = pension.SERS.constructModelData(vals);
-      $scope.current=model.calculate();
+      model.calculate();
+      vals.models.current=model;
+      $("#outputGraph").html();
+      var outputGraph=new OutputGraph("#outputGraph");
+      outputGraph.setup();
+      outputGraph.render(vals);
+      outputGraph=new OutputGraph("#outputGraph2");
+      outputGraph.setup();
+      outputGraph.render(vals,true);
       
     }
-    $scope.maleAnnuity='';
-    $scope.femaleAnnuity='';
 
 
     //NAVIGATION scripts...

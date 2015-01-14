@@ -147,13 +147,13 @@
                 </tr>
                 <tr>
                     <td>Annual Pension:</td>
-                    <td>{{current.annualPension|currency:"$":0}}</td>
+                    <td>{{vals.models.current.annualPension|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Net Present Value (assumes death at age {{vals.ageAtDeath}})</td>
-                    <td>{{current.annuity|currency:"$":0}}</td>
+                    <td>{{vals.models.current.annuity|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -179,6 +179,8 @@
                 </tr>
             </table>
         </div>
+        <div id="outputGraph"></div>
+        <div id="outputGraph2"></div>
       <p> </p>
       <p>object: {{spy()}}</p>
       

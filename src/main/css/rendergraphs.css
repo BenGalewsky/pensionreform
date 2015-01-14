@@ -1,8 +1,11 @@
 .bar {
-  fill: steelblue;
+  fill: #06c;
+}
+.bbar {
+  fill: #c33;
 }
 .cbar {
-  fill: #6c6;
+  fill: #3c3;
 }
 
 .bar:hover {
@@ -23,6 +26,6 @@
 .x.axis path {
   display: none;
 }
-.future.bar{
-    fill:#ccc;
+.future{
+    opacity:.5;
 }

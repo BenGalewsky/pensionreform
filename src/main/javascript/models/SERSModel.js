@@ -16,7 +16,8 @@ pension.SERS = {
 		modelData.maxAnnualPension = (tier == 2) ? 106800:Infinity;
 		modelData.COLA = this.constructCOLA(aPerson);
 
-		modelData.contribPct = modelData.eligibleForSoSec ? 0.04 : 0.08;
+		//contribPct can be a rate or a function(year)... 
+                modelData.contribPct = modelData.eligibleForSoSec ? 0.04 : 0.08;
 
 		return modelData;
 

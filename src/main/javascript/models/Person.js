@@ -11,6 +11,7 @@ pension.person = function(aEnv) {
 		birthYear : 1970,
 		ageAtDeath : 82,
 		currentYear : curryr.getFullYear(),
+                currentAge:null,
 		ageAtRetirement : 65,
 		currentSalary : 70000,
 		startingSalary : null,
@@ -25,24 +26,25 @@ pension.person = function(aEnv) {
 		useAlternativeFormula : false,
 		isCoveredBySocialSecurity : false,
                 totalContributions:null,
+                models:{},//will be used to store calculated outputs...
                 
                 getProbabilityOfDeath:function(){
                     if(!this.gender||!this.birthYear||!this.currentYear||!this.ageAtDeath) return "?";
-                    var age=this.currentYear-this.birthYear;
+                    this.currentAge=this.currentYear-this.birthYear;
                     var tbl=pension.mortalityRates[vals.gender=='f'?"female":"male"];
                     var prob=1;
                     for(var i in tbl){
-                        if(i>age&&i<=this.ageAtDeath) prob*=(1-tbl[i]);
+                        if(i>this.currentAge&&i<=this.ageAtDeath) prob*=(1-tbl[i]);
                     }
                     return Math.round((prob)*100)+"%";
                 },
                 getProbableAgeAtDeath:function(){
                     if(!this.gender||!this.birthYear||!this.currentYear) return 0;
-                    var age=this.currentYear-this.birthYear;
+                    this.currentAge=this.currentYear-this.birthYear;
                     var tbl=pension.mortalityRates[vals.gender=='f'?"female":"male"];
                     var prob=1;
                     for(var i in tbl){
-                        if(i>age) prob*=(1-tbl[i])
+                        if(i>this.currentAge) prob*=(1-tbl[i])
                         if(prob<0.501) {
                             this.ageAtDeath=i*1;
                             return i;
@@ -146,8 +148,6 @@ pension.person = function(aEnv) {
                 
                 setCurrentYear:function(){
                     if(!this.currentYear) this.currentYear=curryr.getFullYear();
-                    //if(this.currentYear>this.hireYear+this.ageAtRetirement) this.active=false;
-                    //else this.active=true;
                 },
                 
                 //uses current salary to estimate ending salary
