@@ -60,9 +60,9 @@ pension.SERS = {
 	},
 	
 	isCoveredBySocialSecurity : function(aPerson) {
-		var coveredBySocialSecurity = true;
+		var coveredBySocialSecurity = false;
 		if (aPerson.occupation == 'policeOfficer')
-			coveredBySocialSecurity = false;
+			coveredBySocialSecurity = true;
 		return coveredBySocialSecurity;
 	},
 

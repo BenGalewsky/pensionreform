@@ -213,7 +213,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke-width',1)
             .attr('fill','none')
             .attr('stroke-dasharray',("3,3"))
-            .attr('title','1x match from state');
+            .attr('title','1x - If the state matched your contributions');
         var lineFunc3=d3.svg.line()
             .x(function(d){ return x(d.year);})
             .y(function(d){ return y(d.contributionFund*3);})
@@ -224,7 +224,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke-width',1)
             .attr('fill','none')
             .attr('stroke-dasharray',("3,6"))
-            .attr('title','2x match from state');
+            .attr('title','2x - If the state matched 2x your contributions');
 
     };//end of drawBenefitFundLine
 

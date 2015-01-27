@@ -201,6 +201,11 @@ pensionApp.controller('PensionController', function($scope) {
     $scope.calculate=function(){
       var model = pension.SERS.constructModelData(vals);
       model.calculate();
+      model.contributionFund=model.history[model.person.retirementYear-model.person.hireYear].contributionFund;
+      model.benefitFund=model.history[model.person.retirementYear-model.person.hireYear+1].benefitFund;
+      model.contributionFund_npv=model.history[model.person.retirementYear-model.person.hireYear].contributionFund_npv;
+      model.pctFunded=Math.round(model.contributionFund/model.benefitFund*100);
+      model.benefitFund_npv=model.history[model.person.retirementYear-model.person.hireYear+1].benefitFund_npv;
       vals.models.current=model;
       $("#outputGraph").html();
       var outputGraph=new OutputGraph("#outputGraph");

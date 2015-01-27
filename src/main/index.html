@@ -143,17 +143,34 @@
                     <th>Output</th>
                     <th>Current SERS Calculations</th>
                     <th>Proposed Madigan Bill</th>
-                    <th>401k Scenario</th>
+                    <th>Proposed Cullerton Bill</th>
                 </tr>
                 <tr>
-                    <td>Annual Pension:</td>
-                    <td>{{vals.models.current.annualPension|currency:"$":0}}</td>
+                    <td>Value of your contributions at retirement ({{vals.models.current.person.retirementYear}}):</td>
+                    <td>{{vals.models.current.contributionFund|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>Net Present Value (assumes death at age {{vals.ageAtDeath}})</td>
-                    <td>{{vals.models.current.annuity|currency:"$":0}}</td>
+                    <td>Value of your benefits at retirement ({{vals.models.current.person.retirementYear}}) assuming death at age {{vals.models.current.person.ageAtDeath}} ({{vals.models.current.person.deathYear}})</td>
+                    <td>{{vals.models.current.benefitFund|currency:"$":0}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Percent Self Funded (contributions/benefits)</td>
+                    <td>{{vals.models.current.pctFunded}}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Contributions in Today's Dollars:</td>
+                    <td>{{vals.models.current.contributionFund_npv|currency:"$":0}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Benefits in Today's Dollars</td>
+                    <td>{{vals.models.current.benefitFund_npv|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
