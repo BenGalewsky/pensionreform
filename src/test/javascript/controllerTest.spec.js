@@ -1,6 +1,6 @@
 var vals=new pension.person();
 
-describe('Pension Site Front End', function() {
+xdescribe('Pension Site Front End', function() {
   beforeEach(module('pensionApp'));
 
   var $controller;
