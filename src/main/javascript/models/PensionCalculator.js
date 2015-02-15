@@ -7,7 +7,7 @@ pension.calculator = function(amodel) {
                         WAGE_INFLATION: 0.04, 
 			
 			calculate: function(vals){
-				var cola = this.model.COLA(vals);
+				var cola = this.model.COLA(vals); // Scalar (percent, probably between -1%-5%)
 				var annualPension = this.model.annualPensionBenefit(vals);
 				var rslt = this.calculateAnnuity(cola.rate, cola.max, cola.start, cola.compounded, annualPension, vals.ageAtRetirement);
 				

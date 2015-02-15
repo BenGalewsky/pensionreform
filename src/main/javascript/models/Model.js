@@ -40,8 +40,7 @@ pension.model = function(aPerson) {
                     this.person.deathYear=this.person.birthYear+this.person.ageAtDeath;
                     
                     //get benefit history...
-                    var aResult= this.calculateAnnuity(this.COLA.rate, this.COLA.max,
-					this.COLA.start, this.COLA.compounded, this
+                    var aResult= this.calculateAnnuity(this.COLA.rate, this.COLA.max					this.COLA.start, this.COLA.compounded, this
 							.getAnnualPensionBenefit(),
 					this.person.ageAtRetirement, this.person.ageAtDeath, aEnv);
                     //get contribution history... replace any previous contribution calc, uses the model's pct contribution function or rate...
@@ -100,7 +99,7 @@ pension.model = function(aPerson) {
                     this.calculateFundValues();
                     //and lastly, calculate npv of all fields
                     //again use a separate method so that it can be re-run with a different inflation rate
-                    this.calculateNPV();
+                    this.convertToRealDollars();
 		},
                 
                 
@@ -110,11 +109,21 @@ pension.model = function(aPerson) {
                     var bfund=this.recalculateAnnuity(discountRate);
                     for(var i=0;i<this.history.length;i++){
                         var h=this.history[i];
-                        if(h.year<=this.person.retirementYear) {
+                        if(h.year<this.person.retirementYear) {
+                            // Assumes discountRate = "the rate of return on an investment"
                             cfund=cfund*(1+discountRate)+h.contribution;
                             h.contributionFund=cfund;
                         }
+                        else if (h.year===this.person.retirementYear){
+                            // We need to determine if you worked through the
+                            // entire year or retired at the beginning of the year
+                            // if worked through the year, this is right.
+                            cfund = cfund + h.contribution;
+                            // otherwise, this is right
+                            bfund = bfund - h.benefit;
+                        }
                         else {
+
                             bfund=bfund*(1+discountRate)-h.benefit;
                             h.benefitFund=bfund;
                         }
@@ -132,20 +141,20 @@ pension.model = function(aPerson) {
                     return bfund;
                 },
                 
-                calculateNPV:function(inflRate){
+                convertToRealDollars:function(inflRate){
                     //calculate the current value of all variables...
                     if(inflRate == undefined) inflRate=this.env.INFLATION_RATE;
                     //determine the starting discount rate which will be the inflation rate raised to the power of however many years difference bbetween the hire year and the current year... 
                     //This should be a number less than one in the past and greater than one in the future
                     //it is then divided into the present value dollar amount to calculate the current value...
-                    var discount=Math.pow(1+inflRate, this.person.hireYear-this.person.currentYear); 
+                    var discount=Math.pow(1+inflRate, this.person.currentYear-this.person.hireYear)); 
                     for(var i=0;i<this.history.length;i++){
                         var h=this.history[i];
-                        h.contribution_npv=h.contribution/discount;
-                        h.contributionFund_npv=h.contributionFund/discount;
-                        h.benefit_npv=h.benefit/discount;
-                        h.benefitFund_npv=h.benefitFund/discount;
-                        discount*=(1+inflRate);
+                        h.contribution_npv=h.contribution*discount;
+                        h.contributionFund_npv=h.contributionFund*discount;
+                        h.benefit_npv=h.benefit*discount;
+                        h.benefitFund_npv=h.benefitFund*discount;
+                        discount/=(1+inflRate);
                     }
                 },
 
