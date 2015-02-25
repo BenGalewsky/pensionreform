@@ -40,9 +40,16 @@ pension.model = function(aPerson) {
                     this.person.deathYear=this.person.birthYear+this.person.ageAtDeath;
                     
                     //get benefit history...
-                    var aResult= this.calculateAnnuity(this.COLA.rate, this.COLA.max					this.COLA.start, this.COLA.compounded, this
-							.getAnnualPensionBenefit(),
-					this.person.ageAtRetirement, this.person.ageAtDeath, aEnv);
+                    var aResult= this.calculateAnnuity(
+                        this.COLA.rate, 
+                        this.COLA.max,
+       					this.COLA.start,
+                        this.COLA.compounded, 
+                        this.getAnnualPensionBenefit(),
+					    this.person.ageAtRetirement, 
+                        this.person.ageAtDeath, 
+                        aEnv
+                    );
                     //get contribution history... replace any previous contribution calc, uses the model's pct contribution function or rate...
                     this.benefitHistory=aResult.benefitHistory;
                     this.generateContributionHistory(this.person);
@@ -109,7 +116,7 @@ pension.model = function(aPerson) {
                     var bfund=this.recalculateAnnuity(discountRate);
                     for(var i=0;i<this.history.length;i++){
                         var h=this.history[i];
-                        if(h.year<this.person.retirementYear) {
+                        if(h.year<=this.person.retirementYear) {
                             // Assumes discountRate = "the rate of return on an investment"
                             cfund=cfund*(1+discountRate)+h.contribution;
                             h.contributionFund=cfund;
@@ -147,7 +154,7 @@ pension.model = function(aPerson) {
                     //determine the starting discount rate which will be the inflation rate raised to the power of however many years difference bbetween the hire year and the current year... 
                     //This should be a number less than one in the past and greater than one in the future
                     //it is then divided into the present value dollar amount to calculate the current value...
-                    var discount=Math.pow(1+inflRate, this.person.currentYear-this.person.hireYear)); 
+                    var discount=Math.pow(1+inflRate, this.person.currentYear-this.person.hireYear); 
                     for(var i=0;i<this.history.length;i++){
                         var h=this.history[i];
                         h.contribution_npv=h.contribution*discount;
