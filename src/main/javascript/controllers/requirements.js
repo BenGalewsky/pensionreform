@@ -118,8 +118,8 @@ pensionApp.controller('PensionController', function($scope) {
         //check we have enough data on the years...
         if(!(vals.birthYear>1900&&vals.ageAtRetirement>50&&vals.hireYear>1900)) return;
         //if no yearsOfService yet, calculate from retirement date
-        if(!vals.yearsOfService) vals.yearsOfService=vals.birthYear+vals.ageAtRetirement-vals.hireYear+1;
-        vals.endingYear=vals.hireYear+vals.yearsOfService-1;
+        if(!vals.yearsOfService) vals.yearsOfService=vals.birthYear+vals.ageAtRetirement-vals.hireYear;
+        vals.endingYear=vals.hireYear+vals.yearsOfService;
         //check we have enough dat aon the salary...
         if(vals.currentSalary<1000&&vals.finalAverageSalary<1000&&vals.endingSalary<1000) return;
         //determine estimates from current or ending salary depending on active or retired... if neither of those exist, use finalAvgSalary
@@ -202,10 +202,10 @@ pensionApp.controller('PensionController', function($scope) {
       var model = pension.SERS.constructModelData(vals);
       model.calculate();
       model.contributionFund=model.history[model.person.retirementYear-model.person.hireYear].contributionFund;
-      model.benefitFund=model.history[model.person.retirementYear-model.person.hireYear+1].benefitFund;
+      model.benefitFund=model.history[model.person.retirementYear-model.person.hireYear].benefitFund;
       model.contributionFund_npv=model.history[model.person.retirementYear-model.person.hireYear].contributionFund_npv;
       model.pctFunded=Math.round(model.contributionFund/model.benefitFund*100);
-      model.benefitFund_npv=model.history[model.person.retirementYear-model.person.hireYear+1].benefitFund_npv;
+      model.benefitFund_npv=model.history[model.person.retirementYear-model.person.hireYear].benefitFund_npv;
       vals.models.current=model;
       $("#outputGraph").html();
       var outputGraph=new OutputGraph("#outputGraph");

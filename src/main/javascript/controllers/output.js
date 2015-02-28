@@ -179,11 +179,11 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
 
     var drawBenefitFundLine=function(){
         var lineFunc=d3.svg.line()
-            .x(function(d){ return x(d.year)-1;})
+            .x(function(d){ return x(d.year);})
             .y(function(d){ return y(d.benefitFund);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc(v.models.current.history.slice(v.models.current.person.retirementYear-v.models.current.person.hireYear+1,v.models.current.history.length)))
+            .attr('d', lineFunc(v.models.current.history.slice(v.models.current.person.retirementYear-v.models.current.person.hireYear,v.models.current.history.length)))
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
             .attr('fill','none')

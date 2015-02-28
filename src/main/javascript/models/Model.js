@@ -95,7 +95,7 @@ pension.model = function(aPerson) {
                     for(var i=0;i<this.benefitHistory.length;i++){
                         var b=this.benefitHistory[i];
                         var yr=b.year-this.person.hireYear;
-                        if(yr<0||yr>this.history.length) console.log("error: contribution year not in range");
+                        if(yr<0||yr>this.history.length) console.log("error: benefit year not in range");
                         else {
                             var h=this.history[yr];
                             h.benefit=b.benefit;
@@ -113,26 +113,29 @@ pension.model = function(aPerson) {
                 calculateFundValues:function(discountRate){
                     if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
                     var cfund=0;
+                    var lastBenefit=0;
                     var bfund=this.recalculateAnnuity(discountRate);
                     for(var i=0;i<this.history.length;i++){
                         var h=this.history[i];
-                        if(h.year<=this.person.retirementYear) {
+                        if(h.year<this.person.retirementYear) {
                             // Assumes discountRate = "the rate of return on an investment"
                             cfund=cfund*(1+discountRate)+h.contribution;
                             h.contributionFund=cfund;
                         }
-                        else if (h.year===this.person.retirementYear){
+                        else if (h.year==this.person.retirementYear){
                             // We need to determine if you worked through the
                             // entire year or retired at the beginning of the year
                             // if worked through the year, this is right.
-                            cfund = cfund + h.contribution;
+                            h.contributionFund = cfund*(1+discountRate);
                             // otherwise, this is right
-                            bfund = bfund - h.benefit;
+                            h.benefitFund = bfund ;
+                            lastBenefit = h.benefit;
                         }
                         else {
 
-                            bfund=bfund*(1+discountRate)-h.benefit;
+                            bfund=bfund*(1+discountRate)-lastBenefit;
                             h.benefitFund=bfund;
+                            lastBenefit = h.benefit;
                         }
                     }
                 },
@@ -142,8 +145,8 @@ pension.model = function(aPerson) {
                     if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
                     var bfund=0, discount=1;
                     for(var i=0;i<this.benefitHistory.length;i++){
-                        bfund+= this.benefitHistory[i].benefit/discount;
                         discount=discount*(1+discountRate);
+                        bfund+= this.benefitHistory[i].benefit/discount;
                     }
                     return bfund;
                 },
@@ -173,8 +176,6 @@ pension.model = function(aPerson) {
 				annualPension : annualPension,
 				benefitHistory : []
 			};
-                        //full benefits start the year after retirement... so add a year
-                        age++;
 
 			var annuityCost = 0.0;
 
@@ -204,20 +205,20 @@ pension.model = function(aPerson) {
   							
 				annuityCost +=payment * discount
 				rslt.benefitHistory.push({
-					"year":this.person.retirementYear+i+1,
-                                        "age" : age + i,
+					"year":this.person.retirementYear+i,
+                    "age" : age + i,
 					"benefit" : payment,
 					"presentValue" : Math.round(payment * discount),
 					"accumulatedCost" : 0
 				});
 				//console.log(rslt.benefitHistory.slice(-1)[0]);
 			}
-                        //reversing the accumulatedCost as a drawdown on how much the state has to have in the fund today to ocver the cost of the bbenefits....
-                        annuityCost=0;
-                        for(var i=rslt.benefitHistory.length-1;i>-1;i--){
-                            annuityCost += rslt.benefitHistory[i].presentValue;
-                            rslt.benefitHistory[i].accumulatedCost=annuityCost;
-                        }
+            //reversing the accumulatedCost as a drawdown on how much the state has to have in the fund today to ocver the cost of the bbenefits....
+            annuityCost=0;
+            for(var i=rslt.benefitHistory.length-1;i>-1;i--){
+                annuityCost += rslt.benefitHistory[i].presentValue;
+                rslt.benefitHistory[i].accumulatedCost=annuityCost;
+            }
 			rslt.annuity = annuityCost;
 			return rslt;
 		},
@@ -230,12 +231,12 @@ pension.model = function(aPerson) {
 		generateContributionHistory : function(aPerson) {
 			this.contributionHistory = [];
 			this.totalContributions = 0;
-                        var isFunc=false;
-                        if($.isFunction(this.contribPct)) isFunc=true;
+            var isFunc=false;
+            if($.isFunction(this.contribPct)) isFunc=true;
 
-                        for (var i = 0; i < aPerson.salaryHistory.length; i++) {
+            for (var i = 0; i < aPerson.salaryHistory.length; i++) {
 				//var copyOfHist = aPerson.salaryHistory[i].clone();
-                                var copyOfHist={"salary":aPerson.salaryHistory[i].salary,"contribution":0, "year":aPerson.salaryHistory[i].year, "yearsOfService":aPerson.salaryHistory[i].yearsOfService};
+                var copyOfHist={"salary":aPerson.salaryHistory[i].salary,"contribution":0, "year":aPerson.salaryHistory[i].year, "yearsOfService":aPerson.salaryHistory[i].yearsOfService};
 				copyOfHist.contribution = copyOfHist.salary * (isFunc?this.contribPct():this.contribPct);
 				this.contributionHistory.push(copyOfHist);
                                 

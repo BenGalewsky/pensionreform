@@ -71,71 +71,6 @@ pension.person = function(aEnv) {
             return age;
         },
 
-        obsgetYearsOfSvcAtYear : function(y) {
-            var years = y - this.hireYear;
-            return years;
-        },
-
-        obsgetYearsAtRetirement : function() {
-            var yearOfRetirement = this.birthYear + this.ageAtRetirement;
-            return this.getYearsOfSvcAtYear(yearOfRetirement);
-        },
-
-        obsgetRetirementYear : function() {
-            var dateOfRetirement = this.birthYear + this.ageAtRetirement;
-            return dateOfRetirement;
-        },
-
-        // Estimate the employee's salary at any given year of their tenure
-        // We know three points: Their initial salary, their current salary and
-        // their
-        // estimated final average salary.
-        // Pass in an optional simYear to establish what date "current" is
-        // relative
-        // to their salary history.
-        obsgetSalaryAtYear : function(yearOfSvc, simYear) {
-            // How many years of service today?
-            simYear = simYear || curryr.getFullYear();
-
-            // simYear = new PC.Date(simYear);
-            var currentYears = this.getYearsOfSvcAtYear(simYear);
-            var yearsAtRetirement = this.getYearsAtRetirement();
-
-            // Have they already retired?
-            if (yearOfSvc > yearsAtRetirement) {
-                return 0;
-            }
-
-            // Prepare for interpolation
-            var x0 = 0;
-            var x1 = 0;
-            var y0 = 0;
-            var y1 = 0;
-
-            // Is this year in the past? If so then interpolate between intial
-            // salary and current
-            if (yearOfSvc <= currentYears) {
-                x1 = currentYears;
-                y0 = this.initialSalary;
-                y1 = this.currentSalary;
-            } else { // Interpolate between current and final
-                x0 = currentYears;
-                x1 = yearsAtRetirement;
-                y0 = this.currentSalary;
-                y1 = this.finalAverageSalary;
-            }
-
-            // Default value
-            var x = y1;
-
-            // Avoid divide by zero
-            if (x1 != yearOfSvc) {
-                x = y0 + (y1 - y0) * ((yearOfSvc - x0) / (x1 - yearOfSvc));
-            }
-            return x;
-
-        },
-
         finalAvgFromCurrentSalary : function(c, r) {
             if (c == undefined)
                 c = this.currentSalary;
@@ -230,7 +165,7 @@ pension.person = function(aEnv) {
             var i;
 
             // but only if current is less than ending year...
-            if (this.currentYear <= this.endingYear) {
+            if (this.currentYear < this.endingYear) {
                 r = Math.pow(s1 / s0, 1 / (yr1 - yr0));// determine the rate of
                 // inflation between yr0
                 // and yr1...
@@ -253,7 +188,7 @@ pension.person = function(aEnv) {
             s1 = this.endingSalary;
             yr1 = this.endingYear;
             r = Math.pow(s1 / s0, 1 / (yr1 - yr0));
-            for (i = yr0; i <= yr1; i++) {
+            for (i = yr0; i < yr1; i++) {
                 sal = s0;
                 if (yr1 != yr0)
                     sal = Math.round(s0 * Math.pow(r, i - yr0));
@@ -266,105 +201,6 @@ pension.person = function(aEnv) {
                 });
             }
 
-        },
-
-        // this will create a salary history array from estimated data points
-        // Assumes we know beginning and ending years and salaries, also current
-        // if an active employee...
-        obsolete_generateDefaultSalaryHistory : function() {
-            if (!this.hireYear || !this.startingSalary || !this.currentSalary || !this.endingSalary || !this.endingYear)
-                // take starting, current, and ending salary info and convert to
-                // salary history array
-                // also compute final average in 4 best of last 10 years..
-                this.salaryHistory = [];
-
-            // estimate start, current, and ending year/salary if they are not
-            // provided...
-            yr1 = this.getRetirementYear();// based on birthYear and
-            // RetirementAge
-
-            // check to see if the years of service are less than
-            // retireyear-hireyear
-            // if so, then use years of service as basis for ending year...
-            if (!this.endingYear) {
-                if (this.yearsOfService && this.yearsOfService < yr1 - this.hireYear)
-                    yr1 = this.hireYear + this.yearsOfService;
-                this.endingYear = yr1;
-            }
-
-            // reset yr1 to resulting ending year... for use below.
-            yr1 = this.endingYear;
-
-            // now recalculate endingSalary if needed...
-            if (!this.endingSalary) {
-                // assume average wage inflation of 4% for two years after the
-                // average
-                if (this.finalAverageSalary)
-                    this.endingSalary = Math.round(this.finalFromFinalAvgSalary(this.finalAverageSalary,
-                            (1 + this.env.WAGE_INFLATION)));
-                else if (this.currentSalary)
-                    this.endingSalary = Math.round(this.currentSalary
-                            * Math.pow((1 + this.env.WAGE_INFLATION), (yr1 - aCurrentYear)));
-            }
-            ;
-
-            if (!this.yearsOfService)
-                this.yearsOfService = this.endingYear - this.hireYear;
-            if (!this.startingSalary)
-                this.startingSalary = Math.round(this.endingSalary / Math.pow((1 + this.env.WAGE_INFLATION), this.yearsOfService));
-
-            if (aCurrentYear <= this.endingYear && !this.currentSalary)
-                this.currentSalary = Math.round(this.endingSalary
-                        / Math.pow((1 + this.env.WAGE_INFLATION), this.endingYear - aCurrentYear));
-
-            // calculate start to current ...
-            var yr1 = aCurrentYear;
-            var yr0 = this.hireYear;
-
-            var s1 = this.currentSalary, s0 = this.startingSalary;
-            var r = (1 + this.env.WAGE_INFLATION);// rate of inflation between
-            // salary points...
-            // recalculated below.
-            var sal = 0;// salary... calculated below...
-            var i;
-
-            // but only if current is less than ending year...
-            if (aCurrentYear <= this.getRetirementYear()) {
-                r = Math.pow(s1 / s0, 1 / (yr1 - yr0));// determine the rate of
-                // inflation between yr0
-                // and yr1...
-                for (i = yr0; i < yr1; i++) {
-                    sal = Math.round(s0 * Math.pow(r, i - yr0));
-                    this.salaryHistory.push({
-                        "year" : i,
-                        "salary" : sal,
-                        "yearsOfService" : 1,
-                        "contribution" : Math.round(sal * 0.08)
-                    });
-                }
-
-                // move current to start...
-                yr0 = yr1;
-                s0 = s1;
-            }
-
-            // now calculate from start (or current) to ending year...
-            s1 = this.endingSalary;
-            yr1 = this.endingYear;
-            r = Math.pow(s1 / s0, 1 / (yr1 - yr0));
-            for (i = yr0; i <= yr1; i++) {
-                sal = s0;
-                if (yr1 != yr0)
-                    sal = Math.round(s0 * Math.pow(r, i - yr0));
-
-                this.salaryHistory.push({
-                    "year" : i,
-                    "salary" : sal,
-                    "yearsOfService" : 1,
-                    "contribution" : Math.round(sal * 0.08)
-                });
-            }
-            this.computeFinalAverageSalary();
         },
 
         computeFinalAverageSalary : function() {
@@ -387,6 +223,7 @@ pension.person = function(aEnv) {
 
             this.avgYr = Math.round(this.avgYr / last10yrs.length);
         },
+
         computeYearsOfService : function() {
             var t = 0;
             for (var i = 0; i < this.salaryHistory.length; i++) {
