@@ -63,11 +63,11 @@
                 <td></td>
             </tr> 
             <tr>
-                <td>What is your gender?</td><td><select ng-model="vals.gender" ng-change="getProbableAgeAtDeath()"><option value="f">Female</option><option value="m">Male</option></select></td>
+                <td>What is your gender?</td><td><select ng-model="vals.gender" ng-change="vals.getProbableAgeAtDeath()"><option value="f">Female</option><option value="m">Male</option></select></td>
                 <td>This is used to determine how long you will receive benefits as mortality rates vary with gender and age.</td>
             </tr> 
             <tr>
-                <td>In what year were you born?</td><td class="input-group"><input type="number" class="form-control" is-open="opened" ng-model="vals.birthYear"  ng-change="getProbableAgeAtDeath();setEstimatedSH()"/></td>
+                <td>In what year were you born?</td><td class="input-group"><input type="number" class="form-control" is-open="opened" ng-model="vals.birthYear"  ng-change="vals.getProbableAgeAtDeath();setEstimatedSH()"/></td>
                 <td></td>
             </tr>
             <tr>
@@ -93,7 +93,7 @@
                 <td>Estimate from Current Salary</span> SERS uses the average of the highest four years within the last 10 years....</td>
             </tr>
             <tr>
-                <td>Anticipated age of death:</td><td><input ng-model="vals.ageAtDeath" type="number"></td><td>Year: {{vals.birthYear+vals.ageAtDeath}}, Probability: {{vals.getProbabilityOfDeath()}}</td>
+                <td>Anticipated age of death:</td><td><input ng-model="vals.ageAtDeath" type="number" ng-change="vals.getProbabilityOfDeath()"></td><td>Year: {{vals.birthYear+vals.ageAtDeath}}, <span probability-of-surviving/></td>
             </tr>
         </table>
         <div id="est401k" class="subsection" >
@@ -215,6 +215,7 @@
     <script src="javascript/controllers/requirements.js"></script>
     <script src="javascript/controllers/output.js"></script>
     <script src="javascript/controllers/contributions.js"></script>
+    <script src="javascript/shared/probability_of_surviving_directive.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug 
     <script src="javascript/index_files/ie10-viewport-bug-workaround.js"></script>-->
   <!--  <script src="./js/bootstrap1.7.0.js"></script> 

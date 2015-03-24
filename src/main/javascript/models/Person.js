@@ -9,7 +9,9 @@ pension.person = function(aEnv) {
         env : aEnv,
         hireYear : 2000,
         birthYear : 1970,
-        ageAtDeath : 82,
+        ageAtDeath : null,
+        probabilityOfSurvival: null,
+        probabilityOfSurvivalInt: null,
         currentYear : curryr.getFullYear(), // This should move to env
         currentAge : null,
         ageAtRetirement : 65,
@@ -49,6 +51,7 @@ pension.person = function(aEnv) {
 
         // Should be get probability of reaching person's age of death
         getProbabilityOfDeath : function() {
+            this.computeCurrentAge();
             if (!this.gender || !this.currentAge || !this.ageAtDeath)
                 return "?";
             var tbl = this.getMortalityTable();
@@ -57,10 +60,12 @@ pension.person = function(aEnv) {
                 if (i > this.currentAge && i <= this.ageAtDeath)
                     prob *= (1 - tbl[i]);
             }
-            return Math.round((prob) * 100) + "%";
+            this.probabilityOfSurvival=prob;
+            this.probabilityOfSurvivalInt=Math.round(prob*100);
         },
 
         getProbableAgeAtDeath : function() {
+            this.computeCurrentAge();
             if (!this.gender || !this.currentAge)
                 return 0;
             var tbl = this.getMortalityTable();
@@ -72,11 +77,11 @@ pension.person = function(aEnv) {
                     prob *= (1 - tbl[i]);
                 }
 
-                if (prob < 0.501) {
+                if (prob < 0.51) {
                     break;
                 }
             }
-            return age;
+            return age*1;
         },
 
         finalAvgFromCurrentSalary : function(c, r) {
@@ -241,7 +246,7 @@ pension.person = function(aEnv) {
         }
 
     };
-
+    that.ageAtDeath=that.getProbableAgeAtDeath();
     return that;
 
 };

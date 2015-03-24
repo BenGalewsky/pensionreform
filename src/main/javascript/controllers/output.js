@@ -108,9 +108,11 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .attr("x", function(d) { return x(d.year); })
           .attr("width", x.rangeBand())
           .attr("y", function(d) { return y(d.benefit); })
-          .attr("title", function(d) { return "Benefit: "+ cformat(d.benefit)+(currYear<d.year?" (estimated)":""); })
           .attr("height", function(d) { return height - y(d.benefit); })
-          .classed("future",function(d){if(d.year>currYear) return true; else return false;});
+          .classed("future",function(d){if(d.year>currYear) return true; else return false;})
+          .append("title")
+          .text( function(d) { return "Benefit: "+ cformat(d.benefit)+(currYear<d.year?" (estimated)":""); })
+          ;
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
     };//end of drawSalaryBars
@@ -138,9 +140,10 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .attr("x", function(d) { return x(d.year); })
           .attr("width", x.rangeBand())
           .attr("y", function(d) { return y(d.salary); })
-          .attr("title", function(d) { return "Salary: "+cformat(d.salary)+", Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); })
           .attr("height", function(d) { return height - y(d.salary); })
-          .classed("future",function(d){if(d.year>currYear) return true; else return false;});
+          .classed("future",function(d){if(d.year>currYear) return true; else return false;})
+          .append("title")
+          .text( function(d) { return "Salary: "+cformat(d.salary)+", Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); });
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
         
@@ -169,15 +172,34 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
           .attr("x", function(d) { return x(d.year); })
           .attr("width", x.rangeBand())
           .attr("y", function(d) { return y(d.contribution); })
-          .attr("title", function(d) { return "Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); })
           .attr("height", function(d) { return height - y(d.contribution); })
-          .classed("future",function(d){if(d.year>currYear) return true; else return false;});
+          .classed("future",function(d){if(d.year>currYear) return true; else return false;})
+          .append("title")
+          .text( function(d) { return "Contribution: "+ cformat(d.contribution)+(currYear<d.year?" (estimated)":""); });
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
         
     };//end of drawContributionBars
+    
+    var getLineHoverYear = function(x_screen, x_domain){
+      var leftEdgeArray=x_domain.range();
+      for(var i=1;i<leftEdgeArray.length;i++){
+        if(x_screen<leftEdgeArray[i]) return x_domain.domain()[i-1]
+      }
+      return "";
+    }
+
+    var mMove=function(id, msg){
+      return function(){
+         var curentValue = cformat(Math.round(y.invert(d3.mouse(this)[1])));
+         var currentYear = getLineHoverYear(d3.mouse(this)[0], x);
+         var tx= msg + ' ('+curentValue+', '+currentYear+')'
+         d3.select("#"+id).select("title").text(tx);            
+      }
+    }
 
     var drawBenefitFundLine=function(){
+
         var lineFunc=d3.svg.line()
             .x(function(d){ return x(d.year);})
             .y(function(d){ return y(d.benefitFund);})
@@ -187,7 +209,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
             .attr('fill','none')
-            .attr('title','Value of my annuity fund plus investment returns as it gets drawn down');
+            .attr('id', 'benefitFund')
+            .on("mousemove", mMove('benefitFund','Value of my annuity fund plus investment returns as it gets drawn down'))
+            .append("title");
     };//end of drawBenefitFundLine
 
     var drawContributionFundLine=function(){
@@ -200,7 +224,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
             .attr('fill','none')
-            .attr('title','Value of my accumulated contributions plus investment returns');
+            .attr('id', 'contributionFund')
+            .on("mousemove", mMove('contributionFund','Value of my accumulated contributions plus investment returns'))
+            .append("title");
             
         //draw matching lines...
         var lineFunc2=d3.svg.line()
@@ -213,7 +239,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke-width',1)
             .attr('fill','none')
             .attr('stroke-dasharray',("3,3"))
-            .attr('title','1x - If the state matched your contributions');
+            .attr('id', 'contributionFundx1')
+            .on("mousemove", mMove('contributionFundx1','1x - If the state matched your contributions'))
+            .append("title");
         var lineFunc3=d3.svg.line()
             .x(function(d){ return x(d.year);})
             .y(function(d){ return y(d.contributionFund*3);})
@@ -224,7 +252,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('stroke-width',1)
             .attr('fill','none')
             .attr('stroke-dasharray',("3,6"))
-            .attr('title','2x - If the state matched 2x your contributions');
+            .attr('id', 'contributionFundx2')
+            .on("mousemove", mMove('contributionFundx2','2x - If the state matched 2x your contributions'))
+            .append("title");
 
     };//end of drawBenefitFundLine
 
