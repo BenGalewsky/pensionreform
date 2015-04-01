@@ -27,6 +27,7 @@ pension.model = function(aPerson) {
 			var benefitMultiplier = this.getMultiplier();
 			var pension = aPerson.finalAverageSalary * benefitMultiplier * (1 - this.benefitReduction);
 
+			// This really should be max salary and move it up to the pension calc above
 			// Saturate pension
 			if (pension > this.maxAnnualPension) {
 				pension = this.maxAnnualPension;
@@ -36,15 +37,14 @@ pension.model = function(aPerson) {
 
 		calculate : function(aEnv) {
                     if(aEnv==undefined) aEnv=this.env;
-                    this.person.retirementYear=this.person.birthYear+this.person.ageAtRetirement;
-                    this.person.deathYear=this.person.birthYear+this.person.ageAtDeath;
+                    
+                    // Please call this before calling calculate
+                    this.person.computeRetirementYear();
+                    this.person.computeDeathYear();
                     
                     //get benefit history...
                     var aResult= this.calculateAnnuity(
-                        this.COLA.rate, 
-                        this.COLA.max,
-       					this.COLA.start,
-                        this.COLA.compounded, 
+                        this.COLA, 
                         this.getAnnualPensionBenefit(),
 					    this.person.ageAtRetirement, 
                         this.person.ageAtDeath, 
@@ -168,9 +168,12 @@ pension.model = function(aPerson) {
                     }
                 },
 
-		calculateAnnuity : function(COLARate, COLAMax, COLAStart,
-				COLACompounded, annualPension, age, ageAtDeath, aEnv) {
+		calculateAnnuity : function(COLAObj, annualPension, age, ageAtDeath, aEnv) {
 			var discount = 1.0, COLA = 0.0;
+			var COLAStart = COLAObj.start;
+			var COLAMax = COLAObj.max;
+			var COLARate = COLAObj.rate;
+			var COLACompounded = COLAObj.compounded;
 			var rslt = {
 				cola : COLAStart,
 				annualPension : annualPension,
@@ -242,8 +245,7 @@ pension.model = function(aPerson) {
                                 
 				this.totalContributions += copyOfHist.contribution;
 			}
-		}
-
+		},		
 	};
 
 	return that;

@@ -107,4 +107,21 @@ describe('Person Object', function() {
         
 
     });
+    
+    describe('Age Calculations', function(){
+    	it('should retire in 2013 if birth year was 1953 and age at retirement is 60', function(){
+    		person.birthYear = 1953;
+    		person.ageAtRetirement = 60;
+    		person.computeRetirementYear();
+    		expect(person.retirementYear).toBe(2013);
+    	});
+    	
+    	it('should die in 2023 if birth year was 1953 and age at death is 70', function(){
+    		person.birthYear = 1953;
+    		person.ageAtDeath = 70;
+    		person.computeDeathYear();
+    		expect(person.deathYear).toBe(2023);
+    	});
+    	
+    });
 });

@@ -13,6 +13,7 @@ pension.SERS = {
 		this.constructMultiplier(aPerson, modelData);
 		modelData.benefitReduction = this.getBenefitReduction(aPerson);
 		
+		// This really should be max pensionabl salry
 		modelData.maxAnnualPension = (tier == 2) ? 106800:Infinity;
 		modelData.COLA = this.constructCOLA(aPerson);
 

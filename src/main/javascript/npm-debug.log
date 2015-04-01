@@ -1,0 +1,21 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\java\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\java\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'link' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.33
+4 verbose node symlink C:\java\nodejs\\node.exe
+5 verbose linkPkg C:\dev\GitHub\pensionreform
+6 error Error: ENOENT, open 'C:\dev\GitHub\pensionreform\package.json'
+7 error If you need help, you may report this *entire* log,
+7 error including the npm and node versions, at:
+7 error     <http://github.com/npm/npm/issues>
+8 error System Windows_NT 6.1.7601
+9 error command "C:\\java\\nodejs\\\\node.exe" "C:\\java\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "link"
+10 error cwd C:\dev\GitHub\pensionreform\src\main\javascript
+11 error node -v v0.10.33
+12 error npm -v 1.4.28
+13 error path C:\dev\GitHub\pensionreform\package.json
+14 error code ENOENT
+15 error errno 34
+16 verbose exit [ 34, true ]

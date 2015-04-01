@@ -38,6 +38,14 @@ pension.person = function(aEnv) {
         getMortalityTable : function() {
             return pension.mortalityRates[this.gender == 'f' ? "female" : "male"];
         },
+        
+        computeRetirementYear : function(){
+            this.retirementYear=this.birthYear+this.ageAtRetirement;       
+        },
+        
+        computeDeathYear : function(){
+            this.deathYear=this.birthYear+this.ageAtDeath;
+        },
 
         // Should be get probability of reaching person's age of death
         getProbabilityOfDeath : function() {
