@@ -66,6 +66,7 @@ describe('Model Test', function(){
 		
 		it('should be (annual pension + 10%) times years of service if flat cola of 10% and no inflation', function(){
 			spyOn(cola, 'rateForYear').and.returnValue(0.1);
+			aEnv.DISCOUNT_RATE = 0.0;
 			var rslt = model.calculateAnnuity(
                     cola, 
                     5000,
@@ -74,9 +75,31 @@ describe('Model Test', function(){
                     aEnv);
                     
             expect(rslt.annualPension).toBe(5000);
-            expect(rslt.annuity).toBe(5000 * 10);								
+            expect(rslt.annuity).toBe((5000 * 1.1) * 9 + 5000);								
 			
-		})
+		});
+		
+		it('should return a pension history with reversed accumulated cost', function(){
+			spyOn(cola, 'rateForYear').and.returnValue(0.0);	
+			person.retirementYear = 2015;
+			var rslt = model.calculateAnnuity(
+                    cola, 
+                    5000,
+				    60, 
+                    70, 
+                    aEnv);
+			
+			expect(rslt.benefitHistory.length).toBe(10);
+			expect(rslt.benefitHistory[9].year).toBe(2024);
+			expect(rslt.benefitHistory[9].age).toBe(69);
+			expect(rslt.benefitHistory[9].benefit).toBe(5000);
+			expect(rslt.benefitHistory[9].presentValue).toBe(5000);
+			expect(rslt.benefitHistory[9].accumulatedCost).toBe(5000);
+			expect(rslt.benefitHistory[8].accumulatedCost).toBe(5000 * 2);
+			expect(rslt.benefitHistory[7].accumulatedCost).toBe(5000 * 3);
+			expect(rslt.benefitHistory[0].accumulatedCost).toBe(5000 * 10);
+			
+		});
 				
 	});
 });

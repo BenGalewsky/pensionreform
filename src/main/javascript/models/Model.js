@@ -36,7 +36,7 @@ pension.model = function(aPerson) {
 		},
 
 		calculate : function(aEnv) {
-                    if(aEnv==undefined) aEnv=this.env;
+                    if(aEnv===undefined) aEnv=this.env;
                     
                     // Please call this before calling calculate
                     this.person.computeRetirementYear();
@@ -172,41 +172,23 @@ pension.model = function(aPerson) {
 			var discount = 1.0, COLA = 0.0;
 			var COLAStart = COLAObj.start;
 			var COLAMax = COLAObj.max;
-			var COLARate = COLAObj.rate;
-			var COLACompounded = COLAObj.compounded;
 			var rslt = {
 				cola : COLAStart,
 				annualPension : annualPension,
 				benefitHistory : []
 			};
 
-			var annuityCost = 0.0;
 
 			for (var i = 0, imax = ageAtDeath - age; i < imax; i++) {
 				if (i) {
 					discount /= 1 + aEnv.DISCOUNT_RATE;
-					if (i >= COLAStart) {
-						var rate;
-						if (typeof (COLARate) == "function") {
-							rate = COLARate(i);
-						} else {
-							rate = COLARate;
-						}
-
-						if (COLACompounded) {
-							COLA = (COLA + 1) * (1 + rate) - 1;
-						} else {
-							COLA += rate;
-						}
-					}
-
+					COLA = COLAObj.rateForYear(i, COLA);			
 				}
 
 				var payment = (!COLAMax || COLAMax >= annualPension) ? 
   							annualPension * (1 + COLA)
 						: 	COLAMax * COLA + annualPension;
   							
-				annuityCost +=payment * discount
 				rslt.benefitHistory.push({
 					"year":this.person.retirementYear+i,
                     "age" : age + i,
@@ -214,10 +196,11 @@ pension.model = function(aPerson) {
 					"presentValue" : Math.round(payment * discount),
 					"accumulatedCost" : 0
 				});
-				//console.log(rslt.benefitHistory.slice(-1)[0]);
 			}
-            //reversing the accumulatedCost as a drawdown on how much the state has to have in the fund today to ocver the cost of the bbenefits....
-            annuityCost=0;
+			
+            // reversing the accumulatedCost as a draw-down on how much the state has to 
+			// have in the fund today to cover the cost of the benefits....
+			var annuityCost = 0.0;
             for(var i=rslt.benefitHistory.length-1;i>-1;i--){
                 annuityCost += rslt.benefitHistory[i].presentValue;
                 rslt.benefitHistory[i].accumulatedCost=annuityCost;
