@@ -42,6 +42,7 @@
           </ul>
         </div>
     </div>
+<span class= "btn" ng-click ="testme()">Clickme</span>
 
     <div class="row-fluid">
       <div class="span3 well" ng-include="'javascript/inputs/inputTemplate.html'">
@@ -56,8 +57,8 @@
             <div class="container">
                 <div class="">
                     <strong>Optional</strong> - You can leave this section as is, or if you want to adjust your salary or contribution history you can choose the simple estimate below or choose the detailed estimate button.<br><br>
-                    <span  id="simpleContribution" class="btn btn-mini " ng-class="contributionType=='simple'?'btn-info':''" ng-click="contributionType='simple'">Edit with Simple Estimate</span> 
-                    <span id="detailedContribution"  class="btn btn-mini" type="button" ng-class="contributionType=='detailed'?'btn-info':''" ng-click="contributionType='detailed'">Edit with Detailed Estimate</span>
+                    <span  id="simpleContribution" class="btn btn-mini " ng-class="contributionType=='simple'?'btn-info':''" ng-click="contributionType='simple';updateContributions();">Edit with Simple Estimate</span> 
+                    <span id="detailedContribution"  class="btn btn-mini" type="button" ng-class="contributionType=='detailed'?'btn-info':''" ng-click="contributionType='detailed';updateContributions()">Edit with Detailed Estimate</span>
                     <div ng-show="contributionType=='simple'"  id="estimateContributions">
 
                         <table class="table table-condensed table-striped">
@@ -99,8 +100,6 @@
                 <div  ng-show="statusContribution>0"   id="contributionsGraph"> </div>
 
             </div><!-- /.container -->
-        </tab>
-        <tab id="estContribution" heading="Detailed Salary Edits">
         </tab>
         <tab id="outputs" heading="Output">
             <div class="section">

@@ -110,63 +110,63 @@ pension.model = function(aPerson) {
 		},
                 
                 
-                calculateFundValues:function(discountRate){
-                    if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
-                    var cfund=0;
-                    var lastBenefit=0;
-                    var bfund=this.recalculateAnnuity(discountRate);
-                    for(var i=0;i<this.history.length;i++){
-                        var h=this.history[i];
-                        if(h.year<this.person.retirementYear) {
-                            // Assumes discountRate = "the rate of return on an investment"
-                            cfund=cfund*(1+discountRate)+h.contribution;
-                            h.contributionFund=cfund;
-                        }
-                        else if (h.year==this.person.retirementYear){
-                            // We need to determine if you worked through the
-                            // entire year or retired at the beginning of the year
-                            // if worked through the year, this is right.
-                            h.contributionFund = cfund*(1+discountRate);
-                            // otherwise, this is right
-                            h.benefitFund = bfund ;
-                            lastBenefit = h.benefit;
-                        }
-                        else {
+        calculateFundValues:function(discountRate){
+            if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
+            var cfund=0;
+            var lastBenefit=0;
+            var bfund=this.recalculateAnnuity(discountRate);
+            for(var i=0;i<this.history.length;i++){
+                var h=this.history[i];
+                if(h.year<this.person.retirementYear) {
+                    // Assumes discountRate = "the rate of return on an investment"
+                    cfund=cfund*(1+discountRate)+h.contribution;
+                    h.contributionFund=cfund;
+                }
+                else if (h.year==this.person.retirementYear){
+                    // We need to determine if you worked through the
+                    // entire year or retired at the beginning of the year
+                    // if worked through the year, this is right.
+                    h.contributionFund = cfund*(1+discountRate);
+                    // otherwise, this is right
+                    h.benefitFund = bfund ;
+                    lastBenefit = h.benefit;
+                }
+                else {
 
-                            bfund=bfund*(1+discountRate)-lastBenefit;
-                            h.benefitFund=bfund;
-                            lastBenefit = h.benefit;
-                        }
-                    }
-                },
-                
-                recalculateAnnuity:function(discountRate){
-                    //calculate how much we need to save to cover all benefits given the current rate
-                    if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
-                    var bfund=0, discount=1;
-                    for(var i=0;i<this.benefitHistory.length;i++){
-                        discount=discount*(1+discountRate);
-                        bfund+= this.benefitHistory[i].benefit/discount;
-                    }
-                    return bfund;
-                },
-                
-                convertToRealDollars:function(inflRate){
-                    //calculate the current value of all variables...
-                    if(inflRate == undefined) inflRate=this.env.INFLATION_RATE;
-                    //determine the starting discount rate which will be the inflation rate raised to the power of however many years difference bbetween the hire year and the current year... 
-                    //This should be a number less than one in the past and greater than one in the future
-                    //it is then divided into the present value dollar amount to calculate the current value...
-                    var discount=Math.pow(1+inflRate, this.person.currentYear-this.person.hireYear); 
-                    for(var i=0;i<this.history.length;i++){
-                        var h=this.history[i];
-                        h.contribution_npv=h.contribution*discount;
-                        h.contributionFund_npv=h.contributionFund*discount;
-                        h.benefit_npv=h.benefit*discount;
-                        h.benefitFund_npv=h.benefitFund*discount;
-                        discount/=(1+inflRate);
-                    }
-                },
+                    bfund=bfund*(1+discountRate)-lastBenefit;
+                    h.benefitFund=bfund;
+                    lastBenefit = h.benefit;
+                }
+            }
+        },
+        
+        recalculateAnnuity:function(discountRate){
+            //calculate how much we need to save to cover all benefits given the current rate
+            if(discountRate == undefined) discountRate=this.env.DISCOUNT_RATE;
+            var bfund=0, discount=1;
+            for(var i=0;i<this.benefitHistory.length;i++){
+                discount=discount*(1+discountRate);
+                bfund+= this.benefitHistory[i].benefit/discount;
+            }
+            return bfund;
+        },
+        
+        convertToRealDollars:function(inflRate){
+            //calculate the current value of all variables...
+            if(inflRate == undefined) inflRate=this.env.INFLATION_RATE;
+            //determine the starting discount rate which will be the inflation rate raised to the power of however many years difference bbetween the hire year and the current year... 
+            //This should be a number less than one in the past and greater than one in the future
+            //it is then divided into the present value dollar amount to calculate the current value...
+            var discount=Math.pow(1+inflRate, this.person.currentYear-this.person.hireYear); 
+            for(var i=0;i<this.history.length;i++){
+                var h=this.history[i];
+                h.contribution_npv=h.contribution*discount;
+                h.contributionFund_npv=h.contributionFund*discount;
+                h.benefit_npv=h.benefit*discount;
+                h.benefitFund_npv=h.benefitFund*discount;
+                discount/=(1+inflRate);
+            }
+        },
 
 		calculateAnnuity : function(COLAObj, annualPension, age, ageAtDeath, aEnv) {
 			var discount = 1.0, COLA = 0.0;
