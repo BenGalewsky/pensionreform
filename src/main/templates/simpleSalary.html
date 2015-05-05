@@ -1,0 +1,35 @@
+<div class="modal-header">
+    <h3 class="modal-title">Simple Salary History Editor</h3>
+</div>
+<div class="modal-body">
+    <div class="">
+        Your salary history is estimated below.  You can edit this with the simple settings shown below or switch to the <span  class="btn btn-mini btn-info" type="button" ng-click="switchToDetailed()">Detailed Editor</span> if you need to modify it year by year.<br><br>
+        
+        <div id="estimateContributions">
+
+            <table class="table table-condensed table-striped">
+                <tr>
+                    <th>Period</th><th >Year</th><th>Salary</th>
+                </tr>
+                <tr>
+                    <td>Starting</td><td><input ng-model="vals.hireYear" type="number" ng-change="setSimpleSH()"/></td><td><input ng-model="vals.startingSalary" type="number"  ng-blur="setSimpleSH()"/></td>
+                </tr>
+                <tr ng-show="vals.active">
+                    <td>Current</td><td class="currentYear">{{currentYear}}</td><td class="currentYear"><input ng-model="vals.currentSalary" type="number"  ng-blur="setSimpleSH()"/></td>
+                </tr>
+                <tr>
+                    <td>Ending</td><td><input ng-model="vals.endingYear" type="number" ng-change="setSimpleSH()"/></td><td><input ng-model="vals.endingSalary" type="number"  ng-blur="setSimpleSH()"/></td>
+                </tr>
+            </table>
+            <div class="container">
+                <salary-graph> </salary-graph>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

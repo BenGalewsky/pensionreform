@@ -8,6 +8,34 @@
     padding: 4px;
 
 }
+.modal-backdrop-centered{
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+}
+.modal.modal-wide {
+  width: 90%;
+  margin: 0px;
+  left: 5%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+  max-height: 800px;
+}
+
+/* next two styles override built in modal behavior that slides modal in and out */
+.modal.fade {
+  opacity: 1;
+}
+
+.modal.fade .modal-dialog, .modal.in .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+
+.modal.fade.in {top: 10%;}
+.modal.fade {top: 10%;}
 
 
 body {
@@ -25,4 +53,8 @@ body {
     border: steelblue thick solid; padding: 5px;
     border-radius: 7px;
     padding: 15px 5px;
+}
+
+.tooltipText{
+  font-size: 15px;
 }

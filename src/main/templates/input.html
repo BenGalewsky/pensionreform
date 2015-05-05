@@ -1,0 +1,38 @@
+<div>
+    <label>What is your job/pension?</label>
+    <select ng-model="vals.chosenOccupation" ng-options="occupation.label for occupation in occupations"></select>
+</div>
+<div title="This is used to determine how long you will receive benefits as mortality rates vary with gender and age.">
+    <label>What is your gender?</label>
+    <select  class="input-small" ng-model="vals.gender" ng-change="vals.getProbableAgeAtDeath()"><option value="f">Female</option><option value="m">Male</option></select>
+</div>
+<div>
+    <label>In what year were you born?</label><div class="input-group"><input type="number" class="form-control input-small" is-open="opened" ng-model="vals.birthYear"  ng-change="vals.getProbableAgeAtDeath();setEstimatedSH()"/></div>
+</div>
+<div>
+    <label>Anticipated age of death:</label><input  class="input-small" ng-model="vals.ageAtDeath" type="number" ng-change="vals.getProbabilityOfDeath()"> Year: {{vals.birthYear+vals.ageAtDeath}}<br>
+    <span probability-of-surviving/>
+</div>
+<div style="border:dashed gray thin; margin: 12px 0px; padding: 4px; background-color: #eeeeee" tooltip="Use this area to enter your salary history.  There is a button for entering more complex histories." tooltip-placement="right" tooltip-class="tooltipText" >
+    <div>
+        <label>In what year did you start working?</label><div class="input-group"><input class="input-small" type="number"  ng-model="vals.hireYear"  ng-change="setEstimatedSH()"/></div>
+    </div>
+    <div>
+        <label>At what age did you retire or expect to retire?</label><input class="input-small"  ng-model="vals.ageAtRetirement" type="number"  ng-change="setEstimatedSH()">
+        Year: {{vals.ageAtRetirement+vals.birthYear}}
+    </div>
+    <div>
+        <label>How many years of service did you or will you have at retirement?</label><input class="input-small"  ng-model="vals.yearsOfService" type="number" ng-change="setEstimatedSH()">
+    </div>
+    <div ng-show="vals.active">
+        <label>What is your current Salary? </label><input class="input-small"  ng-model="vals.currentSalary" type="number" ng-blur="vals.endingSalary=null;setEstimatedSH()">
+    </div>
+    <div ng-show="!vals.active">
+        <label>What was your last Salary? </label><input  class="input-small" ng-model="vals.endingSalary" type="number" ng-blur="vals.currentSalary=null;setEstimatedSH()">
+    </div>
+    <div title = "Estimate from Current Salary.  SERS uses the average of the highest four years within the last 10 years....">
+        <label>What do you expect your final average salary to be?</label><input class="input-small"  ng-model="vals.finalAverageSalary" type="number"  ng-blur="finalAvgSalaryChanged()"> 
+    </div>
+    <button class="btn btn-mini btn-info" ng-click="openSalaryModal()">Edit Salary History</button> to add more details.
+</div>
+Calculate Net Present Value of Pension <span class="calculateBtn btn btn-success" ng-click="calculate()">Calculate</span>

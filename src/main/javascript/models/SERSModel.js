@@ -92,7 +92,7 @@ pension.SERS = {
             //result can also have a max property which is a dollar amount establishing the most that you can apply the rate to... so payment= currentBenefit+(max*rate), without the max it is currentBenefit*(1+rate)...
             //result can also have a compounded property where if true, the rate grows in a compounded way rate in year 2=(rate+1)*(1+rate)-1=.0609, otherwise it grows linearally such that rate in year 2= rate+rate=.06
             //start is the age that you can start acrewing COLA...
-		var result = {};
+		var result = pension.COLA();
 		result.rate = 0.03;
 		if(this.getTier(aPerson) == 2){
 			result.start = 67 - aPerson.ageAtRetirement;

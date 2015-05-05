@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <h3 class="modal-title">Detailed Salary History Editor</h3>
+</div>
+<div class="modal-body">
+        Your salary history is estimated below.  You can edit each year by clicking on any graph bar below.  You can switch back to the <span  class="btn btn-mini btn-info" type="button" ng-click="switchToSimple()">Simple Editor</span> but will loose any year by year data.<br><br>
+    <div ng-if="hasValidSalaryHistoryData()">
+        <table class="table table-condensed table-striped">
+            <tr><td width="150">Year</td><td>{{vals.salaryHistory[vals.salaryHistoryEditIndex].year}}
+                <span ng-click="salaryHistoryDecrement()"  class="btn btn-mini btn-info">Previous Year</span>
+    | <span ng-click="salaryHistoryIncrement()"  class="btn btn-mini btn-info">Next Year</span>
+
+                </td>
+                <td rowspan="4"><div><b>Detailed Data Entry:</b><br>If you need to enter a long list of values, you can press tab to jump from field to field and from year to year.  So when you are editing the contribution field, if you press tab, it will jump to the next year's salary field.<br>
+                        <br><b>Add Years:</b> <span class="btn btn-mini btn-info" ng-click="prependYear()">Add Year to Front of List</span> | <span class="btn btn-mini btn-info" ng-click="appendYear()">Add Year to End of List</span></div>
+                </td>
+            </tr>
+            <tr><td>Salary</td><td><input id="detailedSalaryField" ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].salary" type="number" ng-blur="setDetailedSH()"/></td></tr>
+            <tr><td>Years of Service</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].yearsOfService" type="number" ng-change="setDetailedSH()"/></td></tr>
+            <tr><td>Contribution ({{Math.round(vals.salaryHistory[vals.salaryHistoryEditIndex].contribution/vals.salaryHistory[vals.salaryHistoryEditIndex].salary*100,1)}}%)</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].contribution" type="number" ng-blur="setDetailedSH();salaryHistoryIncrement();"/><a href="#">.</a></td></tr>
+        </table>
+        <salary-graph> </salary-graph>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

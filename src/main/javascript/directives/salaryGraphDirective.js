@@ -1,3 +1,17 @@
+pensionApp.directive("salaryGraph", function(){
+  function link($scope, element, attrs){
+    var salaryGraph=new SalaryGraph(element[0]);
+    salaryGraph.setup();
+    salaryGraph.render($scope.vals);
+    $scope.$on("reviseSalaryGraph", function(event){ salaryGraph.render($scope.vals)})
+    $scope.$on("salaryGraphEditBar", function(event, yearArray){ salaryGraph.bar_edit_show(yearArray)})
+  }
+  return {
+    link: link, 
+    restrict: 'E'
+  }
+})
+
 SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var ns=$(nodeSelector);
     
@@ -116,10 +130,10 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
         
         $(".bar").click(function(){
             //set bar edit to show the current year...
-                v.salaryHistoryEditYear=be_last_index[0];
-                v.salaryHistoryEditIndex=be_last_index[1];
+                v.salaryHistoryEditYear=bar_edit_last_index[0];
+                v.salaryHistoryEditIndex=bar_edit_last_index[1];
                 v.$apply();
-                be_show(be_last_index);
+                bar_edit_show(bar_edit_last_index);
             
         })
     };//end of drawSalaryBars
@@ -156,28 +170,28 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
     };//end contribution bars...
 
     // a utility used below in drawBarEdit()...
-    var be_last_index=[0,-1];
-    var be_show=function(yr){//yr is an array [yr, i] where i is index of year in array...
+    var bar_edit_last_index=[0,-1];
+    var bar_edit_show=function(yr){//yr is an array [yr, i] where i is index of year in array...
         if(yr&&yr[0]>0){
             be.style("visibility","visible");
             //then add margin back in to position bareditor on cnvs...  and center it...
             be.attr("transform","translate("+Math.round(x(yr[0])+margin.left+x.rangeBand()/2-7.5)+", 0)");
             be.selectAll(".be_year").text(yr[0]);
-            be_last_index=yr;
+            bar_edit_last_index=yr;
         }
         else be.style("visibility","hidden");
     }
-    this.be_show=be_show;//make it public...
+    this.bar_edit_show=bar_edit_show;//make it public...
     
     var drawBarEditor=function(){
         cnvs.on("mousemove",function(){//we are observing mouse on the full canvas...
             var coordinates=d3.mouse(this);
             // get year from mouse position on svg.x=cnvs.x-margin.left
             var yr=ordinalInvert(coordinates[0]-margin.left,x);
-            be_show(yr);
+            bar_edit_show(yr);
         })
         cnvs.on("mouseout",function(){
-            be_show([v.salaryHistoryEditYear, v.salaryHistoryEditIndex]);
+            bar_edit_show([v.salaryHistoryEditYear, v.salaryHistoryEditIndex]);
         });
         be.selectAll(".be_delete")
             .on("mouseover", function(){
@@ -189,13 +203,13 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
                     .attr("xlink:href","graphics/deleteOffE5.png")
             })
             .on("click", function(){
-                v.salaryHistoryEditYear=be_last_index[0];
-                v.salaryHistoryEditIndex=be_last_index[1];
-                v.salaryHistory[be_last_index[1]].salary=0;
-                v.salaryHistory[be_last_index[1]].contribution=0;
-                v.salaryHistory[be_last_index[1]].yearsOfService=0;
+                v.salaryHistoryEditYear=bar_edit_last_index[0];
+                v.salaryHistoryEditIndex=bar_edit_last_index[1];
+                v.salaryHistory[bar_edit_last_index[1]].salary=0;
+                v.salaryHistory[bar_edit_last_index[1]].contribution=0;
+                v.salaryHistory[bar_edit_last_index[1]].yearsOfService=0;
                 v.$apply();
-                be_show(be_last_index);
+                bar_edit_show(bar_edit_last_index);
                 vals.computeFinalAverageSalary();
                 render(vals);
             })
@@ -209,10 +223,10 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
                     .attr("xlink:href","graphics/editOffE5.png")
             })
             .on("click", function(){
-                v.salaryHistoryEditYear=be_last_index[0];
-                v.salaryHistoryEditIndex=be_last_index[1];
+                v.salaryHistoryEditYear=bar_edit_last_index[0];
+                v.salaryHistoryEditIndex=bar_edit_last_index[1];
                 v.$apply();
-                be_show(be_last_index);
+                bar_edit_show(bar_edit_last_index);
             })
     }
     var drawAvgFinalSalary=function(){
