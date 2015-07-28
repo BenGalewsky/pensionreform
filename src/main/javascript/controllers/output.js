@@ -7,7 +7,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var cformat=d3.format("$,.3r");
    
     // current scope object... gets set in render function... but is made globally available...
-    var v={};
+    var model={};
     var xmax=0;
     var xmin=0;
     var retirementYear;
@@ -15,10 +15,10 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var currYear=dt.getFullYear();
     
     
-    //use v.salaryHistory to draw graph...
-    this.render=function(scope, showNPV){//v is the scope object with various year and salary properties...
+    //use model.salaryHistory to draw graph...
+    this.render=function(model_data, showNPV){//v is the scope object with various year and salary properties...
         //set v to scope object
-        v=scope;
+        model=model_data;
         //if ns is hidden, we need to show it to be able to render things like text properly
         // so we will slide off the page, show and then slide back and hide at the bottom of this script
         var isHidden=(ns.hasClass("ng-hide"));
@@ -32,11 +32,11 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         }
 
         var mxValue;
-        if(showNPV) mxValue=d3.max(v.models.current.history,function(d){return Math.max(d.contributionFund, d.benefitFund, d.contributionFund_npv, d.benefitFund_npv)});
-        else  mxValue=d3.max(v.models.current.history,function(d){return Math.max(d.salary, d.benefit, d.contribution_npv, d.benefit_npv)});
+        if(showNPV) mxValue=d3.max(model.history,function(d){return Math.max(d.contributionFund, d.benefitFund, d.contributionFund_npv, d.benefitFund_npv)});
+        else  mxValue=d3.max(model.history,function(d){return Math.max(d.salary, d.benefit, d.contribution_npv, d.benefit_npv)});
 
         //reset the domain of the coordinate calculators
-        var yrarr=v.models.current.history.map(
+        var yrarr=model.history.map(
             function(d) { 
                 return d.year; 
             }
@@ -45,7 +45,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         x.domain(yrarr);
         //and assign maximum value from current history to the y domain
         y.domain([0, mxValue]);
-        //else  y.domain([0, Math.max(v.models.current.annuityCost,v.models.current.contributionNPV )*1.2]);
+        //else  y.domain([0, Math.max(model.annuityCost,model.contributionNPV )*1.2]);
         
         //determine boundaries of x axis..
         xmin=d3.min(x.domain());
@@ -86,9 +86,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     };
     
     var drawBenefitBars=function(){
-        //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
+        //get the collection of bars that already exist (if any) and attach model.salaryHistory to it...
         var bars=svg.selectAll(".bbar")
-          .data(v.models.current.history);
+          .data(model.history);
         //then reset the shape and title of each existing bar based on new data...
         bars.attr("x", function(d) { return x(d.year); })
           .classed("future",function(d,i){
@@ -118,9 +118,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     };//end of drawSalaryBars
 
     var drawSalaryBars=function(){
-        //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
+        //get the collection of bars that already exist (if any) and attach model.salaryHistory to it...
         var bars=svg.selectAll(".sbar")
-          .data(v.models.current.history);
+          .data(model.history);
         //then reset the shape and title of each existing bar based on new data...
         bars.attr("x", function(d) { return x(d.year); })
           .classed("future",function(d,i){
@@ -150,9 +150,9 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     };//end of drawSalaryBars
 
     var drawContributionBars=function(){
-        //get the collection of bars that already exist (if any) and attach v.salaryHistory to it...
+        //get the collection of bars that already exist (if any) and attach model.salaryHistory to it...
         var bars=svg.selectAll(".cbar")
-          .data(v.models.current.history);
+          .data(model.history);
         //then reset the shape and title of each existing bar based on new data...
         bars.attr("x", function(d) { return x(d.year); })
           .classed("future",function(d,i){
@@ -205,7 +205,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.benefitFund);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc(v.models.current.history.slice(v.models.current.person.retirementYear-v.models.current.person.hireYear,v.models.current.history.length)))
+            .attr('d', lineFunc(model.history.slice(model.person.retirementYear-model.person.hireYear,model.history.length)))
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
             .attr('fill','none')
@@ -220,7 +220,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.contributionFund);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
+            .attr('d', lineFunc(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
             .attr('stroke', '#c33')
             .attr('stroke-width',3)
             .attr('fill','none')
@@ -234,7 +234,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.contributionFund*2);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc2(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
+            .attr('d', lineFunc2(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
             .attr('stroke', '#c33')
             .attr('stroke-width',1)
             .attr('fill','none')
@@ -247,7 +247,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .y(function(d){ return y(d.contributionFund*3);})
             .interpolate('linear');
         svg.append('svg:path')
-            .attr('d', lineFunc3(v.models.current.history.slice(0,v.models.current.person.retirementYear-v.models.current.person.hireYear+1)))
+            .attr('d', lineFunc3(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
             .attr('stroke', '#c33')
             .attr('stroke-width',1)
             .attr('fill','none')
@@ -263,21 +263,21 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //draw avg salary line
         $(".avsal").remove();
         svg.append("line").attr("class","avsal")
-           .attr("x1",x(v.avgYr)-50/(xmax-xmin))
-           .attr("y1",y(v.finalAverageSalary))
+           .attr("x1",x(model.avgYr)-50/(xmax-xmin))
+           .attr("y1",y(model.finalAverageSalary))
            .attr("x2",width+margin.right)
-           .attr("y2",y(v.finalAverageSalary))
+           .attr("y2",y(model.finalAverageSalary))
            .attr("stroke","red")
            .attr("stroke-width","3")
            .style("stroke-dasharray",("3, 3"));
         //and the text
         svg.append("text").attr("class","avsal")
           .attr("x", width)
-          .attr("y",y(v.finalAverageSalary)-10)
+          .attr("y",y(model.finalAverageSalary)-10)
           .attr("fill","red")
           .attr("dy",".7em")
           .style("text-anchor", "start")
-          .text("Average Final Salary "+cformat(v.finalAverageSalary))
+          .text("Average Final Salary "+cformat(model.finalAverageSalary))
           .call(wrap, 40);//see the utility function 'wrap' below, this is not native to d3...
           
     }//this is the end drawAvgFinalSalary
@@ -285,13 +285,13 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         //draw avg salary line
         var totContribution=0;
         var lastContribution=0;
-        for(var i=0;i<v.salaryHistory.length;i++){
-            lastContribution=v.salaryHistory[i].contribution;
+        for(var i=0;i<model.salaryHistory.length;i++){
+            lastContribution=model.salaryHistory[i].contribution;
             totContribution+=lastContribution;
         };
         $(".totcontr").remove();
         svg.append("line").attr("class","totcontr")
-           .attr("x1",x(v.salaryHistory[v.salaryHistory.length-1].year))
+           .attr("x1",x(model.salaryHistory[model.salaryHistory.length-1].year))
            .attr("y1",y(lastContribution))
            .attr("x2",width+margin.right)
            .attr("y2",y(lastContribution))

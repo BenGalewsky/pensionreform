@@ -24,6 +24,7 @@
     <script type="text/javascript" src="javascript/models/Person.js"></script>
     <script type="text/javascript" src="javascript/models/Model.js"></script>
     <script type="text/javascript" src="javascript/models/SERSModel.js"></script>
+    <script type="text/javascript" src="javascript/models/Tier2Model.js"></script>
     <script type="text/javascript" src="javascript/models/COLA.js"></script>
     <script type="text/javascript" src="javascript/models/systems.mortality.js"></script>
     <script src="javascript/angular/angular.js"></script>
@@ -83,35 +84,42 @@
                 <tr>
                     <th>Output</th>
                     <th>Current SERS Calculations</th>
+                    <th>Tier 2</th>
                     <th>Proposed Madigan Bill</th>
                     <th>Proposed Rauner Plan</th>
                 </tr>
                 <tr>
                     <td>Value of your contributions at retirement ({{vals.models.current.person.retirementYear}}):</td>
                     <td>{{vals.models.current.contributionFund|currency:"$":0}}</td>
+                    <td>{{vals.models.tier2.contributionFund|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Value of your benefits at retirement ({{vals.models.current.person.retirementYear}}) assuming death at age {{vals.models.current.person.ageAtDeath}} ({{vals.models.current.person.deathYear}})</td>
                     <td>{{vals.models.current.benefitFund|currency:"$":0}}</td>
+                    <td>{{vals.models.tier2.benefitFund|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Percent Self Funded (contributions/benefits)</td>
                     <td>{{vals.models.current.pctFunded}}%</td>
+                    <td>{{vals.models.tier2.pctFunded}}%</td>
+                    <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Contributions in Today's Dollars:</td>
                     <td>{{vals.models.current.contributionFund_npv|currency:"$":0}}</td>
+                    <td>{{vals.models.tier2.contributionFund_npv|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>Benefits in Today's Dollars</td>
                     <td>{{vals.models.current.benefitFund_npv|currency:"$":0}}</td>
+                    <td>{{vals.models.tier2.benefitFund_npv|currency:"$":0}}</td>
                     <td></td>
                     <td></td>
                 </tr>

@@ -1,6 +1,6 @@
 pensionApp.controller('PensionController', function($scope, $rootScope, $modal, $http, $log) {
   /* 'simple' mode is for when there is a continuous salary, no gaps, otherwise 'detailed' mode */
-  $rootScope.salaryMode = 'simple';
+//  $rootScope.salaryMode = 'simple';
 
   $scope.openSalaryModal = $rootScope.openSalaryModal = function () {
     var modalInstance;
@@ -53,14 +53,14 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
 
   //obsolete.. need to dump all references to this in this file, then remove these next two lines
   //all salaryGraph modelling is done in the salaryGraphDirective now...
-  var salaryGraph=new SalaryGraph("#simpleContributionsGraph");
-  salaryGraph.setup();
+  //var salaryGraph=new SalaryGraph("#simpleContributionsGraph");
+  //salaryGraph.setup();
 
 
 
 
   //model setup...
-  $scope.vals=vals;//provide access to person model's values
+  $scope.vals=vals;//provide access to person model's values which is a global variable set in startup.js
   $scope.vals.$apply=function(){$scope.$apply();};//used by graphing callbacks to update the $scope model...
   $scope.occupations=[
       {label:'State Police/SERS',occupation:'policeOfficer',system:'SERS', coveredBySocialSecurity:false},
@@ -69,7 +69,10 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
 
 
   $scope.calculateContribution=1;
-  $rootScope.statusContribution=1;//0=do not include, 1=simple estimate, 2=detailed estimate
+  $rootScope.statusContribution=1;
+  // statusContribution is used by the salaryModalController to store its state.
+  //0=do not include, 1=simple estimate, 2=detailed estimate
+
   $scope.spy=function(){
       var r={};
       for(var p in $scope){
@@ -163,27 +166,40 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
   //when calculate button is clicked...
   $scope.calculate=function(){
     showOutputArea = true;
-    var model = pension.SERS.constructModelData(vals);
-    model.calculate();
-    model.contributionFund=model.history[model.person.retirementYear-model.person.hireYear].contributionFund;
-    model.benefitFund=model.history[model.person.retirementYear-model.person.hireYear].benefitFund;
-    model.contributionFund_npv=model.history[model.person.retirementYear-model.person.hireYear].contributionFund_npv;
-    model.pctFunded=Math.round(model.contributionFund/model.benefitFund*100);
-    model.benefitFund_npv=model.history[model.person.retirementYear-model.person.hireYear].benefitFund_npv;
-    vals.models.current=model;
-    $("#outputGraph").html();
-    var outputGraph=new OutputGraph("#outputGraph");
-    outputGraph.setup();
-    outputGraph.render(vals);
-    outputGraph=new OutputGraph("#outputGraph2");
-    outputGraph.setup();
-    outputGraph.render(vals,true);
-    
+    var sers_model = calculate_model_data(pension.SERS.constructModelData(vals))
+    vals.models.current=sers_model;
+    var boo = pension.Tier2.constructModelData(vals)
+    var tier2_model = calculate_model_data(boo)
+    vals.models.tier2=tier2_model;
+    display_output_graph(sers_model);
   }
 
   //run once to set estimated years and salaries...
   $scope.setEstimatedSH();
   vals.getProbableAgeAtDeath();
   
+  calculate_model_data = function(model){
+    model.calculate();
+    model.contributionFund=model.history[model.person.retirementYear-model.person.hireYear].contributionFund;
+    model.benefitFund=model.history[model.person.retirementYear-model.person.hireYear].benefitFund;
+    model.contributionFund_npv=model.history[model.person.retirementYear-model.person.hireYear].contributionFund_npv;
+    model.pctFunded=Math.round(model.contributionFund/model.benefitFund*100);
+    model.benefitFund_npv=model.history[model.person.retirementYear-model.person.hireYear].benefitFund_npv;
+    model.avgYr = vals.avgYr;
+    model.finalAverageSalary = vals.finalAverageSalary;
+    model.salaryHistory = vals.salaryHistory;
+    model.ageAtRetirement = vals.ageAtRetirement;
+    return model;
+  }
+
+  display_output_graph = function(model){
+    $("#outputGraph").html();
+    var outputGraph=new OutputGraph("#outputGraph");
+    outputGraph.setup();
+    outputGraph.render(model);
+    outputGraph=new OutputGraph("#outputGraph2");
+    outputGraph.setup();
+    outputGraph.render(model,true);
+  }
 
 });//end controller function...

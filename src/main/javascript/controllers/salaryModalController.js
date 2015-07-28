@@ -23,7 +23,7 @@ pensionApp.controller('SalaryModalController', function ($scope, $rootScope, $mo
     $scope.vals.salaryHistoryEditYear= $scope.vals.salaryHistory[0].year;
   }
 
-  //whenever one fo the simple estimate fields is changed
+  //whenever one of the simple estimate fields is changed
   //if in simple mode, calculate SH based on simple fields: startingSalary, endingSalary, endingyear, currentyear...
   // if in any other mode, you wouldn't see or edit simple fields...
   $scope.setSimpleSH=function(){
@@ -93,6 +93,11 @@ pensionApp.controller('SalaryModalController', function ($scope, $rootScope, $mo
       $scope.$broadcast('salaryGraphEditBar', [$scope.vals.salaryHistoryEditYear,$scope.vals.salaryHistoryEditIndex]);
     }
     $("#detailedSalaryField").focus();
+  }
+
+  $scope.calculateContributionPct = function(){
+    var currentSalHistory = $scope.vals.salaryHistory[$scope.vals.salaryHistoryEditIndex];
+    return Math.round(currentSalHistory.contribution/currentSalHistory.salary*1000)/10;
   }
 
   $scope.ok = function () {

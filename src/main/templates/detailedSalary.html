@@ -16,7 +16,7 @@
             </tr>
             <tr><td>Salary</td><td><input id="detailedSalaryField" ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].salary" type="number" ng-blur="setDetailedSH()"/></td></tr>
             <tr><td>Years of Service</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].yearsOfService" type="number" ng-change="setDetailedSH()"/></td></tr>
-            <tr><td>Contribution ({{Math.round(vals.salaryHistory[vals.salaryHistoryEditIndex].contribution/vals.salaryHistory[vals.salaryHistoryEditIndex].salary*100,1)}}%)</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].contribution" type="number" ng-blur="setDetailedSH();salaryHistoryIncrement();"/><a href="#">.</a></td></tr>
+            <tr><td>Contribution (<span ng-bind="calculateContributionPct()"></span>%)</td><td><input ng-model="vals.salaryHistory[vals.salaryHistoryEditIndex].contribution" type="number" ng-blur="setDetailedSH();salaryHistoryIncrement();"/><a href="#">.</a></td></tr>
         </table>
         <salary-graph> </salary-graph>
     </div>

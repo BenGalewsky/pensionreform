@@ -1,6 +1,5 @@
-pension = pension || {};
-
-pension.SERS = {
+pension.Tier2 = {
+	type: "Type 2",
 	constructModelData : function(aPerson, aEnv) {
 
 		var modelData = pension.model(aPerson);
@@ -68,7 +67,7 @@ pension.SERS = {
 	},
 
 	getTier : function(aPerson) {
-		return (aPerson.hireYear<2011) ? 1 : 2;
+		return  2;
 	},
 	
 	getBenefitReduction: function(aPerson){
@@ -106,6 +105,4 @@ pension.SERS = {
 
 
 };
-
-
 	
