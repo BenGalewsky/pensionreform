@@ -166,12 +166,11 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
   //when calculate button is clicked...
   $scope.calculate=function(){
     showOutputArea = true;
-    var sers_model = calculate_model_data(pension.SERS.constructModelData(vals))
+    var sers_model = calculate_model_data(pension.SERS.constructModelData(vals));
     vals.models.current=sers_model;
-    var boo = pension.Tier2.constructModelData(vals)
-    var tier2_model = calculate_model_data(boo)
+    var tier2_model = calculate_model_data(pension.Tier2.constructModelData(vals));
     vals.models.tier2=tier2_model;
-    display_output_graph(sers_model);
+    explain_output_graph(sers_model);
   }
 
   //run once to set estimated years and salaries...
@@ -188,7 +187,7 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
     model.avgYr = vals.avgYr;
     model.finalAverageSalary = vals.finalAverageSalary;
     model.salaryHistory = vals.salaryHistory;
-    model.ageAtRetirement = vals.ageAtRetirement;
+    model.yearOfRetirement = vals.ageAtRetirement+vals.birthYear;
     return model;
   }
 
@@ -197,9 +196,151 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
     var outputGraph=new OutputGraph("#outputGraph");
     outputGraph.setup();
     outputGraph.render(model);
+    outputGraph.drawGraph();
     outputGraph=new OutputGraph("#outputGraph2");
     outputGraph.setup();
     outputGraph.render(model,true);
+    outputGraph.drawGraph(true);
   }
+
+  explain_output_graph = function(model){
+    $("#explanation_area").addClass("subsection");
+    $("#outputGraph2").html("");
+    var outputGraph=new OutputGraph("#outputGraph2");
+    outputGraph.setup();
+    outputGraph.render(model);
+    explain_script(explain_output_graph_script,$("#outputGraph"), outputGraph)
+  }
+
+  explain_script = function(steps, explain_area, graph_object){
+    explain_area.html("<table style='width: 100%; max-width: 860px;'><tr><td><span class='btn btn-mini explain_previous'><i class='icon-chevron-left icon-white'></i>Previous Step</span></td><td><span class='btn btn-mini explain_next pull-right'>Next Step<i class='icon-chevron-right icon-white'></i></span></td></tr><tr><td colspan=2><span class='explanation'></td></tr></table>");
+    var explain_span = explain_area.find(".explanation");
+    var step_index = 0;
+    explain_previous = function(){
+      explain_area.find(".explain_previous").addClass("btn-primary");
+      explain_area.find(".explain_next").addClass("btn-primary");
+      if(step_index > 0) {
+        step_index--;
+      }
+      else explain_area.find(".explain_previous").removeClass("btn-primary");
+      var step=steps[step_index];
+      if(step.context_script) {
+        for(i=0;i<step.context_script.length;i++){
+          graph_object[step.context_script[i]]();
+        }
+      }
+      explain_span.html(step.explanation);
+      if(step.forward_script) {
+        for(i=0;i<step.forward_script.length;i++){
+          graph_object[step.forward_script[i]]();
+        }
+      }
+    }
+    explain_next = function(){
+      explain_area.find(".explain_previous").addClass("btn-primary");
+      explain_area.find(".explain_next").addClass("btn-primary");
+      if(step_index < steps.length-1) {
+        step_index++;
+      }
+      else explain_area.find(".explain_next").removeClass("btn-primary");
+      var step=steps[step_index];
+      explain_span.html(step.explanation);
+      if(step.forward_script) {
+        for(i=0;i<step.forward_script.length;i++){
+          graph_object[step.forward_script[i]]();
+        }
+      }
+    }
+    explain_area.find(".explain_previous").click(explain_previous);
+    explain_area.find(".explain_next").click(explain_next);
+    explain_previous();
+  }
+
+  explain_output_graph_script = [
+    { explanation: "The tall green bars show your salary across the years.",
+      forward_script: [
+        "smallScale",
+        "drawSalaryBars"
+      ]
+    },
+    { explanation: "The solid green bars show the ammount you contributed each year to your pension, typically 8%.",
+      context_script: [
+        "smallScale",
+        "drawSalaryBars"
+      ],
+      forward_script: [
+        "drawContributionBars"
+      ]
+    },
+    { explanation: "The solid red bars show your estimated retirement benefits across the years.",
+      context_script: [
+        "smallScale",
+        "drawSalaryBars",
+        "drawContributionBars"
+      ],
+      forward_script: [
+        "drawBenefitBars"
+      ]
+    },
+    { explanation: "The solid green line shows the value of your contributions over the years if they were invested and acruing a return.",
+      forward_script: [
+        "fullScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars",
+        "drawContributionFundLine"
+      ]
+    },
+    { explanation: "The dashed green line shows the value of a hypothetical matching 401K if the state had matched your contribution all those years.  This is simply for comparison purposes.",
+      context_script: [
+        "fullScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars",
+        "drawContributionFundLine"
+      ],
+      forward_script: [
+        "drawMatching401KLine"
+      ]
+    },
+    { explanation: "The solid red line shows how much the state owes you in future benefits (your pension) if the state created a fund to pay out the benefits until your anticipated death year.",
+      context_script: [
+        "fullScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars",
+        "drawContributionFundLine",
+        "drawMatching401KLine"
+      ],
+      forward_script: [
+        "drawBenefitFundLine"
+      ]
+    },
+    { explanation: "At the retirement year we can compare how much all your contributions were worth to how much the state will owe you in future benefits.  And we can determine what percentage of your pension is self funded by you.  The balance will be paid by the state.",
+      context_script: [
+        "fullScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars",
+        "drawContributionFundLine",
+        "drawBenefitFundLine"
+      ],
+      forward_script: [
+        "drawPctSelfFunded"
+      ]
+    },
+    { explanation: "The table above shows this same information.   Look above for the percentage of your pension that is self funded.  This percentage allows you to compare various reform proposals.",
+      context_script: [
+        "fullScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars",
+        "drawContributionFundLine",
+        "drawBenefitFundLine"
+      ],
+      forward_script: [
+      ]
+    }
+  ]
 
 });//end controller function...

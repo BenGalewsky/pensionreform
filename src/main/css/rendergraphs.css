@@ -9,6 +9,16 @@
   stroke:#3c3;
   stroke-width:1;
 }
+.tbbar {
+  fill-opacity: 0;
+  stroke:#B40431;
+  stroke-width:1;
+}
+.tcbar {
+  fill-opacity: 0.5;
+  stroke:#B40431;
+  stroke-width:1;
+}
 .cbar {
   fill: #3c3;
 }

@@ -399,25 +399,28 @@ SalaryGraph=function(nodeSelector){//ie... "#contributionsGraph"
 //utilities... 
 
 // to wrap text blocks...
-function wrap(text, width) {
-  text.each(function() {
-    var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
+function wrap(textObj, width) {
+  textObj.each(function() {
+    var textLineObj = d3.select(this);
+    var text = textLineObj.text().replace("\n"," **newline** ");
+    var words = text.split(/\s+/).reverse(),
         word,
         line = [],
         lineNumber = 0,
         lineHeight = 1.1, // ems
-        y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")),
-        tspan = text.text(null).append("tspan").attr("x", text.attr("x")).attr("y", y);
+        y = textLineObj.attr("y"),
+        dy = parseFloat(textLineObj.attr("dy")),
+        tspan = textLineObj.text(null).append("tspan").attr("x", textLineObj.attr("x")).attr("y", y);
     while (word = words.pop()) {
-      line.push(word);
+      var newline = (word != "**newline**");
+      if(newline) line.push(word);
+      else word = "";
       tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
+      if (tspan.node().getComputedTextLength() > width || word == "**newline**") {
         line.pop();
         tspan.text(line.join(" "));
         line = [word];
-        tspan = text.append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        tspan = textLineObj.append("tspan").attr("x", textLineObj.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
         //console.log(tspan);
       }
     }

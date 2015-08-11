@@ -14,10 +14,47 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     var dt=new Date();
     var currYear=dt.getFullYear();
     
-    
+    this.render = function(model_data) {
+      model = model_data;
+    }
+
+    this.drawScale = function(showNPV) {
+      svg.selectAll("*").remove();
+      var mxValue;
+      if(showNPV) mxValue=d3.max(model.history,function(d){return Math.max(d.contributionFund*2, d.benefitFund, d.contributionFund_npv*2, d.benefitFund_npv)});
+      else  mxValue=d3.max(model.history,function(d){return Math.max(d.salary, d.benefit, d.contribution_npv, d.benefit_npv)});
+
+      //reset the domain of the coordinate calculators
+      var yrarr=model.history.map(
+          function(d) { 
+              return d.year; 
+          }
+      );
+      //assign year array to x domain...
+      x.domain(yrarr);
+      //and assign maximum value from current history to the y domain
+      y.domain([0, mxValue]);
+      //else  y.domain([0, Math.max(model.annuityCost,model.contributionNPV )*1.2]);
+      
+      //determine boundaries of x axis..
+      xmin=d3.min(x.domain());
+      xmax=d3.max(x.domain());
+      
+      //draw axis
+      drawAxis();
+    }
+
+    this.smallScale = function(){
+      this.drawScale(false)
+    }
+
+    this.fullScale = function(){
+      this.drawScale(true)
+    }
+
     //use model.salaryHistory to draw graph...
-    this.render=function(model_data, showNPV){//v is the scope object with various year and salary properties...
-        //set v to scope object
+    this.obsrender=function(model_data, showNPV){//model_data is the scope object with various year and salary properties...
+        //set model_data to scope object
         model=model_data;
         //if ns is hidden, we need to show it to be able to render things like text properly
         // so we will slide off the page, show and then slide back and hide at the bottom of this script
@@ -53,20 +90,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         
         //draw axis
         drawAxis();
-        //draw salary bars
-//        drawSalaryBars();
-        drawContributionBars();
-        drawSalaryBars();
-        //draw benefits
-        drawBenefitBars();
-//        drawRetirementYear();
-        //drawBarEditor();
-        if(showNPV){
-            drawContributionFundLine();
-            //draw benefits
-            drawBenefitFundLine();
-        }
-        //draw npv contributions
+
         if(isHidden) {
             ns.css("position", hpos);
             ns.css("margin-left",hlft);
@@ -74,11 +98,29 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         }
     };//end render...
     var render=this.render;//makes it available internally...
-    
+
+    this.drawGraph = function(showNPV){
+//        drawSalaryBars();
+      drawContributionBars();
+      drawSalaryBars();
+      //draw benefits
+      drawBenefitBars();
+//        drawRetirementYear();
+      //drawBarEditor();
+      if(showNPV){
+          drawContributionFundLine();
+          //draw benefits
+          drawBenefitFundLine();
+          //draw percent self funded
+          drawPctSelfFunded();
+      }
+      //draw npv contributions
+    }
+
     var drawAxis=function(){
         //need to call the axis setup scripts again
-        svg.selectAll(".x.axis").call(xAxis);
-        svg.selectAll(".y.axis").call(yAxis);
+        axes.selectAll(".x.axis").call(xAxis);
+        axes.selectAll(".y.axis").call(yAxis);
         
         $("g.x g.tick text").show();
         //adjust ticks when more than 25 years, skip odd ticks...
@@ -221,42 +263,111 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .interpolate('linear');
         svg.append('svg:path')
             .attr('d', lineFunc(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
-            .attr('stroke', '#c33')
+            .attr('stroke', '#3c3')
             .attr('stroke-width',3)
             .attr('fill','none')
             .attr('id', 'contributionFund')
             .on("mousemove", mMove('contributionFund','Value of my accumulated contributions plus investment returns'))
             .append("title");
-            
-        //draw matching lines...
+    };
+
+    var drawMatching401KLine=function(){
+        //draw matching line...
         var lineFunc2=d3.svg.line()
             .x(function(d){ return x(d.year);})
             .y(function(d){ return y(d.contributionFund*2);})
             .interpolate('linear');
         svg.append('svg:path')
             .attr('d', lineFunc2(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
-            .attr('stroke', '#c33')
+            .attr('stroke', '#3c3')
             .attr('stroke-width',1)
             .attr('fill','none')
             .attr('stroke-dasharray',("3,3"))
             .attr('id', 'contributionFundx1')
             .on("mousemove", mMove('contributionFundx1','1x - If the state matched your contributions'))
             .append("title");
-        var lineFunc3=d3.svg.line()
-            .x(function(d){ return x(d.year);})
-            .y(function(d){ return y(d.contributionFund*3);})
-            .interpolate('linear');
-        svg.append('svg:path')
-            .attr('d', lineFunc3(model.history.slice(0,model.person.retirementYear-model.person.hireYear+1)))
-            .attr('stroke', '#c33')
-            .attr('stroke-width',1)
-            .attr('fill','none')
-            .attr('stroke-dasharray',("3,6"))
-            .attr('id', 'contributionFundx2')
-            .on("mousemove", mMove('contributionFundx2','2x - If the state matched 2x your contributions'))
-            .append("title");
 
     };//end of drawBenefitFundLine
+
+    var drawPctSelfFunded=function(){
+        //get the bar that already exists (if any) and attach model.total_benefits and total_contributuions
+        var bars=svg.selectAll(".tbbar")
+          .data([model]);
+        //then reset the shape and title of each existing bar based on new data...
+        bars.attr("x", function(d) { return x(d.yearOfRetirement); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.benefitFund); })
+          .attr("title", function(d) { return "Total Benefit: "+ cformat(d.benefitFund); })
+          .attr("height", function(d) { return height - y(d.benefitFund); });
+        //same as above except that the enter() applies only when there is more data than existing bars... 
+        //so for each new data point it gets a rect tag appended and all the shape and title settings appied...
+        bars.enter().append("rect")
+          .attr("class", "tbbar")
+          .attr("x", function(d) { return x(d.yearOfRetirement); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.benefitFund); })
+          .attr("height", function(d) { return height - y(d.benefitFund); })
+          .append("title")
+          .text( function(d) { return "Total Benefit: "+ cformat(d.benefitFund); });
+        // and when there are more existing bars than data, exit() is appied and it removes the bar...
+        bars.exit().remove();
+        
+        //get the bar that already exists (if any) and attach model.total_benefits and total_contributuions
+        var bars=svg.selectAll(".tcbar")
+          .data([model]);
+        //then reset the shape and title of each existing bar based on new data...
+        bars.attr("x", function(d) { return x(d.yearOfRetirement); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.contributionFund); })
+          .attr("title", function(d) { return "Total Benefit: "+ cformat(d.contributionFund); })
+          .attr("height", function(d) { return height - y(d.contributionFund); });
+        //same as above except that the enter() applies only when there is more data than existing bars... 
+        //so for each new data point it gets a rect tag appended and all the shape and title settings appied...
+        bars.enter().append("rect")
+          .attr("class", "tcbar")
+          .attr("x", function(d) { return x(d.yearOfRetirement); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.contributionFund); })
+          .attr("height", function(d) { return height - y(d.contributionFund); })
+          .append("title")
+          .text( function(d) { return "Total Benefit: "+ cformat(d.contributionFund); });
+        // and when there are more existing bars than data, exit() is appied and it removes the bar...
+        bars.exit().remove();
+
+        drawLabel(model.yearOfRetirement, model.contributionFund, (model.pctFunded>90 ? 'left' : 'right'), 180, "Percent Self Funded: " + model.pctFunded + "% \nTotal Contribution " + cformat(model.contributionFund), "tclabel", true)
+        drawLabel(model.yearOfRetirement, model.benefitFund, (model.pctFunded>90 ? 'right' : 'left'), 180, "Total Benefit " + cformat(model.benefitFund), "tblabel", true)
+        
+    };//end of drawPctSelfFunded
+    
+    var drawLabel=function(year, ammount, position, width, label, classname, line){
+      //given a year and amount, draw a label either to the 'left' or 'right' of that bar
+      //with an optional line... 
+      if(!classname) classname = label.replace(" ", "_");
+      if(!width) width = 80;
+      positionIncrement = 1;
+      if(position == 'left') positionIncrement = -1;
+//      $("." + classname).remove();
+      if(line){
+        svg.append("line").attr("class",classname)
+           .attr("x1", x(year+positionIncrement)+positionIncrement)
+           .attr("y1", y(ammount))
+           .attr("x2", x(year + positionIncrement) + positionIncrement * x.rangeBand())
+           .attr("y2", y(ammount))
+           .attr("stroke","steelblue")
+           .attr("stroke-width","3")
+           .style("stroke-dasharray",("3, 3"));
+      }
+      //and the text
+      svg.append("text").attr("class", classname)
+        .attr("x", x(year + positionIncrement) + positionIncrement * (x.rangeBand() + 10))
+        .attr("y", y(ammount))
+        .attr("fill","steelblue")
+        .attr("dy",".7em")
+        .style("text-anchor", position == "left" ? "end" : "start")
+        .text(label)
+        .call(wrap, width);//see the utility function 'wrap' below, this is not native to d3...
+          
+    }//this is the end drawRetirementYear
 
 
     var drawAvgFinalSalary=function(){
@@ -380,7 +491,12 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         .attr("height", height + margin.top + margin.bottom)
         .attr("fill","#e5e5e5")
         .attr("stroke","#e5e5e5");
+    //svg is the drawing surface...
     var svg=cnvs.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    //axes is the drawn axes for the drawing surface
+    //  we separate the drawn axes from the drawing surface simply to make it easier to redraw svg
+    var axes=cnvs.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     //set up bar editor menu...
     var be=cnvs.append("g")
@@ -393,12 +509,12 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
   //    x.domain(data.map(function(d) { return d.year; }));
     //  y.domain([0, d3.max(data, function(d) { return d.salary; })]);
 
-      svg.append("g")
+      axes.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
 
-      svg.append("g")
+      axes.append("g")
           .attr("class", "y axis")
           .call(yAxis)
         .append("text")
@@ -410,6 +526,13 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
 
 
     };
-    
+
+    this.drawContributionBars = drawContributionBars;
+    this.drawSalaryBars = drawSalaryBars;
+    this.drawBenefitBars = drawBenefitBars;
+    this.drawContributionFundLine = drawContributionFundLine;
+    this.drawBenefitFundLine = drawBenefitFundLine;
+    this.drawPctSelfFunded = drawPctSelfFunded;
+    this.drawMatching401KLine = drawMatching401KLine;
 }
 
