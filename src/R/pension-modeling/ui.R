@@ -1,28 +1,46 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-# 
-# http://www.rstudio.com/shiny/
-#
-
 library(shiny)
+library(ggplot2)
 
-shinyUI(pageWithSidebar(
+start_year = 2014
+
+ui <- shinyUI(fluidPage(
   
-  # Application title
-  headerPanel("Old Faithful Geyser Data"),
+  titlePanel(p("Illinois Pension Modeling",align="center")),br(),
   
-  # Sidebar with a slider input for number of bins
   sidebarPanel(
-    sliderInput("bins",
-                "Number of bins:",
-                min = 1,
-                max = 50,
-                value = 30)
+    #selectInput('proposal',"Proposal",choices=c("Rauner June 2015"=1,"Madigan July 2015"=2,"Rahm August 2015"=3,"Federal Bailout"=4), selected=1),hr(),
+    sliderInput('npers',"Years in Forecast",10,100,40,step=5),
+    sliderInput('ror',"Rate of Return", 0, 16, 7),
+    sliderInput('ben',"Benefit Growth Rate", 0, 16, 2),
+    sliderInput('cont',"Contribution Rate", 0, 16, 2),
+    sliderInput('inc',"Income Growth Rate", 0, 16, 3),
+    sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.05),
+    sliderInput('tfr',"Target Funding Ratio", 0, 120, 100,step=5),
+    width = 3
   ),
   
-  # Show a plot of the generated distribution
   mainPanel(
-    plotOutput("distPlot")
+    tabsetPanel(
+      tabPanel("Wealth",br(),hr(),h3(textOutput('pensionAssets')),h3(textOutput('fundingRatio'))
+               ,h3(textOutput('contributionTarget'))
+               ,hr(),br(),h3("Pension Wealth by Year",align='center')
+               ,plotOutput('wealthPlot')
+               # By component of wealth distribution show the flows
+               ,br(),br(),h3("Wealth Flows by Year",align='center')
+               ,plotOutput('wealthFlows')
+               ),
+      tabPanel("Population",br(),
+               sliderInput("in_period","Select Period",start_year,start_year+40-1,12),hr(),
+               h3("Active Population Distribution",align="center"),
+               plotOutput('active_plot'),br(),
+               h3("Beneficiary Population Distribution",align="center"),
+               plotOutput('beneficiary_plot'),br(),
+               h3("Income Distribution",align="center"),
+               plotOutput('inc_plot'),br(),
+               h3("Benefits Distribution",align="center"),
+               plotOutput('ben_plot'),br(),br())
+      #,tabPanel("Proposal",br(),h3("Proposal Details", align="center"),
+               #br(),textOutput('prosposal'))
+    )
   )
 ))
