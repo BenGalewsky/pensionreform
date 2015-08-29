@@ -240,6 +240,52 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
       }
     }
 
+//http://webdesign.tutsplus.com/tutorials/how-to-use-animatetransform-for-inline-svg-animation--cms-22296
+//for transition ideas...
+    var labelShrinkingScale = function() {
+      resize_coordinates(svg);
+      resize_coordinates(axes);
+    }
+
+    var resize_coordinates = function(coordinate_area){
+
+      fullScaleMaxValue=d3.max(model.history,function(d){return Math.max(d.contributionFund*2, d.benefitFund, d.contributionFund_npv*2, d.benefitFund_npv)});
+      smallScaleMaxValue=d3.max(model.history,function(d){return Math.max(d.salary, d.benefit, d.contribution_npv, d.benefit_npv)});
+      scaleProportion = smallScaleMaxValue/fullScaleMaxValue;
+      scaledY = (Math.round(220/scaleProportion)-20)
+      coordinate_area.append("animateTransform")
+      .attr("attributeName", "transform")
+      .attr("attributeType", "XML")
+      .attr("type","scale")
+      .attr("from","1 1")
+      .attr("to","1 "+Math.round(scaleProportion*1000)/1000)
+      .attr("begin","indefinite")
+      .attr("dur","2s")
+      .attr("additive", "sum")
+      .attr("fill", "freeze")
+      coordinate_area.append("animateTransform")
+      .attr("attributeName", "transform")
+      .attr("attributeType", "XML")
+      .attr("type","translate")
+      .attr("from","0 0")
+      .attr("to","0 "+ scaledY)
+      .attr("values", "0 0;0 0;0 "+scaledY)
+      .attr("keyTimes", "0; 0.6; 1")
+      .attr("begin","indefinite")
+      .attr("dur","3s")
+      .attr("additive", "sum")
+      .attr("fill", "freeze")
+      trans_nodes = coordinate_area.selectAll("animateTransform");
+      for(var i=0; i<trans_nodes[0].length; i++){
+        trans_nodes[0][i].beginElement();
+      }
+      var a = coordinate_area;
+    }
+
+    var hideLabelShrinkingScale = function(){
+
+    }
+
     var drawBenefitFundLine=function(){
 
         var lineFunc=d3.svg.line()
@@ -254,6 +300,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('id', 'benefitFund')
             .on("mousemove", mMove('benefitFund','Value of my annuity fund plus investment returns as it gets drawn down'))
             .append("title");
+        drawLabel(model.yearOfRetirement, model.benefitFund, (model.pctFunded>90 ? 'right' : 'left'), 180, "Total Benefit " + cformat(model.benefitFund) + "\n(aka Value of Pension)", "tblabel", true)
     };//end of drawBenefitFundLine
 
     var drawContributionFundLine=function(){
@@ -269,6 +316,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('id', 'contributionFund')
             .on("mousemove", mMove('contributionFund','Value of my accumulated contributions plus investment returns'))
             .append("title");
+        drawLabel(model.yearOfRetirement, model.contributionFund, (model.pctFunded>90 ? 'left' : 'right'), 180, "Total Contribution " + cformat(model.contributionFund), "tclabel", true)
     };
 
     var drawMatching401KLine=function(){
@@ -286,6 +334,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
             .attr('id', 'contributionFundx1')
             .on("mousemove", mMove('contributionFundx1','1x - If the state matched your contributions'))
             .append("title");
+        drawLabel(model.yearOfRetirement, model.contributionFund*2, 'right', 180, "Hypothetical 401k Value " + cformat(model.contributionFund*2), "2xlabel", true)
 
     };//end of drawBenefitFundLine
 
@@ -334,8 +383,8 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
         // and when there are more existing bars than data, exit() is appied and it removes the bar...
         bars.exit().remove();
 
+        svg.selectAll(".tclabel").remove();
         drawLabel(model.yearOfRetirement, model.contributionFund, (model.pctFunded>90 ? 'left' : 'right'), 180, "Percent Self Funded: " + model.pctFunded + "% \nTotal Contribution " + cformat(model.contributionFund), "tclabel", true)
-        drawLabel(model.yearOfRetirement, model.benefitFund, (model.pctFunded>90 ? 'right' : 'left'), 180, "Total Benefit " + cformat(model.benefitFund), "tblabel", true)
         
     };//end of drawPctSelfFunded
     
@@ -509,6 +558,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
   //    x.domain(data.map(function(d) { return d.year; }));
     //  y.domain([0, d3.max(data, function(d) { return d.salary; })]);
 
+      axes.selectAll("*").remove();
       axes.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
@@ -534,5 +584,7 @@ OutputGraph=function(nodeSelector){//ie... "#contributionsGraph"
     this.drawBenefitFundLine = drawBenefitFundLine;
     this.drawPctSelfFunded = drawPctSelfFunded;
     this.drawMatching401KLine = drawMatching401KLine;
+    this.labelShrinkingScale = labelShrinkingScale;
+    this.hideLabelShrinkingScale = hideLabelShrinkingScale;
 }
 

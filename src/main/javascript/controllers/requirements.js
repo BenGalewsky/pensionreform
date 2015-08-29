@@ -204,16 +204,15 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
   }
 
   explain_output_graph = function(model){
-    $("#explanation_area").addClass("subsection");
-    $("#outputGraph2").html("");
-    var outputGraph=new OutputGraph("#outputGraph2");
+    $("#outputGraph").html("");
+    var outputGraph=new OutputGraph("#outputGraph");
     outputGraph.setup();
     outputGraph.render(model);
-    explain_script(explain_output_graph_script,$("#outputGraph"), outputGraph)
+    explain_script(explain_output_graph_script,$("#outputExplanation"), outputGraph)
   }
 
   explain_script = function(steps, explain_area, graph_object){
-    explain_area.html("<table style='width: 100%; max-width: 860px;'><tr><td><span class='btn btn-mini explain_previous'><i class='icon-chevron-left icon-white'></i>Previous Step</span></td><td><span class='btn btn-mini explain_next pull-right'>Next Step<i class='icon-chevron-right icon-white'></i></span></td></tr><tr><td colspan=2><span class='explanation'></td></tr></table>");
+    explain_area.html("<table style='width: 100%; max-width: 860px;'><tr><td><span class='btn btn-mini explain_previous'><i class='icon-chevron-left icon-white'></i>Previous Step</span></td><td><span class='btn btn-mini explain_next pull-right'>Next Step<i class='icon-chevron-right icon-white'></i></span></td></tr><tr><td colspan=2 class='explanation-td'><span class='explanation'></td></tr></table>");
     var explain_span = explain_area.find(".explanation");
     var step_index = 0;
     explain_previous = function(){
@@ -250,6 +249,11 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
           graph_object[step.forward_script[i]]();
         }
       }
+      if(step.forward_only_script) {
+        for(i=0;i<step.forward_only_script.length;i++){
+          graph_object[step.forward_only_script[i]]();
+        }
+      }
     }
     explain_area.find(".explain_previous").click(explain_previous);
     explain_area.find(".explain_next").click(explain_next);
@@ -257,7 +261,7 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
   }
 
   explain_output_graph_script = [
-    { explanation: "The tall green bars show your salary across the years.",
+    { explanation: "To understand the table below, first lets walk through graph underneath.  The tall green bars show your salary across the years.  Click Next Step!",
       forward_script: [
         "smallScale",
         "drawSalaryBars"
@@ -282,8 +286,21 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
         "drawBenefitBars"
       ]
     },
+    { explanation: "Next we are shrinking the scale of your salary and benefits so we can show how they acrue over time",
+      context_script: [
+        "setup",
+        "smallScale",
+        "drawSalaryBars",
+        "drawContributionBars",
+        "drawBenefitBars"
+      ],
+      forward_only_script: [
+        "labelShrinkingScale"
+      ]
+    },
     { explanation: "The solid green line shows the value of your contributions over the years if they were invested and acruing a return.",
       forward_script: [
+        "setup",
         "fullScale",
         "drawSalaryBars",
         "drawContributionBars",
@@ -329,7 +346,7 @@ pensionApp.controller('PensionController', function($scope, $rootScope, $modal, 
         "drawPctSelfFunded"
       ]
     },
-    { explanation: "The table above shows this same information.   Look above for the percentage of your pension that is self funded.  This percentage allows you to compare various reform proposals.",
+    { explanation: "Now let's return to the table below which shows this same information.   Look above for the percentage of your pension that is self funded.  Note that that the percentage self funded allows you to compare various reform proposals.  Also note that the contribution and benefit values are shown in current dollars as well as retirement year dollars (future).",
       context_script: [
         "fullScale",
         "drawSalaryBars",

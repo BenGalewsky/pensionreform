@@ -59,6 +59,8 @@ body {
   font-size: 15px;
 }
 
-.explanation{
-  font-size: x-large;
+.explanation-td{
+  background-color: #e1c9b5;
+  font-size: large;
+  padding: 10px;
 }
