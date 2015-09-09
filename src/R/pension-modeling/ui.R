@@ -9,9 +9,9 @@ ui <- shinyUI(fluidPage(
   
   sidebarPanel(
     #selectInput('proposal',"Proposal",choices=c("Rauner June 2015"=1,"Madigan July 2015"=2,"Rahm August 2015"=3,"Federal Bailout"=4), selected=1),hr(),
-    sliderInput('npers',"Years in Forecast",10,100,40,step=5),
-    sliderInput('ror',"Rate of Return", 0, 16, 7),
-    sliderInput('ben',"Benefit Growth Rate", 0, 16, 2),
+    sliderInput('npers',"Years in Forecast",10,100,30,step=5),
+    sliderInput('ror',"Rate of Return", 0, 16, 5),
+    sliderInput('ben',"Benefit Growth Rate", 0, 16, 3),
     sliderInput('cont',"Contribution Rate", 0, 16, 2),
     sliderInput('inc',"Income Growth Rate", 0, 16, 3),
     sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.05),

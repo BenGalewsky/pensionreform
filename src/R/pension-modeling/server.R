@@ -18,7 +18,9 @@ server <- shinyServer(function(input,output,clientData,session) {
   
   # Population forecast is a two matrix list, containing (actives,beneficiaries)
   pop_forecast <- reactive({
-    forecast_population(curr_actives,curr_beneficiaries,input$npers,input$rr)
+    tier1 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=1,input$rr)
+    tier2 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=2,input$rr)
+    list((tier1[[1]]+tier2[[1]])/2,(tier1[[2]]+tier2[[2]])/2)
   })
 
   # Expects matrix of income forecast as output
@@ -131,7 +133,9 @@ server <- shinyServer(function(input,output,clientData,session) {
   
   # Calculate the funding ratio given a no replacement population
   fundingRatio <- reactive({
-    no_replacement_pop = forecast_population(curr_actives,curr_beneficiaries,input$npers)
+    tier1 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=1)
+    tier2 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=2)
+    no_replacement_pop = list((tier1[[1]]+tier2[[1]])/2,(tier1[[2]]+tier2[[2]])/2)
     calculate_funding_ratio(starting_wealth[1],no_replacement_pop,avg_benefits_forecast(),input$ror)
   })
   
