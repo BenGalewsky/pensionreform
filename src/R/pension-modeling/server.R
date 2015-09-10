@@ -3,14 +3,15 @@ source('source_functions.R')
 # Hard-coded values for now
 start_year = 2014
 maxage = 90
-starting_wealth = c(100000000)
+starting_wealth = c(56789460)
 
 server <- shinyServer(function(input,output,clientData,session) {
   
   # Load population
   population = load_population_data(maxage)
-  curr_actives = population[[1]]
-  curr_beneficiaries = population[[2]]
+  curr_actives_tier1 = population[[1]]
+  curr_actives_tier2 = population[[2]]
+  curr_beneficiaries = population[[3]]
   
   # Load income and benefits
   curr_avg_income = load_income_data(maxage)
@@ -18,9 +19,9 @@ server <- shinyServer(function(input,output,clientData,session) {
   
   # Population forecast is a two matrix list, containing (actives,beneficiaries)
   pop_forecast <- reactive({
-    tier1 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=1,input$rr)
-    tier2 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=2,input$rr)
-    list((tier1[[1]]+tier2[[1]])/2,(tier1[[2]]+tier2[[2]])/2)
+    tier1 = forecast_population(curr_actives_tier1,curr_beneficiaries,input$npers,tier=1,input$rr)
+    tier2 = forecast_population(curr_actives_tier2,curr_beneficiaries,input$npers,tier=2,input$rr)
+    list(tier1[[1]]+tier2[[1]],tier1[[2]]+tier2[[2]])
   })
 
   # Expects matrix of income forecast as output
@@ -133,8 +134,8 @@ server <- shinyServer(function(input,output,clientData,session) {
   
   # Calculate the funding ratio given a no replacement population
   fundingRatio <- reactive({
-    tier1 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=1)
-    tier2 = forecast_population(curr_actives,curr_beneficiaries,input$npers,tier=2)
+    tier1 = forecast_population(curr_actives_tier1,curr_beneficiaries,input$npers,tier=1)
+    tier2 = forecast_population(curr_actives_tier2,curr_beneficiaries,input$npers,tier=2)
     no_replacement_pop = list((tier1[[1]]+tier2[[1]])/2,(tier1[[2]]+tier2[[2]])/2)
     calculate_funding_ratio(starting_wealth[1],no_replacement_pop,avg_benefits_forecast(),input$ror)
   })
