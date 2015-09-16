@@ -3,8 +3,11 @@
 # Output a list of two vectors containing the count of actives and the count of beneficiaries at each age
 load_population_data <- function(maxage) {
   
-  curr_actives = c(rep(0,20),rep(20,20),rep(15,10),rep(10,5),rep(5,5),rep(0,30)) * runif(maxage,.9,1.1)
-  curr_beneficiaries = c(rep(0,55),rep(10,5),rep(20,10),rep(15,5),rep(10,5),rep(5,5),rep(2,5)) * runif(maxage,.9,1.1)
+  actives = read.csv("CSVs/Illinois GARS Initial Actives 2015.csv")
+  actives_tier1 = actives[actives$Age > 0 & actives$Age <= maxage,]$Count * actives[actives$Age > 0 & actives$Age <= maxage,]$Pct.T1
+  actives_tier2 = actives[actives$Age > 0 & actives$Age <= maxage,]$Count * (1-actives[actives$Age > 0 & actives$Age <= maxage,]$Pct.T1)
   
-  return(list(curr_actives,curr_beneficiaries))
+  curr_beneficiaries = c(rep(0,55),rep(2,5),rep(5,10),rep(3,5),rep(2,5),rep(2,5),rep(1,5)) * runif(maxage,.9,1.1)
+  
+  return(list(actives_tier1,actives_tier2,curr_beneficiaries))
 }
