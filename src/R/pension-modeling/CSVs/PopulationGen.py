@@ -27,15 +27,15 @@ with open('C:\\dev\GitHub\\pensionreform\\src\\R\\pension-modeling\\CSVs\\Melton
 
         # The file was produced on May 13, 2015 - the YTD salary figure needs to be extended out
         # to the end of the year. On that date there are 232 more days in the year
-        fullYrSalery = float(row['Calendar YTD Earnings'].replace(',', '')) * (1.0 + 232.0/365.0)
+        fullYrSalery = float(row['Calendar YTD Earnings'].replace(',', '')) * (12.0/4.0)
         pop[age]['totSalary'] += fullYrSalery
         
         pop[age]['totYears']+=float(row['Years of Service'])
 
 # Generate a header
-print ','.join(['Age','Count', 'Avg Salary', 'Avg Years of Service', 'Pct Male', 'Pct T1'])
+print ",".join(['Age','Count', 'Avg Salary', 'Avg Years of Service', 'Pct Male', 'Pct T1'])
 for i in range(len(pop)):
-    count = pop[i]['count']
+    count = float(pop[i]['count'])
     avgSalary = 0
     pctMale = 0
     pctT1 = 0
