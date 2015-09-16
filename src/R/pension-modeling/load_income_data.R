@@ -6,6 +6,11 @@ load_income_data <- function(maxage) {
   actives = read.csv("CSVs/Illinois GARS Initial Actives 2015.csv")
   curr_salary = actives[actives$Age > 0 & actives$Age <= maxage,]$Avg.Salary
   
+  # Extend vector to maxage
+  while (length(curr_salary) < maxage) {
+    curr_salary = c(curr_salary,0)
+  }
+  
   for (i in 1:length(curr_salary)) {
     if (i==1) {
       j = 40000
