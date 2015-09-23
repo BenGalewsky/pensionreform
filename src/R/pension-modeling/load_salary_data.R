@@ -1,7 +1,7 @@
 
 # Not sure if we need specific inputs here?
 # Output a vector containing average income at each age
-load_income_data <- function(maxage) {
+load_salary_data <- function(maxage) {
   
   actives = read.csv("CSVs/Illinois GARS Initial Actives 2015.csv")
   curr_salary = actives[actives$Age > 0 & actives$Age <= maxage,]$Avg.Salary
@@ -13,7 +13,7 @@ load_income_data <- function(maxage) {
   
   for (i in 1:length(curr_salary)) {
     if (i==1) {
-      j = 40000
+      j = 67836
     }
     else {
       j = curr_salary[i-1]
@@ -21,6 +21,11 @@ load_income_data <- function(maxage) {
     
     if (curr_salary[i]==0) {
       curr_salary[i] = j
+    }
+    
+    # Minimum salary for illinois reps
+    if (curr_salary[i] < 67836) {
+      curr_salary[i] = 67836
     }
   }
   
