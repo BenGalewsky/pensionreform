@@ -13,7 +13,7 @@ ui <- shinyUI(fluidPage(
     sliderInput('ror',"Rate of Return", 0, 16, 5),
     sliderInput('ben',"Benefit Growth Rate", 0, 16, 3),
     sliderInput('cont',"Contribution Rate", 0, 16, 2),
-    sliderInput('inc',"Income Growth Rate", 0, 16, 3),
+    sliderInput('salary',"Salary Growth Rate", 0, 16, 3),
     sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.05),
     sliderInput('tfr',"Target Funding Ratio", 0, 120, 100,step=5),
     width = 3
@@ -27,7 +27,7 @@ ui <- shinyUI(fluidPage(
                ,plotOutput('wealthPlot')
                # By component of wealth distribution show the flows
                ,br(),br(),h3("Wealth Flows by Year",align='center')
-               ,plotOutput('wealthFlows')
+               ,plotOutput('wealthflowPlot')
                ),
       tabPanel("Population",br(),
                sliderInput("in_period","Select Period",start_year,start_year+40-1,12),hr(),
@@ -35,12 +35,12 @@ ui <- shinyUI(fluidPage(
                plotOutput('active_plot'),br(),
                h3("Beneficiary Population Distribution",align="center"),
                plotOutput('beneficiary_plot'),br(),
-               h3("Income Distribution",align="center"),
-               plotOutput('inc_plot'),br(),
+               h3("Salary Distribution",align="center"),
+               plotOutput('salary_plot'),br(),
                h3("Benefits Distribution",align="center"),
                plotOutput('ben_plot'),br(),br())
-      #,tabPanel("Proposal",br(),h3("Proposal Details", align="center"),
-               #br(),textOutput('prosposal'))
+      ,tabPanel("Valuation Details",br(),h3("Results of Actuarial Valuation", align="center"),
+               br(),tableOutput('details'),align="center")
     )
   )
 ))
