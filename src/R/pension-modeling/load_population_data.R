@@ -11,6 +11,11 @@ load_population_data <- function(maxage) {
   #curr_beneficiaries = c(rep(0,55),rep(2,5),rep(5,10),rep(3,5),rep(2,5),rep(2,5),rep(1,5)) * runif(maxage,.9,1.1)
   curr_beneficiaries = beneficiaries[beneficiaries$Age > 0 & beneficiaries$Age <= maxage,]$Count
   
+  inactives = read.csv("CSVs/Illinois GARS Initial Inactives 2015.csv")
+  inactives_tier1 = inactives[inactives$Age > 0 & inactives$Age <= maxage,]$Count * inactives[inactives$Age > 0 & inactives$Age <= maxage,]$Pct.T1
+  inactives_tier2 = inactives[inactives$Age > 0 & inactives$Age <= maxage,]$Count * (1-inactives[inactives$Age > 0 & inactives$Age <= maxage,]$Pct.T1)
+  
+  
   # Extend vectors to maxage
   while (length(actives_tier1) < maxage) {
     actives_tier1 = c(actives_tier1,0)
@@ -22,5 +27,5 @@ load_population_data <- function(maxage) {
     curr_beneficiaries = c(curr_beneficiaries,0)
   }
   
-  return(list(actives_tier1,actives_tier2,curr_beneficiaries))
+  return(list(actives_tier1,actives_tier2,curr_beneficiaries, inactives_tier1, inactives_tier2))
 }
