@@ -14,6 +14,9 @@ forecast_population <- function(curr_actives,curr_beneficiaries,npers,tier=1,rep
       actives_forecast[age,t] = actives_forecast[age-1,t-1]*(1-male_mortality(age-1))
       beneficiaries_forecast[age,t] = beneficiaries_forecast[age-1,t-1]*(1-male_mortality(age-1))
       
+      # Removal of very young survivor beneficiaries after 4 periods
+      if (t > 4 & age < 30) beneficiaries_forecast[age,t] = 0
+      
       # Retirement rate based on tier
       if (age >= 55) {
         actives_forecast[age,t] = actives_forecast[age-1,t-1]*(1 - retire_rate(age)[tier])

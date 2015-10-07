@@ -11,20 +11,5 @@ load_benefits_data <- function(maxage) {
     curr_benefits = c(curr_benefits,0)
   }
   
-  for (i in 1:length(curr_benefits)) {
-    if (i==1) {
-      j = 40000
-    }
-    else {
-      j = curr_benefits[i-1]
-    }
-    
-    if (curr_benefits[i]==0) {
-      curr_benefits[i] = j
-    }
-  }
-  
-  #curr_avg_income = 50000*1.05^(seq(1,maxage)/10 - .2) * c(rep(0,19),rep(1,maxage-19)) * runif(maxage,0.9,1.1)
-  
   return(list(curr_benefits,beneficiaries))
 }
