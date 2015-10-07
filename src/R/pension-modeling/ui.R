@@ -10,10 +10,11 @@ ui <- shinyUI(fluidPage(
   sidebarPanel(
     #selectInput('proposal',"Proposal",choices=c("Rauner June 2015"=1,"Madigan July 2015"=2,"Rahm August 2015"=3,"Federal Bailout"=4), selected=1),hr(),
     sliderInput('npers',"Years in Forecast",10,100,30,step=5),
-    sliderInput('ror',"Rate of Return", 0, 16, 5),
-    sliderInput('ben',"Benefit Growth Rate", 0, 16, 3),
-    sliderInput('cont',"Contribution Rate", 0, 16, 2),
-    sliderInput('salary',"Salary Growth Rate", 0, 16, 3),
+    sliderInput('ror',"Rate of Return",0,10,5,step=0.5),
+    sliderInput('ben',"Benefit Growth Rate", 0, 10, 3,step=0.5),
+    sliderInput('cont',"Contribution Rate", 0, 10, 2, step=0.5),
+    sliderInput('salary',"Salary Growth Rate", 0, 10, 3.5, step=0.5),
+    sliderInput('inf',"Inflation Rate",0,10,3,step=0.5),
     sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.05),
     sliderInput('tfr',"Target Funding Ratio", 0, 120, 100,step=5),
     width = 3
@@ -34,11 +35,11 @@ ui <- shinyUI(fluidPage(
                h3("Active Population Distribution",align="center"),
                plotOutput('active_plot'),br(),
                h3("Beneficiary Population Distribution",align="center"),
-               plotOutput('beneficiary_plot'),br(),
+               # plotOutput('beneficiary_plot'),br(),
                h3("Salary Distribution",align="center"),
-               plotOutput('salary_plot'),br(),
-               h3("Benefits Distribution",align="center"),
-               plotOutput('ben_plot'),br(),br())
+               # plotOutput('salary_plot'),br(),
+               h3("Benefits Distribution",align="center"))
+               # plotOutput('ben_plot'),br(),br())
       ,tabPanel("Valuation Details",br(),h3("Results of Actuarial Valuation", align="center"),
                br(),tableOutput('details'),align="center")
     )

@@ -1,5 +1,5 @@
 in_period = input$in_period - start_year + 1
-pop_dist = pop_forecast()[[1]][20:maxage,in_period]
+pop_dist = actives_forecast()[[1]][20:maxage,in_period]
 age = seq(20,maxage)
 df = as.data.frame(cbind(age,pop_dist))
 
