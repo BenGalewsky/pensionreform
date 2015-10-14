@@ -1,32 +1,26 @@
-
-# Forecast population using the current active, the replacement rate and number of periods
-forecast_actives <- function(tier1_actives,tier2_actives,curr_salary,npers,benefits_growth_rate,salary_growth_rate,replacement_rate=0) {
+generate_actives_benefits <- function(tier1_actives,tier2_actives,curr_avg_salary,input$npers,input$ben) {
   
   maxage = length(curr_salary)
+  
+  tier1_benefits_earned = .6*curr_avg_salary
+  tier2_benefits_earned = .4*curr_avg_salary
+  
   # Initialize the output matrices
   tier1_forecast =        matrix(rep(tier1_actives,npers),nrow=maxage)
   tier2_forecast =        matrix(rep(tier2_actives,npers),nrow=maxage)
-  salary_forecast =       matrix(rep(curr_salary,npers),nrow=maxage)
   tier1_beneficiaries =   matrix(rep(rep(0,maxage),npers),nrow=maxage)
   tier2_beneficiaries =   matrix(rep(rep(0,maxage),npers),nrow=maxage)
   tier1_benefits =        matrix(rep(rep(0,maxage),npers),nrow=maxage)
   tier2_benefits =        matrix(rep(rep(0,maxage),npers),nrow=maxage)
-  avg_benefits_forecast = matrix(rep(rep(0,maxage),npers),nrow=maxage)
   
   for (t in 2:npers) {
-    # Calculate distribution of ages in the next period, using basic mortality and simple probability of retirement
     for (age in 20:maxage) {
-      
       # Basic mortality assumption
       tier1_forecast[age,t] = tier1_forecast[age-1,t-1]*(1-male_mortality(age-5))
       tier2_forecast[age,t] = tier2_forecast[age-1,t-1]*(1-male_mortality(age-5))
       tier1_beneficiaries[age,t] = tier1_beneficiaries[age-1,t-1]*(1-male_mortality(age-5))
       tier2_beneficiaries[age,t] = tier2_beneficiaries[age-1,t-1]*(1-male_mortality(age-5))
       
-      # Apply salary growth
-      salary_forecast[age,t] = salary_forecast[age-1,t-1]*(1+salary_growth_rate/100)
-      
-      # Retirement rate based on tier
       if (age >= 55) {
         t1_retirees = tier1_forecast[age,t]*retire_rate(age-1)[1]
         t2_retirees = tier2_forecast[age,t]*retire_rate(age-1)[2]
@@ -59,17 +53,5 @@ forecast_actives <- function(tier1_actives,tier2_actives,curr_salary,npers,benef
         else avg_benefits_forecast[age,t] = 0
       }
     }
-    
-    # Calculate net outflow, for replacements
-    outflows = sum(tier1_forecast[,t-1] + tier2_forecast[,t-1])-sum(tier1_forecast[,t] + tier2_forecast[,t])
-    
-    # Apply replacement rate, assuming everyone new joins at age 42
-    tier2_forecast[42,t] = tier2_forecast[42,t] + replacement_rate * outflows
   }
-  
-  actives_forecast = tier1_forecast + tier2_forecast
-  beneficiaries_forecast = tier1_beneficiaries + tier2_beneficiaries
-  
-  # Output is expected as a two matrix list, with ages as rows and periods as columns
-  return(list(actives_forecast,beneficiaries_forecast,salary_forecast,avg_benefits_forecast))
 }

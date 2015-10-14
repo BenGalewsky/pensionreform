@@ -2,6 +2,7 @@ ca = curr_actives_tier1 + curr_actives_tier2
 cb = curr_beneficiaries
 curr_benefit_details = load_benefits_data(maxage)[[2]]
 
+ci = curr_inactives_tier1 + curr_inactives_tier2
 retirees = round(sum(curr_benefit_details$Count * (1-curr_benefit_details$Pct.Surv)))
 survivors = round(sum(curr_benefit_details$Count * curr_benefit_details$Pct.Surv))
 total_benefits = round(sum(curr_benefit_details$Count * curr_benefit_details$Avg.Benefits))
@@ -23,7 +24,7 @@ col24 = c("","")
 col25 = c("","")
 col26 = c("","")
 col27 = c("","")
-col31 = c(NA,sum(ca), NA, retirees, survivors, sum(ca + cb), NA)
+col31 = c(NA,sum(ca), sum(ci), retirees, survivors, sum(ca + cb + ci), NA)
 col32 = c(prettyNum(sum(curr_avg_salary*ca),big.mark=','), NA)
 col33 = c(prettyNum(total_benefits,big.mark=','),NA)
 col34 = c(prettyNum(pv_annuitants,big.mark=','),NA)

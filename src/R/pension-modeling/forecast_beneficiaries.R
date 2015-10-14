@@ -22,5 +22,5 @@ forecast_beneficiaries <- function(curr_beneficiaries,curr_benefits,npers,benefi
   }
   
   # Output is expected as a two matrix list, with ages as rows and periods as columns
-  return(list(beneficiaries_forecast,benefits_forecast))  
+  return(list(beneficiaries_forecast,benefits_forecast))
 }

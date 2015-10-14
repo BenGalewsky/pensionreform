@@ -31,17 +31,20 @@ ui <- shinyUI(fluidPage(
                ,plotOutput('wealthflowPlot')
                ),
       tabPanel("Population",br(),
-               sliderInput("in_period","Select Period",start_year,start_year+40-1,12),hr(),
+               uiOutput("timeSlider"),hr(),
                h3("Active Population Distribution",align="center"),
                plotOutput('active_plot'),br(),
                h3("Beneficiary Population Distribution",align="center"),
-               # plotOutput('beneficiary_plot'),br(),
-               h3("Salary Distribution",align="center"),
+               plotOutput('beneficiary_plot'),br(),
+               h3("New Beneficiary Population Distrubition",align="center"),
+               plotOutput('new_beneficiary_plot'),br(),
                # plotOutput('salary_plot'),br(),
                h3("Benefits Distribution",align="center"))
                # plotOutput('ben_plot'),br(),br())
       ,tabPanel("Valuation Details",br(),h3("Results of Actuarial Valuation", align="center"),
                br(),tableOutput('details'),align="center")
+      ,tabPanel("Downloads",br(),selectInput('forecastData',"Select Forecast",choices=c("Annuitant Forecast" = 1, "Avg Annuitant Benefits" = 2, "Actives Forecast" = 3, "New Beneficiaries" = 4),selected=1),br(),
+                downloadButton('downloadData','Download'))
     )
   )
 ))
