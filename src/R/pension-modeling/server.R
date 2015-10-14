@@ -25,17 +25,23 @@ server <- shinyServer(function(input,output,clientData,session) {
   # Calculate annuitant liability for existing beneficiaries both discounted and nominal
   annuitant_liability <- reactive({calculate_annuitant_liability(beneficiary_forecast(),input$npers,input$ror)})
   
+  #actives_benefit_forecast <- reactive({generate_actives_benefits(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben)})
+  
   # Calculate active population, active salary, new retirees and future average benefits
   actives_forecast <- reactive({forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben,input$salary,input$rr)})
   
   # Calculate liability assuming no replacement rate
-  actives_liability <- reactive({calculate_actives_liability(forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben,input$salary),input$npers,input$ror)})
+  actives_liability <- reactive({calculate_actives_liability(forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben,0),input$npers,input$ror)})
   
   # Forecast the fund's wealth
   wealth <- reactive({forecast_wealth(starting_wealth,actives_forecast(),beneficiary_forecast(),input$npers,input$ror,input$cont)})
   
   # Plot the distribution of actives for each period
   output$active_plot <- renderPlot({source('active_plot.R',local=TRUE)})
+  # Plot the distribution of beneficiaries for each period
+  output$beneficiary_plot <- renderPlot({source('beneficiary_plot.R',local=TRUE)})
+  # Plot the new beneficiaries for each period
+  output$new_beneficiary_plot <- renderPlot({source('new_beneficiary_plot.R',local=TRUE)})
   # Plot year-by-year wealth flows
   output$wealthflowPlot <- renderPlot({source('wealthflowPlot.R',local=TRUE)})
   # Plot forecast of pension fund wealth
@@ -64,5 +70,15 @@ server <- shinyServer(function(input,output,clientData,session) {
     source("valuation_details.R",local=TRUE)
     df
   }, include.rownames=FALSE, include.colnames=FALSE,digits=0,align=c("left","left","left","right"))
+  
+  # Dynamic slider input
+  output$timeSlider <- renderUI({sliderInput("in_period","Select Period",start_year,start_year+input$npers-1,value=start_year,animate=TRUE)})
+  
+  output$downloadData <- downloadHandler(
+    filename = function() {"forecastdata.csv"},
+    content = function(file) {
+      datasetInput = switch(input$forecastData,"1" = beneficiary_forecast()[[1]],"2" = beneficiaries_forecast()[[2]],"3" = actives_forecast()[[1]],"4" = actives_forecast()[[2]])
+      write.csv(datasetInput,file)
+    })
   
 })
