@@ -14,10 +14,12 @@ server <- shinyServer(function(input,output,clientData,session) {
   curr_beneficiaries = population[[3]]
   curr_inactives_tier1 = population[[4]]
   curr_inactives_tier2 = population[[5]]
+  curr_inactives = curr_inactives_tier1 + curr_inactives_tier2
 
   # Load salary and benefits
   curr_avg_salary = load_salary_data(maxage)
   curr_avg_benefits = load_benefits_data(maxage)[[1]]
+  inactive_avg_salary = load_inactives_salary(maxage)[[1]]
   
   # Forecast population and benefits for existing beneficiaries
   beneficiary_forecast <- reactive({forecast_beneficiaries(curr_beneficiaries,curr_avg_benefits,input$npers,input$ben)})
@@ -30,8 +32,11 @@ server <- shinyServer(function(input,output,clientData,session) {
   # Calculate active population, active salary, new retirees and future average benefits
   actives_forecast <- reactive({forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben,input$salary,input$rr)})
   
-  # Calculate liability assuming no replacement rate
-  actives_liability <- reactive({calculate_actives_liability(forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,input$npers,input$ben,0),input$npers,input$ror)})
+  # Calculate liability assuming no replacement rate and an 80 year forecast?
+  actives_liability <- reactive({calculate_actives_liability(forecast_actives(curr_actives_tier1,curr_actives_tier2,curr_avg_salary,80,input$ben,0),80,input$ror)})
+  
+  #inactives_forecast <- reactive({forecast_actives(curr_inactives_tier1,curr_inactives_tier2,inactive_avg_salary,80,input$ben,0)})
+  inactives_liability <- reactive({calculate_actives_liability(forecast_actives(curr_inactives_tier1,curr_inactives_tier2,inactive_avg_salary,80,input$ben,0),80,input$ror)})
   
   # Forecast the fund's wealth
   wealth <- reactive({forecast_wealth(starting_wealth,actives_forecast(),beneficiary_forecast(),input$npers,input$ror,input$cont)})
@@ -48,7 +53,7 @@ server <- shinyServer(function(input,output,clientData,session) {
   output$wealthPlot <- renderPlot({source('wealthPlot.R',local=TRUE)})
   
   # Calculate the funding ratio given PV liabilities and assets
-  fundingRatio <- reactive({100 * starting_wealth[1] / (sum(actives_liability()[[1]]) + sum(annuitant_liability()[[1]]))})
+  fundingRatio <- reactive({100 * starting_wealth[1] / (sum(actives_liability()[[1]]) + sum(annuitant_liability()[[1]]) + sum(inactives_liability()[[1]]))})
   
   # Output the current funded ratio
   output$fundingRatio <- renderText({paste("Funded Ratio: ",round(fundingRatio(),2),"%",sep="")})

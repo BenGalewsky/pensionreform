@@ -9,6 +9,7 @@ total_benefits = round(sum(curr_benefit_details$Count * curr_benefit_details$Avg
 
 pv_annuitants = sum(annuitant_liability()[[1]])
 pv_actives = sum(actives_liability()[[1]])
+pv_inactives = sum(inactives_liability()[[1]])
 
 col11 = c("1. Current Members", "", "", "", "", "", "")
 col12 = c("2. Current Payroll","")
@@ -28,8 +29,8 @@ col31 = c(NA,sum(ca), sum(ci), retirees, survivors, sum(ca + cb + ci), NA)
 col32 = c(prettyNum(sum(curr_avg_salary*ca),big.mark=','), NA)
 col33 = c(prettyNum(total_benefits,big.mark=','),NA)
 col34 = c(prettyNum(pv_annuitants,big.mark=','),NA)
-col35 = c(NA,NA)
+col35 = c(prettyNum(pv_inactives,big.mark=','),NA)
 col36 = c(prettyNum(pv_actives,big.mark=','),NA)
-col37 = c(prettyNum(pv_annuitants + pv_actives, big.mark=','),NA)
+col37 = c(prettyNum(pv_annuitants + pv_actives + pv_inactives, big.mark=','),NA)
 df = data.frame(c(col11,col12,col13,col14,col15,col16,col17),c(col21,col22,col23,col24,col25,col26,col27),c(col31,col32,col33,col34,col35,col36,col37))
 
