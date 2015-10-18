@@ -14,7 +14,7 @@ server <- shinyServer(function(input,output,clientData,session) {
   curr_beneficiaries = population[[3]]
   curr_inactives_tier1 = population[[4]]
   curr_inactives_tier2 = population[[5]]
-  
+
   # Load salary and benefits
   curr_avg_salary = load_salary_data(maxage)
   curr_avg_benefits = load_benefits_data(maxage)[[1]]

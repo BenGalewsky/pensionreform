@@ -25,4 +25,5 @@ forecast_salary <- function(curr_salary,forecastYears,wage_inflation) {
   
   # Output is expected as a matrix with ages as rows and periods as columns
   return(income_forecast)
+
 }
