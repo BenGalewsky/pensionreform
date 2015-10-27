@@ -1,6 +1,6 @@
 ca = curr_actives_tier1 + curr_actives_tier2
 cb = curr_beneficiaries
-curr_benefit_details = load_benefits_data(maxage)[[2]]
+curr_benefit_details = population[[2]]
 
 ci = curr_inactives_tier1 + curr_inactives_tier2
 retirees = round(sum(curr_benefit_details$Count * (1-curr_benefit_details$Pct.Surv)))

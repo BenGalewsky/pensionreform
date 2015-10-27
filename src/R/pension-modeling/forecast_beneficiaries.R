@@ -11,7 +11,7 @@ forecast_beneficiaries <- function(curr_beneficiaries,curr_benefits,npers,benefi
     # Calculate distribution of ages in the next period, using basic mortality and simple probability of retirement
     for (age in 2:maxage) {
       # Basic mortality assumption
-      beneficiaries_forecast[age,t] = beneficiaries_forecast[age-1,t-1]*(1-male_mortality(age-5))
+      beneficiaries_forecast[age,t] = beneficiaries_forecast[age-1,t-1]*(1-(2*.85*male_mortality(age)+.7*female_mortality(age))/3)
       # Removal of very young survivor beneficiaries after 4 periods
       if (t > 4 & age < 50) {
         beneficiaries_forecast[age,t] = 0
