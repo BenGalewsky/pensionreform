@@ -58,9 +58,8 @@ with open('C:\\dev\GitHub\\pensionreform\\src\\R\\pension-modeling\\CSVs\\Melton
         years = float(row['Years of Service'])
         pop[age]['totYears']+=years
 
-        # Compute earned benefit (if eligible)
-        if isEligible(years,tier):
-            pop[age]['totEarnedBenefit'] += fullYrSalery * benefitRate(years, tier)
+        # Compute earned benefit
+        pop[age]['totEarnedBenefit'] += fullYrSalery * benefitRate(years, tier)
 
 # Generate a header
 print(",".join(['Age','Count', 'Avg Salary', 'Avg Years of Service', 'Pct Male', 'Pct T1','Avg Earned Benefit']))
