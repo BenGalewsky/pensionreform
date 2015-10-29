@@ -2,7 +2,7 @@ source('source_functions.R')
 
 # Hard-coded values for now
 start_year = 2014
-maxage = 105
+maxage = 120
 starting_wealth = c(56789460)
 
 server <- shinyServer(function(input,output,clientData,session) {
@@ -26,9 +26,12 @@ server <- shinyServer(function(input,output,clientData,session) {
   curr_avg_benefits = population[[2]]$Avg.Benefits
   inactive_avg_salary = population[[3]]$Avg.Contributions / population[[3]]$Avg.Years.of.Service * 1 / (.115)
   inactive_avg_salary[is.nan(inactive_avg_salary)] = 0
+  # Is this what they mean by a 10% load?
+  inactive_avg_benefits = population[[3]]$Avg.Benefits + .1*inactive_avg_salary
+  inactive_avg_benefits[is.nan(inactive_avg_benefits)] = 0
   
   initial_actives_forecast <- reactive({forecast_curr_actives(curr_actives_tier1,curr_actives_tier2,curr_actives_avg_benefits,input$ben,input$salary,input$inf)})
-  initial_inactives_forecast <- reactive({forecast_curr_actives(curr_inactives_tier1,curr_inactives_tier2,inactive_avg_salary*.5,input$ben,0,input$inf)})
+  initial_inactives_forecast <- reactive({forecast_curr_actives(curr_inactives_tier1,curr_inactives_tier2,inactive_avg_benefits,input$ben,0,input$inf)})
   initial_beneficiary_forecast <- reactive({forecast_beneficiaries(curr_beneficiaries,curr_avg_benefits,80,input$ben)})
   
   # Forecast population and benefits for existing beneficiaries

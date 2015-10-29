@@ -25,7 +25,7 @@ load_population_data <- function(maxage) {
   
   if (nrow(inactives) < maxage) {
     diff = maxage - nrow(inactives)
-    inactives_append = data.frame(Age = seq(nrow(inactives)+1,maxage), Count = rep(0,diff), Avg.Contributions = rep(0,diff), Avg.Years.of.Service = rep(0,diff), Pct.Male = rep(0,diff), Pct.T1 = rep(0,diff))
+    inactives_append = data.frame(Age = seq(nrow(inactives)+1,maxage), Count = rep(0,diff), Avg.Contributions = rep(0,diff), Avg.Years.of.Service = rep(0,diff), Pct.Male = rep(0,diff), Pct.T1 = rep(0,diff), Avg.Benefits = rep(0,diff))
   }
   
   if (nrow(beneficiaries) < maxage) {
