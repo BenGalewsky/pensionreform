@@ -18,10 +18,10 @@ forecast_curr_actives <- function(tier1_actives,tier2_actives,earned_benefits,be
     for (age in 20:maxage) {
       
       # Basic mortality assumption
-      tier1_forecast[age,t] = tier1_forecast[age-1,t-1]*(1-(2*male_mortality(age-3)+female_mortality(age-2)/3))
-      tier2_forecast[age,t] = tier2_forecast[age-1,t-1]*(1-(2*male_mortality(age-3)+female_mortality(age-2)/3))
-      tier1_beneficiaries[age,t] = tier1_beneficiaries[age-1,t-1]*(1-(2*.85*male_mortality(age)+.7*female_mortality(age))/3)
-      tier2_beneficiaries[age,t] = tier2_beneficiaries[age-1,t-1]*(1-(2*.85*male_mortality(age)+.7*female_mortality(age))/3)
+      tier1_forecast[age,t] = tier1_forecast[age-1,t-1]*(1-(2*.85*male_mortality(age-3)+.7*female_mortality(age-2))/3)
+      tier2_forecast[age,t] = tier2_forecast[age-1,t-1]*(1-(2*.85*male_mortality(age-3)+.7*female_mortality(age-2))/3)
+      tier1_beneficiaries[age,t] = tier1_beneficiaries[age-1,t-1]*(1-(2*male_mortality(age-3)+female_mortality(age-2))/3)
+      tier2_beneficiaries[age,t] = tier2_beneficiaries[age-1,t-1]*(1-(2*male_mortality(age-3)+female_mortality(age-2))/3)
       
       # Apply salary growth to earned benefits
       # salary_forecast[age,t] = salary_forecast[age-1,t-1]*(1+salary_growth_rate/100)
