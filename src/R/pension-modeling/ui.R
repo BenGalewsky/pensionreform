@@ -11,7 +11,7 @@ ui <- shinyUI(fluidPage(
     tabsetPanel(
     #selectInput('proposal',"Proposal",choices=c("Rauner June 2015"=1,"Madigan July 2015"=2,"Rahm August 2015"=3,"Federal Bailout"=4), selected=1),hr(),
     tabPanel("Funding",br(),
-      sliderInput('ror',"Rate of Return",0,10,5,step=0.5),
+      sliderInput('ror',"Discount Rate",0,10,5,step=0.5),
       sliderInput('tfr',"Target Funding Ratio", 0, 120, 100,step=5),
       sliderInput('amort',"Amortization Period",1,60,30),
       sliderInput('inf',"Inflation Rate",0,10,3,step=0.5),
@@ -19,7 +19,7 @@ ui <- shinyUI(fluidPage(
       sliderInput('salary',"Salary Growth Rate", 0, 10, 3.5, step=0.5)),
     tabPanel("Wealth",br(),
       sliderInput('npers',"Years in Forecast",10,100,30,step=5),
-      sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.05),
+      sliderInput('rr',"Replacement Rate",0, 2, 0, step=0.1),
       sliderInput('cont',"Contribution Rate", 0, 15, 11, step=1))),
     width = 3
   ),

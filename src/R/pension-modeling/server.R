@@ -44,6 +44,7 @@ server <- shinyServer(function(input,output,clientData,session) {
   actives_liability <- reactive({calculate_annuitant_liability(initial_actives_forecast(),input$ror)})
   inactives_liability <- reactive({calculate_annuitant_liability(initial_inactives_forecast(),input$ror)})
   annuitant_liability <- reactive({calculate_annuitant_liability(initial_beneficiary_forecast(),input$ror)})
+  survivor_liability <- reactive ({calculate_annuitant_liability(list(initial_beneficiary_forecast()[[3]],initial_beneficiary_forecast()[[4]]),input$ror)})
   
   # Forecast the fund's wealth
   wealth <- reactive({forecast_wealth(starting_wealth,actives_forecast(),beneficiary_forecast(),input$npers,input$ror,input$cont)})
@@ -60,7 +61,7 @@ server <- shinyServer(function(input,output,clientData,session) {
   output$wealthPlot <- renderPlot({source('wealthPlot.R',local=TRUE)})
   
   # Calculate the funding ratio given PV liabilities and assets
-  fundingRatio <- reactive({100 * starting_wealth[1] / (sum(actives_liability()[[1]]) + sum(annuitant_liability()[[1]]) + sum(inactives_liability()[[1]]))})
+  fundingRatio <- reactive({100 * starting_wealth[1] / (sum(actives_liability()[[1]]) + sum(annuitant_liability()[[1]]) + sum(inactives_liability()[[1]]) + sum(survivor_liability()[[1]]))})
   
   # Output the current funded ratio
   output$fundingRatio <- renderText({paste("Funded Ratio: ",round(fundingRatio(),2),"%",sep="")})

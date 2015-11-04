@@ -7,7 +7,7 @@ retirees = round(sum(curr_benefit_details$Count * (1-curr_benefit_details$Pct.Su
 survivors = round(sum(curr_benefit_details$Count * curr_benefit_details$Pct.Surv))
 total_benefits = round(sum(curr_benefit_details$Count * curr_benefit_details$Avg.Benefits))
 
-pv_annuitants = sum(annuitant_liability()[[1]])
+pv_annuitants = sum(annuitant_liability()[[1]]+survivor_liability()[[1]])
 pv_actives = sum(actives_liability()[[1]])
 pv_inactives = sum(inactives_liability()[[1]])
 
