@@ -16,7 +16,6 @@ forecast_beneficiaries <- function(curr_beneficiaries,curr_benefits,npers,benefi
       mortality = beneficiaries_forecast[age-1,t-1]*(2*male_mortality(age-3)+female_mortality(age-2))/3
       beneficiaries_forecast[age,t] = beneficiaries_forecast[age-1,t-1] - mortality
       
-      # Attempting to add survivor forecast
       survivor_forecast[age-4,t] = .75*mortality + survivor_forecast[age-5,t-1]
       if (survivor_benefits[age-5,t-1]>0) {
         survivor_benefits[age-4,t] = (1+benefits_growth_rate/100) * (survivor_forecast[age-5,t-1] * survivor_benefits[age-5,t-1] + .75 * mortality * .67 * benefits_forecast[age-1,t-1]) / (survivor_forecast[age-5,t-1] + .75 * mortality)
@@ -24,6 +23,8 @@ forecast_beneficiaries <- function(curr_beneficiaries,curr_benefits,npers,benefi
       else {
         survivor_benefits[age-4,t] = (1+benefits_growth_rate/100) * .67 * benefits_forecast[age-1,t-1]
       }
+      
+      survivor_forecast[age-4,t] = survivor_forecast[age-4,t]*(1-(male_mortality(age-7)+2*female_mortality(age-6))/3)
       
       # Removal of very young survivor beneficiaries after 4 periods
       if (t > 4 & age < 50) {
@@ -35,5 +36,5 @@ forecast_beneficiaries <- function(curr_beneficiaries,curr_benefits,npers,benefi
   }
   
   # Output is expected as a two matrix list, with ages as rows and periods as columns
-  return(list(beneficiaries_forecast,benefits_forecast))
+  return(list(beneficiaries_forecast,benefits_forecast,survivor_forecast,survivor_benefits))
 }
