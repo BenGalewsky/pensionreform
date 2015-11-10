@@ -1,22 +1,23 @@
 library(shiny)
 library(ggplot2)
-source('forecast_population.R')
-source('forecast_salary.R')
-source('forecast_benefits.R')
-source('calculate_funding_ratio.R')
-source('forecast_wealth.R')
+
+# Loading populations
 source('load_population_data.R')
+# Retirement rates
 source('retire_rate.R')
-source('male_mortality.R')
-source('female_mortality.R')
-source('calculate_benefit.R')
-source('forecast_beneficiaries.R')
+# PV calculation
 source('calculate_annuitant_liability.R')
+# Forecasts for populations and benefits
 source('forecast_actives.R')
-#source('calculate_actives_liability.R')
-source('forecast_curr_actives.R')
-#source('load_inactives_salary.R')
-#source('load_salary_data.R')
-#source('load_benefits_data.R')
-#source('load_all_benefits.R')
-source('calculate_earned_benefit.R')
+source('forecast_beneficiaries.R')
+source('forecast_survivors.R')
+# Compute mortality vectors
+source('mortality.R')
+# Compute funding ratio
+source('calculate_funding_ratio.R')
+
+# Not immediately needed, but may be useful later
+#source('male_mortality.R')
+#source('female_mortality.R')
+#source('calculate_benefit.R')
+#source('calculate_earned_benefit.R')
